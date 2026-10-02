@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fechaISO } from '../shared/fecha';
-import {
-  buscarCategoria,
-  categoriaPorEdad,
-  distanciaCategorias,
-  edadYCategoria,
-  fechaReferencia,
-} from './categoria';
+import { buscarCategoria, categoriaPorEdad, distanciaCategorias, edadYCategoria, fechaReferencia } from './categoria';
 import { PRESET_ENCUENTRO_2026 as P } from './presets/encuentro-2026';
 import { evaluarDuracion, tiempoMaximo } from './tiempo';
 import { maximoFueraDeCategoria, sugerirCategoriasGrupo } from './tolerancia-grupo';
@@ -22,8 +16,7 @@ const nacidoCon = (edad: number, desfaseDias = 0): ReturnType<typeof fechaISO> =
   return fechaISO(d.toISOString().slice(0, 10));
 };
 
-const integrantes = (edades: number[]) =>
-  edades.map((edad, i) => ({ bailarinId: `b${i + 1}`, fechaNacimiento: nacidoCon(edad) }));
+const integrantes = (edades: number[]) => edades.map((edad, i) => ({ bailarinId: `b${i + 1}`, fechaNacimiento: nacidoCon(edad) }));
 
 const ficha = (over: Partial<FichaAValidar>): FichaAValidar => ({
   formacion: 'SOLO',
@@ -49,9 +42,9 @@ describe('[TR-02] categoría por edad completa a la fecha del evento', () => {
   it('admite fin de evento, fin de año y fecha fija', () => {
     expect(fechaReferencia({ ...P, fechaReferenciaEdad: { tipo: 'FIN_EVENTO' } }, evento)).toBe('2026-05-04');
     expect(fechaReferencia({ ...P, fechaReferenciaEdad: { tipo: 'FIN_DE_ANIO' } }, evento)).toBe('2026-12-31');
-    expect(
-      fechaReferencia({ ...P, fechaReferenciaEdad: { tipo: 'FECHA_FIJA', fecha: fechaISO('2026-01-01') } }, evento),
-    ).toBe('2026-01-01');
+    expect(fechaReferencia({ ...P, fechaReferenciaEdad: { tipo: 'FECHA_FIJA', fecha: fechaISO('2026-01-01') } }, evento)).toBe(
+      '2026-01-01',
+    );
   });
   it('cuenta la edad cumplida: quien cumple 11 el día del evento ya es Infanto-juvenil', () => {
     expect(edadYCategoria(P, evento, fechaISO('2015-04-30'))).toMatchObject({ edad: 11, categoria: { codigo: 'INFANTO_JUVENIL' } });
@@ -88,33 +81,86 @@ describe('[TR-03] tolerancia de grupos del 30 %', () => {
     expect(maximoFueraDeCategoria(4, t)).toBe(1);
   });
   it('acepta un grupo de 10 con 3 integrantes fuera de categoría', () => {
-    const r = validarFicha(P, evento, ficha({ formacion: 'GRUPO', categoriaDeclarada: 'JUVENIL', integrantes: integrantes([15, 16, 16, 17, 15, 16, 17, 14, 18, 13]), duracionMusicaSegundos: 280 }));
+    const r = validarFicha(
+      P,
+      evento,
+      ficha({
+        formacion: 'GRUPO',
+        categoriaDeclarada: 'JUVENIL',
+        integrantes: integrantes([15, 16, 16, 17, 15, 16, 17, 14, 18, 13]),
+        duracionMusicaSegundos: 280,
+      }),
+    );
     expect(r.infracciones).toEqual([]);
     expect(r.categoria).toBe('JUVENIL');
   });
   it('rechaza un grupo de 10 con 4 integrantes fuera de categoría', () => {
-    const r = validarFicha(P, evento, ficha({ formacion: 'GRUPO', categoriaDeclarada: 'JUVENIL', integrantes: integrantes([15, 16, 16, 17, 15, 16, 14, 14, 18, 13]), duracionMusicaSegundos: 280 }));
+    const r = validarFicha(
+      P,
+      evento,
+      ficha({
+        formacion: 'GRUPO',
+        categoriaDeclarada: 'JUVENIL',
+        integrantes: integrantes([15, 16, 16, 17, 15, 16, 14, 14, 18, 13]),
+        duracionMusicaSegundos: 280,
+      }),
+    );
     expect(r.valida).toBe(false);
-    expect(r.infracciones).toContainEqual({ codigo: 'TOLERANCIA_GRUPO_EXCEDIDA', params: { fueraDeCategoria: 4, maximoPermitido: 3, porcentaje: 30 } });
+    expect(r.infracciones).toContainEqual({
+      codigo: 'TOLERANCIA_GRUPO_EXCEDIDA',
+      params: { fueraDeCategoria: 4, maximoPermitido: 3, porcentaje: 30 },
+    });
   });
   it('deduce la categoría del grupo si hay una sola posible', () => {
-    const r = validarFicha(P, evento, ficha({ formacion: 'GRUPO', integrantes: integrantes([12, 12, 13, 14, 15]), duracionMusicaSegundos: 200 }));
+    const r = validarFicha(
+      P,
+      evento,
+      ficha({ formacion: 'GRUPO', integrantes: integrantes([12, 12, 13, 14, 15]), duracionMusicaSegundos: 200 }),
+    );
     expect(r.categoria).toBe('INFANTO_JUVENIL');
     expect(r.infracciones).toEqual([]);
   });
   it('pide declarar la categoría si ninguna o varias son posibles', () => {
-    const r = validarFicha(P, evento, ficha({ formacion: 'GRUPO', integrantes: integrantes([8, 9, 12, 13, 16, 17]), duracionMusicaSegundos: 200 }));
+    const r = validarFicha(
+      P,
+      evento,
+      ficha({ formacion: 'GRUPO', integrantes: integrantes([8, 9, 12, 13, 16, 17]), duracionMusicaSegundos: 200 }),
+    );
     expect(r.categoria).toBeNull();
     expect(r.infracciones.map((i) => i.codigo)).toContain('CATEGORIA_NO_DETERMINADA');
   });
   it('respeta la dirección y la adyacencia configuradas', () => {
-    const estricto: ReglamentoEvento = { ...P, toleranciaGrupo: { porcentaje: 30, redondeo: 'FLOOR', direccion: 'SOLO_MENORES', soloAdyacentes: true } };
-    const r = validarFicha(estricto, evento, ficha({ formacion: 'GRUPO', categoriaDeclarada: 'JUVENIL', integrantes: integrantes([15, 16, 17, 16, 15, 16, 19, 8, 15, 16]), duracionMusicaSegundos: 200 }));
+    const estricto: ReglamentoEvento = {
+      ...P,
+      toleranciaGrupo: { porcentaje: 30, redondeo: 'FLOOR', direccion: 'SOLO_MENORES', soloAdyacentes: true },
+    };
+    const r = validarFicha(
+      estricto,
+      evento,
+      ficha({
+        formacion: 'GRUPO',
+        categoriaDeclarada: 'JUVENIL',
+        integrantes: integrantes([15, 16, 17, 16, 15, 16, 19, 8, 15, 16]),
+        duracionMusicaSegundos: 200,
+      }),
+    );
     const codigos = r.infracciones.map((i) => i.codigo);
     expect(codigos).toContain('INTEGRANTE_FUERA_DE_DIRECCION');
     expect(codigos).toContain('INTEGRANTE_CATEGORIA_NO_ADYACENTE');
-    const mayores: ReglamentoEvento = { ...P, toleranciaGrupo: { ...estricto.toleranciaGrupo, direccion: 'SOLO_MAYORES', soloAdyacentes: false } };
-    const r2 = validarFicha(mayores, evento, ficha({ formacion: 'GRUPO', categoriaDeclarada: 'JUVENIL', integrantes: integrantes([15, 16, 17, 16, 14]), duracionMusicaSegundos: 200 }));
+    const mayores: ReglamentoEvento = {
+      ...P,
+      toleranciaGrupo: { ...estricto.toleranciaGrupo, direccion: 'SOLO_MAYORES', soloAdyacentes: false },
+    };
+    const r2 = validarFicha(
+      mayores,
+      evento,
+      ficha({
+        formacion: 'GRUPO',
+        categoriaDeclarada: 'JUVENIL',
+        integrantes: integrantes([15, 16, 17, 16, 14]),
+        duracionMusicaSegundos: 200,
+      }),
+    );
     expect(r2.infracciones.map((i) => i.codigo)).toEqual(['INTEGRANTE_FUERA_DE_DIRECCION']);
   });
   it('sugiere categorías ordenadas por cantidad de integrantes dentro', () => {
@@ -180,7 +226,9 @@ describe('[TR-04] [TR-05] tiempos y tolerancia de tiempo', () => {
 describe('[TR-06] géneros restringidos por categoría', () => {
   it('Composições Coreográficas solo en 40+', () => {
     expect(validarFicha(P, evento, ficha({ genero: 'COMPOSICIONES_COREOGRAFICAS', integrantes: integrantes([45]) })).valida).toBe(true);
-    expect(validarFicha(P, evento, ficha({ genero: 'COMPOSICIONES_COREOGRAFICAS', integrantes: integrantes([30]) })).infracciones).toContainEqual({
+    expect(
+      validarFicha(P, evento, ficha({ genero: 'COMPOSICIONES_COREOGRAFICAS', integrantes: integrantes([30]) })).infracciones,
+    ).toContainEqual({
       codigo: 'GENERO_NO_HABILITADO_EN_CATEGORIA',
       params: { genero: 'COMPOSICIONES_COREOGRAFICAS', categoria: 'ADULTO' },
     });
@@ -204,20 +252,44 @@ describe('[TR-07] [PR-12] validación de ficha', () => {
   });
   it('rechaza una categoría declarada distinta de la calculada en formaciones por mayor', () => {
     const r = validarFicha(P, evento, ficha({ categoriaDeclarada: 'ADULTO' }));
-    expect(r.infracciones).toContainEqual({ codigo: 'CATEGORIA_NO_COINCIDE', params: { declarada: 'ADULTO', calculada: 'INFANTO_JUVENIL' } });
+    expect(r.infracciones).toContainEqual({
+      codigo: 'CATEGORIA_NO_COINCIDE',
+      params: { declarada: 'ADULTO', calculada: 'INFANTO_JUVENIL' },
+    });
   });
   it('controla cantidad de integrantes y duplicados', () => {
-    const r = validarFicha(P, evento, ficha({ formacion: 'TRIO', integrantes: [...integrantes([12, 13]), { bailarinId: 'b1', fechaNacimiento: nacidoCon(12) }, ...integrantes([14])] }));
+    const r = validarFicha(
+      P,
+      evento,
+      ficha({
+        formacion: 'TRIO',
+        integrantes: [...integrantes([12, 13]), { bailarinId: 'b1', fechaNacimiento: nacidoCon(12) }, ...integrantes([14])],
+      }),
+    );
     const codigos = r.infracciones.map((i) => i.codigo);
     expect(codigos).toContain('INTEGRANTES_EXCEDIDOS');
     expect(codigos).toContain('INTEGRANTE_DUPLICADO');
-    expect(validarFicha(P, evento, ficha({ formacion: 'GRUPO', integrantes: integrantes([20, 20]), categoriaDeclarada: 'ADULTO' })).infracciones.map((i) => i.codigo)).toContain('INTEGRANTES_INSUFICIENTES');
+    expect(
+      validarFicha(
+        P,
+        evento,
+        ficha({ formacion: 'GRUPO', integrantes: integrantes([20, 20]), categoriaDeclarada: 'ADULTO' }),
+      ).infracciones.map((i) => i.codigo),
+    ).toContain('INTEGRANTES_INSUFICIENTES');
   });
   it('informa integrantes sin categoría, formación, género y categoría desconocidos', () => {
-    expect(validarFicha(P, evento, ficha({ integrantes: integrantes([1]) })).infracciones.map((i) => i.codigo)).toContain('INTEGRANTE_SIN_CATEGORIA');
+    expect(validarFicha(P, evento, ficha({ integrantes: integrantes([1]) })).infracciones.map((i) => i.codigo)).toContain(
+      'INTEGRANTE_SIN_CATEGORIA',
+    );
     const r = validarFicha(P, evento, ficha({ formacion: 'X', genero: 'Y' }));
     expect(r.infracciones.map((i) => i.codigo)).toEqual(expect.arrayContaining(['FORMACION_DESCONOCIDA', 'GENERO_DESCONOCIDO']));
-    expect(validarFicha(P, evento, ficha({ formacion: 'GRUPO', categoriaDeclarada: 'Z', integrantes: integrantes([20, 20, 20, 20]) })).infracciones.map((i) => i.codigo)).toContain('CATEGORIA_DESCONOCIDA');
+    expect(
+      validarFicha(
+        P,
+        evento,
+        ficha({ formacion: 'GRUPO', categoriaDeclarada: 'Z', integrantes: integrantes([20, 20, 20, 20]) }),
+      ).infracciones.map((i) => i.codigo),
+    ).toContain('CATEGORIA_DESCONOCIDA');
   });
   it('una ficha sin elenco todavía no tiene categoría ni infracciones de categoría', () => {
     const r = validarFicha(P, evento, ficha({ integrantes: [] }));
@@ -237,7 +309,9 @@ describe('[TR-01] [SA-16] coherencia del reglamento', () => {
         { codigo: 'A', nombre: {}, edadMin: 5, edadMax: 10, orden: 1 },
         { codigo: 'A', nombre: {}, edadMin: 9, edadMax: 8, orden: 2 },
       ],
-      formaciones: [{ codigo: 'SOLO', nombre: {}, integrantesMin: 0, integrantesMax: 1, toleranciaTiempoSeg: 15, criterioCategoria: 'MAYOR' }],
+      formaciones: [
+        { codigo: 'SOLO', nombre: {}, integrantesMin: 0, integrantesMax: 1, toleranciaTiempoSeg: 15, criterioCategoria: 'MAYOR' },
+      ],
       generos: [{ codigo: 'G', nombre: {}, desdeCategoria: 'NO_EXISTE' }],
       tiempos: [{ formacion: 'NO', maxSegundos: 0 }],
       toleranciaGrupo: { ...P.toleranciaGrupo, porcentaje: 120 },

@@ -116,7 +116,9 @@ export function detectarDesvios(totales: readonly TotalJurado[], umbral: number)
     const resto = totales.filter((o) => o.juradoId !== t.juradoId);
     const promedioResto = resto.reduce((a, o) => a + o.total, 0) / resto.length;
     const diferencia = redondear(t.total - promedioResto, 4);
-    return Math.abs(diferencia) > umbral ? [{ juradoId: t.juradoId, total: t.total, promedioResto: redondear(promedioResto, 4), diferencia }] : [];
+    return Math.abs(diferencia) > umbral
+      ? [{ juradoId: t.juradoId, total: t.total, promedioResto: redondear(promedioResto, 4), diferencia }]
+      : [];
   });
 }
 
@@ -164,10 +166,7 @@ export function ranking(resultados: readonly ResultadoFicha[], agrupacion: reado
     );
     ordenada.forEach((r, i) => {
       const anterior = ordenada[i - 1];
-      const empatado =
-        anterior !== undefined &&
-        anterior.puntaje === r.puntaje &&
-        compararDesempate(anterior.desempate, r.desempate) === 0;
+      const empatado = anterior !== undefined && anterior.puntaje === r.puntaje && compararDesempate(anterior.desempate, r.desempate) === 0;
       const puestoAnterior = salida[salida.length - 1]?.puesto ?? 1;
       salida.push({ fichaId: r.fichaId, grupo, puesto: empatado ? puestoAnterior : i + 1 });
     });

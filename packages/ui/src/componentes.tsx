@@ -64,7 +64,12 @@ export const Boton = forwardRef<HTMLButtonElement, BotonProps>(function Boton(
       aria-busy={cargando || undefined}
       {...props}
     >
-      {cargando ? <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" /> : null}
+      {cargando ? (
+        <span
+          aria-hidden
+          className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none"
+        />
+      ) : null}
       {children}
     </button>
   );
@@ -260,7 +265,9 @@ export function Tabla({ className, ...props }: TableHTMLAttributes<HTMLTableElem
 }
 
 export function Th({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th scope="col" className={cn('border-b border-borde bg-superficie-2 px-3 py-2.5 font-semibold text-texto', className)} {...props} />;
+  return (
+    <th scope="col" className={cn('border-b border-borde bg-superficie-2 px-3 py-2.5 font-semibold text-texto', className)} {...props} />
+  );
 }
 
 export function Td({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {

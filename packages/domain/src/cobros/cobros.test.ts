@@ -3,7 +3,13 @@ import { cierreCaja, MEDIOS_COBRO_DEFECTO, montoSugerido, validarAnulacion, vali
 
 const uuid = '3f2a9c1e-5b7d-4e8f-9a0b-1c2d3e4f5a6b';
 const contexto = { monedaEvento: 'BRL' as const, mediosHabilitados: [...MEDIOS_COBRO_DEFECTO] };
-const cobro = (over: Partial<CobroNuevo> = {}): CobroNuevo => ({ montoCentavos: 5000, moneda: 'BRL', medio: 'PIX', clientUuid: uuid, ...over });
+const cobro = (over: Partial<CobroNuevo> = {}): CobroNuevo => ({
+  montoCentavos: 5000,
+  moneda: 'BRL',
+  medio: 'PIX',
+  clientUuid: uuid,
+  ...over,
+});
 
 describe('[OR-28] [OR-29] [OP-20] registro de cobros', () => {
   it('acepta un cobro parcial válido', () => {

@@ -31,7 +31,11 @@ export type CodigoErrorGestion = 'FICHA_INEXISTENTE' | 'SIN_PERMISO' | 'FICHA_RE
  * - La excepción guarda motivo, autor, fecha e infracciones vigentes, y deja
  *   la ficha enviada: el sistema no decide por el organizador.
  */
-export async function gestionarFicha(p: PuertosGestionFicha, a: AccionGestion, ahora: Date): Promise<Result<true, ErrorDominio<CodigoErrorGestion>>> {
+export async function gestionarFicha(
+  p: PuertosGestionFicha,
+  a: AccionGestion,
+  ahora: Date,
+): Promise<Result<true, ErrorDominio<CodigoErrorGestion>>> {
   const f = await p.leer(a.fichaId);
   if (!f) return err(errorDominio('FICHA_INEXISTENTE'));
   if (!p.puedeGestionar(f.eventoId)) return err(errorDominio('SIN_PERMISO'));
@@ -50,7 +54,12 @@ export async function gestionarFicha(p: PuertosGestionFicha, a: AccionGestion, a
     case 'EXCEPCION': {
       if (a.motivo.trim().length < 5) return err(errorDominio('MOTIVO_REQUERIDO'));
       await p.actualizar(f.id, {
-        excepcion: { motivo: a.motivo.trim(), por: p.usuarioId(), at: ahora.toISOString(), infracciones: f.infracciones.map((i) => i.codigo) },
+        excepcion: {
+          motivo: a.motivo.trim(),
+          por: p.usuarioId(),
+          at: ahora.toISOString(),
+          infracciones: f.infracciones.map((i) => i.codigo),
+        },
         estado: f.estado === 'APROBADA' ? 'APROBADA' : 'ENVIADA',
       });
       break;

@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { PRESET_ENCUENTRO_2026 } from '../reglamento/presets/encuentro-2026';
-import { banda, claveGrupo, detectarDesvios, puntajeFinal, ranking, redondear, totalPlanilla, validarNota, type ResultadoFicha } from './puntajes';
+import {
+  banda,
+  claveGrupo,
+  detectarDesvios,
+  puntajeFinal,
+  ranking,
+  redondear,
+  totalPlanilla,
+  validarNota,
+  type ResultadoFicha,
+} from './puntajes';
 
 const config = PRESET_ENCUENTRO_2026.puntaje;
 const criterios = [
@@ -30,9 +40,25 @@ describe('[JU-03] notas y total de planilla', () => {
     expect(r).toEqual({ ok: true, value: 9 });
   });
   it('exige todos los criterios, rechaza desconocidos y notas inválidas', () => {
-    expect(totalPlanilla([{ criterio: 'TECNICA', valor: 9 }], criterios, config)).toMatchObject({ ok: false, error: { codigo: 'CRITERIO_FALTANTE' } });
-    expect(totalPlanilla([{ criterio: 'X', valor: 9 }], criterios, config)).toMatchObject({ ok: false, error: { codigo: 'CRITERIO_DESCONOCIDO' } });
-    expect(totalPlanilla([{ criterio: 'TECNICA', valor: 11 }, { criterio: 'INTERPRETACION', valor: 1 }, { criterio: 'COREOGRAFIA', valor: 1 }], criterios, config)).toMatchObject({ ok: false });
+    expect(totalPlanilla([{ criterio: 'TECNICA', valor: 9 }], criterios, config)).toMatchObject({
+      ok: false,
+      error: { codigo: 'CRITERIO_FALTANTE' },
+    });
+    expect(totalPlanilla([{ criterio: 'X', valor: 9 }], criterios, config)).toMatchObject({
+      ok: false,
+      error: { codigo: 'CRITERIO_DESCONOCIDO' },
+    });
+    expect(
+      totalPlanilla(
+        [
+          { criterio: 'TECNICA', valor: 11 },
+          { criterio: 'INTERPRETACION', valor: 1 },
+          { criterio: 'COREOGRAFIA', valor: 1 },
+        ],
+        criterios,
+        config,
+      ),
+    ).toMatchObject({ ok: false });
     expect(totalPlanilla([], [{ codigo: 'X', peso: 0 }].slice(1), config)).toEqual({ ok: true, value: 0 });
   });
 });

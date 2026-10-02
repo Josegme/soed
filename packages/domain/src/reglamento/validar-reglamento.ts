@@ -58,8 +58,7 @@ export function validarReglamento(r: ReglamentoEvento): ErrorReglamento[] {
     }
   }
 
-  const existe = (lista: readonly string[], codigo: string | undefined): boolean =>
-    codigo === undefined || lista.includes(codigo);
+  const existe = (lista: readonly string[], codigo: string | undefined): boolean => codigo === undefined || lista.includes(codigo);
   for (const g of r.generos) {
     for (const ref of [...(g.categoriasHabilitadas ?? []), g.desdeCategoria, g.hastaCategoria]) {
       if (!existe(listas.categorias, ref)) {

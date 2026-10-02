@@ -10,7 +10,11 @@ const catalogos = Object.fromEntries(archivos.map((f) => [f.replace('.json', '')
 
 const aplanar = (obj, prefijo = '') =>
   Object.entries(obj).flatMap(([k, v]) => (typeof v === 'object' && v !== null ? aplanar(v, `${prefijo}${k}.`) : [[`${prefijo}${k}`, v]]));
-const parametros = (texto) => [...String(texto).matchAll(/\{(\w+)/g)].map((m) => m[1]).sort().join(',');
+const parametros = (texto) =>
+  [...String(texto).matchAll(/\{(\w+)/g)]
+    .map((m) => m[1])
+    .sort()
+    .join(',');
 
 const planos = Object.fromEntries(Object.entries(catalogos).map(([loc, c]) => [loc, Object.fromEntries(aplanar(c))]));
 const todas = new Set(Object.values(planos).flatMap((p) => Object.keys(p)));

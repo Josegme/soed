@@ -63,7 +63,12 @@ export function SubirMusica({
     setMensaje(null);
     try {
       const duracion = await leerDuracion(archivo);
-      const extension = archivo.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp3';
+      const extension =
+        archivo.name
+          .split('.')
+          .pop()
+          ?.toLowerCase()
+          .replace(/[^a-z0-9]/g, '') || 'mp3';
       const ruta = `${academiaId}/${coreografiaId}/${crypto.randomUUID()}.${extension}`;
       const db = supabaseNavegador(supabaseUrl, supabaseClave);
       const { error } = await db.storage.from('musica').upload(ruta, archivo, { contentType: archivo.type, upsert: false });
@@ -81,11 +86,23 @@ export function SubirMusica({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm">
-        {actual.nombre && actual.duracion ? t('musicaCargada', { archivo: actual.nombre, duracion: formatearDuracion(actual.duracion) }) : t('sinMusica')}
+        {actual.nombre && actual.duracion
+          ? t('musicaCargada', { archivo: actual.nombre, duracion: formatearDuracion(actual.duracion) })
+          : t('sinMusica')}
       </p>
-      <label htmlFor={id} className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded-[var(--radio)] border border-borde bg-superficie px-4 text-sm font-semibold hover:bg-superficie-2 focus-within:ring-[3px] focus-within:ring-marca/60">
+      <label
+        htmlFor={id}
+        className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded-[var(--radio)] border border-borde bg-superficie px-4 text-sm font-semibold hover:bg-superficie-2 focus-within:ring-[3px] focus-within:ring-marca/60"
+      >
         {estado === 'subiendo' ? t('subiendo') : actual.nombre ? t('reemplazarMusica') : t('subirMusica')}
-        <input id={id} type="file" accept={TIPOS.join(',')} className="sr-only" disabled={estado === 'subiendo'} onChange={(e) => alElegir(e.target.files?.[0])} />
+        <input
+          id={id}
+          type="file"
+          accept={TIPOS.join(',')}
+          className="sr-only"
+          disabled={estado === 'subiendo'}
+          onChange={(e) => alElegir(e.target.files?.[0])}
+        />
       </label>
       <p className="text-xs text-texto-suave">{t('formatosMusica')}</p>
       {mensaje ? <Aviso tono={estado === 'ok' ? 'exito' : 'error'}>{mensaje}</Aviso> : null}

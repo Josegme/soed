@@ -2,7 +2,18 @@ import { PRESET_ENCUENTRO_2026 } from '@soed/domain';
 import { describe, expect, it } from 'vitest';
 import { crearEvento, type ConfiguracionClonable, type NuevoEvento, type PuertosEventos } from './crear-evento';
 
-const nuevo: NuevoEvento = { temporadaId: 't1', slug: 'SEL2', tipo: 'SELECTIVO', nombre: { es: 'Sel 2' }, moneda: 'ARS', idiomaDefecto: 'es', zonaHoraria: 'America/Argentina/Buenos_Aires', fechaInicio: '2027-03-01', fechaFin: '2027-03-02', sede: {} };
+const nuevo: NuevoEvento = {
+  temporadaId: 't1',
+  slug: 'SEL2',
+  tipo: 'SELECTIVO',
+  nombre: { es: 'Sel 2' },
+  moneda: 'ARS',
+  idiomaDefecto: 'es',
+  zonaHoraria: 'America/Argentina/Buenos_Aires',
+  fechaInicio: '2027-03-01',
+  fechaFin: '2027-03-02',
+  sede: {},
+};
 const origen: ConfiguracionClonable = {
   reglamento: PRESET_ENCUENTRO_2026,
   tarifario: { moneda: 'BRL', porBailarin: { precio: 100 } },
@@ -44,7 +55,10 @@ describe('[SA-02] [SA-03] crear y clonar eventos', () => {
   it('rechaza sin permiso, slug en uso, origen o reglamento inexistentes', async () => {
     expect(await crearEvento(fake({ admin: false }).p, nuevo)).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
     expect(await crearEvento(fake({ slugLibre: false }).p, nuevo)).toMatchObject({ ok: false, error: { codigo: 'SLUG_EN_USO' } });
-    expect(await crearEvento(fake().p, { ...nuevo, clonarDeEventoId: 'zz' })).toMatchObject({ ok: false, error: { codigo: 'EVENTO_ORIGEN_INEXISTENTE' } });
+    expect(await crearEvento(fake().p, { ...nuevo, clonarDeEventoId: 'zz' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'EVENTO_ORIGEN_INEXISTENTE' },
+    });
     expect(await crearEvento(fake({ reglamento: false }).p, nuevo)).toMatchObject({ ok: false, error: { codigo: 'SIN_REGLAMENTO' } });
   });
 });

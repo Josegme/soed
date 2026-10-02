@@ -29,7 +29,5 @@ export interface Infraccion {
   readonly params?: Readonly<Record<string, string | number>>;
 }
 
-export const infraccion = (
-  codigo: CodigoInfraccion,
-  params?: Record<string, string | number>,
-): Infraccion => (params === undefined ? { codigo } : { codigo, params });
+export const infraccion = (codigo: CodigoInfraccion, params?: Record<string, string | number>): Infraccion =>
+  params === undefined ? { codigo } : { codigo, params };

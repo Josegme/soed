@@ -129,11 +129,7 @@ function resolverCategoria(
  * categoría por edad a la fecha de referencia, tolerancia de grupo, género
  * habilitado y duración de la música. Función pura: no consulta estado externo.
  */
-export function validarFicha(
-  reglamento: ReglamentoEvento,
-  evento: FechasEvento,
-  ficha: FichaAValidar,
-): ResultadoValidacion {
+export function validarFicha(reglamento: ReglamentoEvento, evento: FechasEvento, ficha: FichaAValidar): ResultadoValidacion {
   const infracciones: Infraccion[] = [];
   const advertencias: Infraccion[] = [];
 

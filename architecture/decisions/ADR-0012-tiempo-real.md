@@ -16,11 +16,11 @@ Un reorden o un cambio de estado ("en escena") debe verse en coordinador, locuto
 
 ## Alternativas
 
-| Opción | Contras | Veredicto |
-| --- | --- | --- |
-| Socket.io + Redis | Requiere servidor propio (descartado en ADR-0002) | Descartada |
-| Polling | Latencia y carga | Solo como respaldo |
-| **Postgres Changes + Broadcast** | Límite de conexiones por plan de Supabase | **Elegida** |
+| Opción                           | Contras                                           | Veredicto          |
+| -------------------------------- | ------------------------------------------------- | ------------------ |
+| Socket.io + Redis                | Requiere servidor propio (descartado en ADR-0002) | Descartada         |
+| Polling                          | Latencia y carga                                  | Solo como respaldo |
+| **Postgres Changes + Broadcast** | Límite de conexiones por plan de Supabase         | **Elegida**        |
 
 ## Consecuencias
 

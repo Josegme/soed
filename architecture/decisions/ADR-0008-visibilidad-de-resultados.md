@@ -19,11 +19,11 @@ Art. 32 de las Bases: las notas y los comentarios del jurado quedan disponibles 
 
 ## Alternativas
 
-| Opción | Contras | Veredicto |
-| --- | --- | --- |
-| Copiar resultados a una tabla pública al publicar | Duplicación y desincronización | Descartada |
-| Vistas `security definer` | Las marca el advisor de Supabase y saltean RLS de forma implícita | Descartada |
-| **RLS condicionada + RPC acotadas para anon** | Requiere pruebas por rol | **Elegida** |
+| Opción                                            | Contras                                                           | Veredicto   |
+| ------------------------------------------------- | ----------------------------------------------------------------- | ----------- |
+| Copiar resultados a una tabla pública al publicar | Duplicación y desincronización                                    | Descartada  |
+| Vistas `security definer`                         | Las marca el advisor de Supabase y saltean RLS de forma implícita | Descartada  |
+| **RLS condicionada + RPC acotadas para anon**     | Requiere pruebas por rol                                          | **Elegida** |
 
 ## Consecuencias
 

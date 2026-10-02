@@ -41,11 +41,7 @@ export function tiempoMaximo(reglamento: ReglamentoEvento, clave: ClaveTiempo): 
 export type EvaluacionDuracion = 'DENTRO' | 'EN_TOLERANCIA' | 'EXCEDIDA';
 
 /** Evalúa la duración de la música contra el máximo y la tolerancia de la formación (TR-04). */
-export function evaluarDuracion(
-  duracionSegundos: number,
-  maxSegundos: number,
-  toleranciaSegundos: number,
-): EvaluacionDuracion {
+export function evaluarDuracion(duracionSegundos: number, maxSegundos: number, toleranciaSegundos: number): EvaluacionDuracion {
   if (duracionSegundos <= maxSegundos) return 'DENTRO';
   if (duracionSegundos <= maxSegundos + toleranciaSegundos) return 'EN_TOLERANCIA';
   return 'EXCEDIDA';

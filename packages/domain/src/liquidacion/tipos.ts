@@ -84,14 +84,7 @@ export interface InscripcionALiquidar {
   readonly ajustes: readonly Ajuste[];
 }
 
-export type ConceptoLinea =
-  | 'POR_BAILARIN'
-  | 'POR_COREOGRAFIA'
-  | 'POR_PARTICIPACION'
-  | 'FIJO_ACADEMIA'
-  | 'RUBRO'
-  | 'RECARGO'
-  | 'AJUSTE';
+export type ConceptoLinea = 'POR_BAILARIN' | 'POR_COREOGRAFIA' | 'POR_PARTICIPACION' | 'FIJO_ACADEMIA' | 'RUBRO' | 'RECARGO' | 'AJUSTE';
 
 export interface LineaLiquidacion {
   readonly concepto: ConceptoLinea;

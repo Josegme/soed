@@ -49,7 +49,10 @@ function Marco({ idioma, marca, vistaPrevia, children }: Base & { children: Reac
 function BotonEmail({ href, texto, color }: { href: string; texto: string; color: string }) {
   return (
     <Section style={{ margin: '20px 0' }}>
-      <Button href={href} style={{ backgroundColor: color, borderRadius: 10, color: '#ffffff', fontSize: 15, fontWeight: 700, padding: '12px 20px' }}>
+      <Button
+        href={href}
+        style={{ backgroundColor: color, borderRadius: 10, color: '#ffffff', fontSize: 15, fontWeight: 700, padding: '12px 20px' }}
+      >
         {texto}
       </Button>
     </Section>

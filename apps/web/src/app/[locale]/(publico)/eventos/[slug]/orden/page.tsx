@@ -25,15 +25,25 @@ export default async function OrdenPublico({ params }: { params: Promise<{ local
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
-      <EncabezadoPagina titulo={t('orden')} descripcion={texto(evento.nombre, locale, defecto)} acciones={<Insignia tono="info">{t('actualizacionVivo')}</Insignia>} />
+      <EncabezadoPagina
+        titulo={t('orden')}
+        descripcion={texto(evento.nombre, locale, defecto)}
+        acciones={<Insignia tono="info">{t('actualizacionVivo')}</Insignia>}
+      />
       <RefrescoPeriodico segundos={20} />
       {grupos.length === 0 ? <Aviso tono="info">{t('ordenNoPublicado')}</Aviso> : null}
       {grupos.map((g) => (
-        <section key={g.clave} className="flex flex-col gap-3" aria-label={`${texto(g.pista, locale, defecto)} — ${texto(g.bloque, locale, defecto)}`}>
+        <section
+          key={g.clave}
+          className="flex flex-col gap-3"
+          aria-label={`${texto(g.pista, locale, defecto)} — ${texto(g.bloque, locale, defecto)}`}
+        >
           <h2 className="font-display text-xl font-bold">
             {texto(g.pista, locale, defecto)} · {texto(g.bloque, locale, defecto)}
             {g.inicioProgramado ? (
-              <span className="ml-2 text-base font-medium text-texto-suave">{formatearInstante(g.inicioProgramado, locale, evento.zonaHoraria, { timeStyle: 'short' })}</span>
+              <span className="ml-2 text-base font-medium text-texto-suave">
+                {formatearInstante(g.inicioProgramado, locale, evento.zonaHoraria, { timeStyle: 'short' })}
+              </span>
             ) : null}
           </h2>
           <Tabla>

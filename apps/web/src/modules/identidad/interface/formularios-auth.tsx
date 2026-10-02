@@ -34,8 +34,25 @@ export function FormularioIngreso() {
     <div className="flex flex-col gap-6">
       <form action={accion} className="flex flex-col gap-4" noValidate>
         {mensaje ? <Aviso tono="error">{mensaje}</Aviso> : null}
-        <CampoTexto name="email" type="email" autoComplete="email" etiqueta={ta('email')} requerido textoRequerido={tc('requerido')} defaultValue={estado.valores?.email} error={error(estado, 'email')} />
-        <CampoTexto name="password" type="password" autoComplete="current-password" etiqueta={ta('password')} requerido textoRequerido={tc('requerido')} error={error(estado, 'password')} />
+        <CampoTexto
+          name="email"
+          type="email"
+          autoComplete="email"
+          etiqueta={ta('email')}
+          requerido
+          textoRequerido={tc('requerido')}
+          defaultValue={estado.valores?.email}
+          error={error(estado, 'email')}
+        />
+        <CampoTexto
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          etiqueta={ta('password')}
+          requerido
+          textoRequerido={tc('requerido')}
+          error={error(estado, 'password')}
+        />
         <Boton type="submit" cargando={pendiente} ancho="completo">
           {ta('ingresar')}
         </Boton>
@@ -44,7 +61,16 @@ export function FormularioIngreso() {
         <summary className="cursor-pointer font-semibold">{ta('conEnlace')}</summary>
         <form action={accionEnlace} className="mt-4 flex flex-col gap-4" noValidate>
           {mensajeEnlace ? <Aviso tono={estadoEnlace.ok ? 'exito' : 'error'}>{mensajeEnlace}</Aviso> : null}
-          <CampoTexto name="email" type="email" autoComplete="email" etiqueta={ta('email')} requerido textoRequerido={tc('requerido')} defaultValue={estadoEnlace.valores?.email} error={error(estadoEnlace, 'email')} />
+          <CampoTexto
+            name="email"
+            type="email"
+            autoComplete="email"
+            etiqueta={ta('email')}
+            requerido
+            textoRequerido={tc('requerido')}
+            defaultValue={estadoEnlace.valores?.email}
+            error={error(estadoEnlace, 'email')}
+          />
           <Boton type="submit" variante="secundario" cargando={pendienteEnlace}>
             {ta('enviarEnlace')}
           </Boton>
@@ -63,9 +89,35 @@ export function FormularioRegistro() {
   return (
     <form action={accion} className="flex flex-col gap-4" noValidate>
       {mensaje ? <Aviso tono="error">{mensaje}</Aviso> : null}
-      <CampoTexto name="nombre" autoComplete="name" etiqueta={ta('tuNombre')} requerido textoRequerido={tc('requerido')} defaultValue={estado.valores?.nombre} error={error(estado, 'nombre')} />
-      <CampoTexto name="email" type="email" autoComplete="email" etiqueta={ta('email')} requerido textoRequerido={tc('requerido')} defaultValue={estado.valores?.email} error={error(estado, 'email')} />
-      <CampoTexto name="password" type="password" autoComplete="new-password" etiqueta={ta('password')} ayuda={ta('passwordAyuda')} requerido textoRequerido={tc('requerido')} error={error(estado, 'password')} />
+      <CampoTexto
+        name="nombre"
+        autoComplete="name"
+        etiqueta={ta('tuNombre')}
+        requerido
+        textoRequerido={tc('requerido')}
+        defaultValue={estado.valores?.nombre}
+        error={error(estado, 'nombre')}
+      />
+      <CampoTexto
+        name="email"
+        type="email"
+        autoComplete="email"
+        etiqueta={ta('email')}
+        requerido
+        textoRequerido={tc('requerido')}
+        defaultValue={estado.valores?.email}
+        error={error(estado, 'email')}
+      />
+      <CampoTexto
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        etiqueta={ta('password')}
+        ayuda={ta('passwordAyuda')}
+        requerido
+        textoRequerido={tc('requerido')}
+        error={error(estado, 'password')}
+      />
       <CampoSelector
         name="idioma"
         etiqueta={ta('idiomaPreferido')}

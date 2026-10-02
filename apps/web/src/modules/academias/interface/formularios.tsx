@@ -49,14 +49,29 @@ export function FormularioAcademia({ academia }: { academia?: DatosAcademia }) {
     <form action={accion} className="flex max-w-xl flex-col gap-4" noValidate>
       {mensaje ? <Aviso tono={estado.ok ? 'exito' : 'error'}>{mensaje}</Aviso> : null}
       {academia?.id ? <input type="hidden" name="id" value={academia.id} /> : null}
-      <CampoTexto name="nombre" etiqueta={t('nombre')} requerido textoRequerido={tc('requerido')} defaultValue={v('nombre')} error={m.campo(estado, 'nombre')} autoComplete="organization" />
+      <CampoTexto
+        name="nombre"
+        etiqueta={t('nombre')}
+        requerido
+        textoRequerido={tc('requerido')}
+        defaultValue={v('nombre')}
+        error={m.campo(estado, 'nombre')}
+        autoComplete="organization"
+      />
       <div className="grid gap-4 sm:grid-cols-3">
         <CampoTexto name="ciudad" etiqueta={t('ciudad')} defaultValue={v('ciudad')} autoComplete="address-level2" />
         <CampoTexto name="region" etiqueta={t('region')} defaultValue={v('region')} autoComplete="address-level1" />
         <CampoTexto name="pais" etiqueta={t('pais')} defaultValue={v('pais')} autoComplete="country-name" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoTexto name="email" type="email" etiqueta={t('email')} defaultValue={v('email')} error={m.campo(estado, 'email')} autoComplete="email" />
+        <CampoTexto
+          name="email"
+          type="email"
+          etiqueta={t('email')}
+          defaultValue={v('email')}
+          error={m.campo(estado, 'email')}
+          autoComplete="email"
+        />
         <CampoTexto name="telefono" type="tel" etiqueta={t('telefono')} defaultValue={v('telefono')} autoComplete="tel" />
       </div>
       <div>
@@ -82,13 +97,40 @@ export function FormularioBailarin({ academiaId }: { academiaId: string }) {
         {mensaje ? <Aviso tono={estado.ok ? 'exito' : 'error'}>{mensaje}</Aviso> : null}
         <input type="hidden" name="academiaId" value={academiaId} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <CampoTexto name="nombre" etiqueta={t('nombre')} requerido textoRequerido={tc('requerido')} defaultValue={v('nombre')} error={m.campo(estado, 'nombre')} />
-          <CampoTexto name="apellido" etiqueta={t('apellido')} requerido textoRequerido={tc('requerido')} defaultValue={v('apellido')} error={m.campo(estado, 'apellido')} />
+          <CampoTexto
+            name="nombre"
+            etiqueta={t('nombre')}
+            requerido
+            textoRequerido={tc('requerido')}
+            defaultValue={v('nombre')}
+            error={m.campo(estado, 'nombre')}
+          />
+          <CampoTexto
+            name="apellido"
+            etiqueta={t('apellido')}
+            requerido
+            textoRequerido={tc('requerido')}
+            defaultValue={v('apellido')}
+            error={m.campo(estado, 'apellido')}
+          />
         </div>
-        <CampoTexto name="fechaNacimiento" type="date" etiqueta={t('fechaNacimiento')} requerido textoRequerido={tc('requerido')} defaultValue={v('fechaNacimiento')} error={m.campo(estado, 'fechaNacimiento')} />
+        <CampoTexto
+          name="fechaNacimiento"
+          type="date"
+          etiqueta={t('fechaNacimiento')}
+          requerido
+          textoRequerido={tc('requerido')}
+          defaultValue={v('fechaNacimiento')}
+          error={m.campo(estado, 'fechaNacimiento')}
+        />
         <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
           <CampoTexto name="documentoTipo" etiqueta={t('documentoTipo')} defaultValue={v('documentoTipo')} />
-          <CampoTexto name="documentoNumero" etiqueta={t('documentoNumero')} ayuda={t('ayudaDocumento')} defaultValue={v('documentoNumero')} />
+          <CampoTexto
+            name="documentoNumero"
+            etiqueta={t('documentoNumero')}
+            ayuda={t('ayudaDocumento')}
+            defaultValue={v('documentoNumero')}
+          />
         </div>
         <div>
           <Boton type="submit" cargando={pendiente}>
@@ -104,7 +146,12 @@ export function BotonActivoBailarin({ bailarinId, activo }: { bailarinId: string
   const t = useTranslations('academia.bailarines');
   const [pendiente, iniciar] = useTransition();
   return (
-    <Boton variante="fantasma" tamano="chico" cargando={pendiente} onClick={() => iniciar(async () => void (await cambiarActivoBailarin(bailarinId, !activo)))}>
+    <Boton
+      variante="fantasma"
+      tamano="chico"
+      cargando={pendiente}
+      onClick={() => iniciar(async () => void (await cambiarActivoBailarin(bailarinId, !activo)))}
+    >
       {activo ? t('darDeBaja') : t('reactivar')}
     </Boton>
   );
@@ -150,12 +197,41 @@ export function FormularioCoreografia({
       {mensaje ? <Aviso tono={estado.ok ? 'exito' : 'error'}>{mensaje}</Aviso> : null}
       <input type="hidden" name="academiaId" value={academiaId} />
       {coreografia ? <input type="hidden" name="id" value={coreografia.id} /> : null}
-      <CampoTexto name="nombre" etiqueta={t('nombre')} requerido textoRequerido={tc('requerido')} defaultValue={estado.valores?.nombre ?? coreografia?.nombre} error={m.campo(estado, 'nombre')} />
+      <CampoTexto
+        name="nombre"
+        etiqueta={t('nombre')}
+        requerido
+        textoRequerido={tc('requerido')}
+        defaultValue={estado.valores?.nombre ?? coreografia?.nombre}
+        error={m.campo(estado, 'nombre')}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoSelector name="genero" etiqueta={t('genero')} requerido textoRequerido={tc('requerido')} vacio={tc('seleccionar')} opciones={opciones('generos')} defaultValue={estado.valores?.genero ?? coreografia?.genero ?? ''} error={m.campo(estado, 'genero')} />
-        <CampoSelector name="formacion" etiqueta={t('formacion')} requerido textoRequerido={tc('requerido')} vacio={tc('seleccionar')} opciones={opciones('formaciones')} defaultValue={estado.valores?.formacion ?? coreografia?.formacion ?? ''} error={m.campo(estado, 'formacion')} />
+        <CampoSelector
+          name="genero"
+          etiqueta={t('genero')}
+          requerido
+          textoRequerido={tc('requerido')}
+          vacio={tc('seleccionar')}
+          opciones={opciones('generos')}
+          defaultValue={estado.valores?.genero ?? coreografia?.genero ?? ''}
+          error={m.campo(estado, 'genero')}
+        />
+        <CampoSelector
+          name="formacion"
+          etiqueta={t('formacion')}
+          requerido
+          textoRequerido={tc('requerido')}
+          vacio={tc('seleccionar')}
+          opciones={opciones('formaciones')}
+          defaultValue={estado.valores?.formacion ?? coreografia?.formacion ?? ''}
+          error={m.campo(estado, 'formacion')}
+        />
       </div>
-      <CampoTexto name="nombreCoreografo" etiqueta={t('coreografo')} defaultValue={estado.valores?.nombreCoreografo ?? coreografia?.coreografo ?? ''} />
+      <CampoTexto
+        name="nombreCoreografo"
+        etiqueta={t('coreografo')}
+        defaultValue={estado.valores?.nombreCoreografo ?? coreografia?.coreografo ?? ''}
+      />
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium">{t('elenco')}</legend>
         <p className="text-sm text-texto-suave">{t('elencoAyuda')}</p>
@@ -184,7 +260,13 @@ export function FormularioCoreografia({
                 </label>
                 {marcado ? (
                   <label className="flex items-center gap-2 text-sm text-texto-suave">
-                    <input type="checkbox" name="coreografo" value={b.id} defaultChecked={esCoreografo} className="size-4 accent-[var(--marca)]" />
+                    <input
+                      type="checkbox"
+                      name="coreografo"
+                      value={b.id}
+                      defaultChecked={esCoreografo}
+                      className="size-4 accent-[var(--marca)]"
+                    />
                     {t('esCoreografo')}
                   </label>
                 ) : null}
@@ -192,7 +274,11 @@ export function FormularioCoreografia({
             );
           })}
         </ul>
-        {m.campo(estado, 'elenco') ? <p className="text-sm font-medium text-error" role="alert">{m.campo(estado, 'elenco')}</p> : null}
+        {m.campo(estado, 'elenco') ? (
+          <p className="text-sm font-medium text-error" role="alert">
+            {m.campo(estado, 'elenco')}
+          </p>
+        ) : null}
       </fieldset>
       <div>
         <Boton type="submit" cargando={pendiente}>

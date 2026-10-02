@@ -15,7 +15,8 @@ export interface PuertosPase {
   }): Promise<string>;
 }
 
-export type CodigoErrorPaseApp = 'SIN_PERMISO' | 'DESTINO_INVALIDO' | 'DESTINO_AMBIGUO' | 'MOTIVO_REQUERIDO' | 'BENEFICIO_INVALIDO' | 'COREOGRAFIA_AJENA';
+export type CodigoErrorPaseApp =
+  'SIN_PERMISO' | 'DESTINO_INVALIDO' | 'DESTINO_AMBIGUO' | 'MOTIVO_REQUERIDO' | 'BENEFICIO_INVALIDO' | 'COREOGRAFIA_AJENA';
 
 /**
  * Registra un pase manual (OR-33, TR-13). La decisión es del organizador: el
@@ -23,7 +24,14 @@ export type CodigoErrorPaseApp = 'SIN_PERMISO' | 'DESTINO_INVALIDO' | 'DESTINO_A
  */
 export async function registrarPase(
   p: PuertosPase,
-  e: { eventoOrigenId: string; eventoDestinoId: string; academiaId: string; coreografiaId?: string | null; motivo: string; beneficio?: Beneficio | null },
+  e: {
+    eventoOrigenId: string;
+    eventoDestinoId: string;
+    academiaId: string;
+    coreografiaId?: string | null;
+    motivo: string;
+    beneficio?: Beneficio | null;
+  },
 ): Promise<Result<{ paseId: string }, ErrorDominio<CodigoErrorPaseApp>>> {
   if (!p.puedeRegistrar(e.eventoOrigenId)) return err(errorDominio('SIN_PERMISO'));
   if (!(await p.destinoValido(e.eventoOrigenId, e.eventoDestinoId))) return err(errorDominio('DESTINO_INVALIDO'));

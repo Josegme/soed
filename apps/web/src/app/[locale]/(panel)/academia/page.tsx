@@ -17,7 +17,13 @@ import {
 } from '@/modules/academias/infrastructure/consultas';
 import { FormularioAcademia } from '@/modules/academias/interface/formularios';
 
-export default async function PanelAcademia({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ a?: string }> }) {
+export default async function PanelAcademia({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ a?: string }>;
+}) {
   const locale = idiomaDe((await params).locale);
   const { sesion, db } = await requerirSesion();
   const t = await getTranslations('academia');
@@ -59,7 +65,10 @@ export default async function PanelAcademia({ params, searchParams }: { params: 
         {eventos.length === 0 ? <EstadoVacio titulo={t('resumen.sinEventos')} /> : null}
         <ul className="grid gap-3 lg:grid-cols-2">
           {eventos.map((e) => {
-            const ventana = estadoVentana({ apertura: e.inscripcion_apertura, cierre: e.inscripcion_cierre, cierreModificaciones: e.modificaciones_cierre }, ahora);
+            const ventana = estadoVentana(
+              { apertura: e.inscripcion_apertura, cierre: e.inscripcion_cierre, cierreModificaciones: e.modificaciones_cierre },
+              ahora,
+            );
             const inscripta = resumen.eventosInscriptos.has(e.id);
             return (
               <li key={e.id}>
@@ -70,7 +79,10 @@ export default async function PanelAcademia({ params, searchParams }: { params: 
                   </div>
                   <p className="font-display text-lg font-bold">{texto(e.nombre, locale, e.idioma_defecto as Idioma)}</p>
                   <p className="text-sm text-texto-suave">{formatearRangoFechas(e.fecha_inicio, e.fecha_fin, locale)}</p>
-                  <Link href={`/academia/eventos/${e.slug.toLowerCase()}`} className="mt-auto font-semibold text-marca underline-offset-4 hover:underline">
+                  <Link
+                    href={`/academia/eventos/${e.slug.toLowerCase()}`}
+                    className="mt-auto font-semibold text-marca underline-offset-4 hover:underline"
+                  >
                     {inscripta || ventana === 'ABIERTA' ? t('resumen.gestionar') : t('resumen.verEvento')}
                   </Link>
                 </Tarjeta>
@@ -91,7 +103,9 @@ export default async function PanelAcademia({ params, searchParams }: { params: 
               return (
                 <li key={p.id}>
                   <Tarjeta className="flex flex-col gap-1">
-                    <p className="font-semibold">{texto(p.evento_destino?.nombre, locale, (p.evento_destino?.idioma_defecto ?? 'es') as Idioma)}</p>
+                    <p className="font-semibold">
+                      {texto(p.evento_destino?.nombre, locale, (p.evento_destino?.idioma_defecto ?? 'es') as Idioma)}
+                    </p>
                     <p className="text-sm text-texto-suave">{p.motivo}</p>
                     {beneficio ? <p className="text-sm">{t('resumen.beneficio', { detalle: beneficio })}</p> : null}
                   </Tarjeta>

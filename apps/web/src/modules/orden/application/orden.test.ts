@@ -45,7 +45,10 @@ describe('[OP-07] cambiar estado en vivo', () => {
   });
   it('rechaza transiciones inválidas y sin permiso', async () => {
     expect(await cambiarEstadoOrden(fake().p, 'i1', 'PRESENTADA')).toMatchObject({ ok: false, error: { codigo: 'TRANSICION_INVALIDA' } });
-    expect(await cambiarEstadoOrden(fake(['orden.editar']).p, 'i1', 'LLAMADA')).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
+    expect(await cambiarEstadoOrden(fake(['orden.editar']).p, 'i1', 'LLAMADA')).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
     expect(await cambiarEstadoOrden(fake().p, 'x', 'LLAMADA')).toMatchObject({ ok: false, error: { codigo: 'ITEM_INEXISTENTE' } });
   });
 });

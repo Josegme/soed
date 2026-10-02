@@ -18,11 +18,11 @@ Una organización corre una temporada con varios selectivos y una final. Academi
 
 ## Alternativas
 
-| Opción | Pros | Contras | Veredicto |
-| --- | --- | --- | --- |
-| Ficha que incluye la coreografía | Simple | Reinscribir obliga a recargar elenco y música | Descartada |
-| **Coreografía + ficha con snapshot** | Reinscripción en un clic, historia inmutable | Duplicación controlada del elenco | **Elegida** |
-| Organizador global por temporada | Menos filas en `evento_miembro` | Rompe el aislamiento entre organizadores de selectivos | Descartada |
+| Opción                               | Pros                                         | Contras                                                | Veredicto   |
+| ------------------------------------ | -------------------------------------------- | ------------------------------------------------------ | ----------- |
+| Ficha que incluye la coreografía     | Simple                                       | Reinscribir obliga a recargar elenco y música          | Descartada  |
+| **Coreografía + ficha con snapshot** | Reinscripción en un clic, historia inmutable | Duplicación controlada del elenco                      | **Elegida** |
+| Organizador global por temporada     | Menos filas en `evento_miembro`              | Rompe el aislamiento entre organizadores de selectivos | Descartada  |
 
 ## Consecuencias
 

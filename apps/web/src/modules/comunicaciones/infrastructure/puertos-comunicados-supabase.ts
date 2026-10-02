@@ -42,7 +42,10 @@ export function puertosComunicadosSupabase(db: ClienteSupabase, sesion: Sesion):
         }
       }
       if (usuarios.size === 0) return [];
-      const { data: perfiles } = await admin.from('perfil').select('id, email, idioma').in('id', [...usuarios]);
+      const { data: perfiles } = await admin
+        .from('perfil')
+        .select('id, email, idioma')
+        .in('id', [...usuarios]);
       return (perfiles ?? [])
         .filter((p) => p.email)
         .map((p): Destinatario => ({ usuarioId: p.id, email: p.email!, idioma: esIdioma(p.idioma) ? p.idioma : ('es' as Idioma) }));

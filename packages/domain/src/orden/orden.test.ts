@@ -22,7 +22,13 @@ describe('[OR-38] [OP-08] reordenar', () => {
 
 describe('[OP-09] mover entre bloques o pistas', () => {
   it('saca del origen, inserta en destino y renumera ambos', () => {
-    const r = moverABloque(items(3, 'B1'), items(2, 'B2').map((i) => ({ ...i, id: `d${i.posicion}` })), 'i2', 'B2', 1);
+    const r = moverABloque(
+      items(3, 'B1'),
+      items(2, 'B2').map((i) => ({ ...i, id: `d${i.posicion}` })),
+      'i2',
+      'B2',
+      1,
+    );
     expect(r.ok && r.value.origen.map((i) => `${i.id}:${i.posicion}`)).toEqual(['i1:1', 'i3:2']);
     expect(r.ok && r.value.destino.map((i) => `${i.id}:${i.bloqueId}:${i.posicion}`)).toEqual(['i2:B2:1', 'd1:B2:2', 'd2:B2:3']);
   });
@@ -59,7 +65,11 @@ describe('[OP-10] horario estimado', () => {
       ['b', '2026-04-30T18:00:00.000Z'],
       ['d', '2026-04-30T18:04:00.000Z'],
     ]);
-    const tarde = horarioEstimado(lista, inicio, { intervaloSegundos: 0, duracionPorDefectoSegundos: 240, ahora: new Date('2026-04-30T18:30:00Z') });
+    const tarde = horarioEstimado(lista, inicio, {
+      intervaloSegundos: 0,
+      duracionPorDefectoSegundos: 240,
+      ahora: new Date('2026-04-30T18:30:00Z'),
+    });
     expect(tarde[0]?.inicio.toISOString()).toBe('2026-04-30T18:30:00.000Z');
   });
 });

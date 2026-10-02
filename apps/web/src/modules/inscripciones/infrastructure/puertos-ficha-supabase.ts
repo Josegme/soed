@@ -16,7 +16,9 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
     async leerFicha(id) {
       const { data } = await db
         .from('ficha')
-        .select('id, evento_id, academia_id, estado, bloqueada, genero, formacion, categoria_declarada, musica_duracion_seg, excepcion, ficha_bailarin (bailarin_id)')
+        .select(
+          'id, evento_id, academia_id, estado, bloqueada, genero, formacion, categoria_declarada, musica_duracion_seg, excepcion, ficha_bailarin (bailarin_id)',
+        )
         .eq('id', id)
         .maybeSingle();
       if (!data) return null;
@@ -41,7 +43,9 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
     async leerEvento(id) {
       const { data } = await db
         .from('evento')
-        .select('id, reglamento, reglamento_version, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre')
+        .select(
+          'id, reglamento, reglamento_version, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre',
+        )
         .eq('id', id)
         .maybeSingle();
       if (!data) return null;
@@ -75,11 +79,18 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
         .eq('id', fichaId);
       if (error) throw new Error(`guardar validación: ${error.message}`);
       for (const i of resultado.integrantes) {
-        await admin.from('ficha_bailarin').update({ edad: i.edad, categoria: i.categoria }).eq('ficha_id', fichaId).eq('bailarin_id', i.bailarinId);
+        await admin
+          .from('ficha_bailarin')
+          .update({ edad: i.edad, categoria: i.categoria })
+          .eq('ficha_id', fichaId)
+          .eq('bailarin_id', i.bailarinId);
       }
     },
     async marcarEnviada(fichaId) {
-      const { error } = await supabaseAdmin().from('ficha').update({ estado: 'ENVIADA', enviada_at: new Date().toISOString() }).eq('id', fichaId);
+      const { error } = await supabaseAdmin()
+        .from('ficha')
+        .update({ estado: 'ENVIADA', enviada_at: new Date().toISOString() })
+        .eq('id', fichaId);
       if (error) throw new Error(`enviar ficha: ${error.message}`);
     },
   };

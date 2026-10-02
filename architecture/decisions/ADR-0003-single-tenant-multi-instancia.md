@@ -20,11 +20,11 @@ Un repositorio Core y una instancia aislada por cliente: su proyecto Supabase (s
 
 ## Alternativas
 
-| Opción | Aislamiento | Costo de mantener N clientes | Veredicto |
-| --- | --- | --- | --- |
-| Multitenant (una base, `tenant_id`) | Lógico | Bajo | Descartada: los clientes no aceptan convivir y una falla de RLS expone a un competidor |
-| Fork por cliente | Total | Alto | Descartada |
-| **Core + instancia por cliente** | **Total** | **Bajo** | **Elegida** |
+| Opción                              | Aislamiento | Costo de mantener N clientes | Veredicto                                                                              |
+| ----------------------------------- | ----------- | ---------------------------- | -------------------------------------------------------------------------------------- |
+| Multitenant (una base, `tenant_id`) | Lógico      | Bajo                         | Descartada: los clientes no aceptan convivir y una falla de RLS expone a un competidor |
+| Fork por cliente                    | Total       | Alto                         | Descartada                                                                             |
+| **Core + instancia por cliente**    | **Total**   | **Bajo**                     | **Elegida**                                                                            |
 
 ## Consecuencias
 

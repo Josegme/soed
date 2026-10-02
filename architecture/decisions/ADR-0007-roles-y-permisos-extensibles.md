@@ -17,32 +17,32 @@ Hay un rol global (Super Admin), roles por evento (organizador, director técnic
 
 ### Matriz inicial
 
-| Permiso | ORGANIZADOR_EVENTO | DIRECTOR_TECNICO | JURADO | COORDINADOR | LOCUTOR | DJ | STAFF_ACREDITACION |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| evento.configurar, evento.miembros | ✓ | | | | | | |
-| inscripciones.ver | ✓ | | | | | | ✓ |
-| inscripciones.gestionar | ✓ | | | | | | |
-| liquidaciones.ver | ✓ | | | | | | ✓ |
-| cobros.registrar | ✓ | | | | | | ✓ |
-| cobros.anular, caja.cerrar | ✓ | | | | | | |
-| orden.ver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| orden.editar, orden.operar | ✓ | | | ✓ | | | |
-| musica.descargar | ✓ | | | | | ✓ | |
-| puntajes.cargar | | | ✓ | | | | |
-| puntajes.supervisar | ✓ | ✓ | | | | | |
-| resultados.publicar, pases.registrar, premios.asignar | ✓ | | | | | | |
-| acreditacion.operar | ✓ | | | | | | ✓ |
-| comunicados.enviar, auditoria.ver, exportar.datos | ✓ | | | | | | |
+| Permiso                                               | ORGANIZADOR_EVENTO | DIRECTOR_TECNICO | JURADO | COORDINADOR | LOCUTOR | DJ  | STAFF_ACREDITACION |
+| ----------------------------------------------------- | ------------------ | ---------------- | ------ | ----------- | ------- | --- | ------------------ |
+| evento.configurar, evento.miembros                    | ✓                  |                  |        |             |         |     |                    |
+| inscripciones.ver                                     | ✓                  |                  |        |             |         |     | ✓                  |
+| inscripciones.gestionar                               | ✓                  |                  |        |             |         |     |                    |
+| liquidaciones.ver                                     | ✓                  |                  |        |             |         |     | ✓                  |
+| cobros.registrar                                      | ✓                  |                  |        |             |         |     | ✓                  |
+| cobros.anular, caja.cerrar                            | ✓                  |                  |        |             |         |     |                    |
+| orden.ver                                             | ✓                  | ✓                | ✓      | ✓           | ✓       | ✓   |                    |
+| orden.editar, orden.operar                            | ✓                  |                  |        | ✓           |         |     |                    |
+| musica.descargar                                      | ✓                  |                  |        |             |         | ✓   |                    |
+| puntajes.cargar                                       |                    |                  | ✓      |             |         |     |                    |
+| puntajes.supervisar                                   | ✓                  | ✓                |        |             |         |     |                    |
+| resultados.publicar, pases.registrar, premios.asignar | ✓                  |                  |        |             |         |     |                    |
+| acreditacion.operar                                   | ✓                  |                  |        |             |         |     | ✓                  |
+| comunicados.enviar, auditoria.ver, exportar.datos     | ✓                  |                  |        |             |         |     |                    |
 
 `STAFF_ACREDITACION` registra cobros en la mesa (resuelve C-11) pero no los anula ni cierra caja: la anulación queda en el organizador para mantener separación de funciones.
 
 ## Alternativas
 
-| Opción | Pros | Contras | Veredicto |
-| --- | --- | --- | --- |
-| Rol como `enum` y políticas por rol | Legible | Cada rol nuevo reescribe políticas | Descartada |
-| Claims de permisos en el JWT (custom access token hook) | Sin consultas en RLS | Permisos por evento inflan el token y quedan obsoletos hasta refrescarlo | Descartada para v1; se reevalúa si hay problemas de performance |
-| **Catálogo + funciones `security definer` que devuelven conjuntos** | Extensible, una evaluación por consulta | Una consulta extra por sentencia | **Elegida** |
+| Opción                                                              | Pros                                    | Contras                                                                  | Veredicto                                                       |
+| ------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Rol como `enum` y políticas por rol                                 | Legible                                 | Cada rol nuevo reescribe políticas                                       | Descartada                                                      |
+| Claims de permisos en el JWT (custom access token hook)             | Sin consultas en RLS                    | Permisos por evento inflan el token y quedan obsoletos hasta refrescarlo | Descartada para v1; se reevalúa si hay problemas de performance |
+| **Catálogo + funciones `security definer` que devuelven conjuntos** | Extensible, una evaluación por consulta | Una consulta extra por sentencia                                         | **Elegida**                                                     |
 
 ## Consecuencias
 

@@ -29,11 +29,7 @@ export function buscarCategoria(reglamento: ReglamentoEvento, codigo: string): C
 
 /** Categoría que corresponde a una edad, o null si ninguna la contiene. */
 export function categoriaPorEdad(reglamento: ReglamentoEvento, edad: number): Categoria | null {
-  return (
-    categoriasOrdenadas(reglamento).find(
-      (c) => edad >= c.edadMin && (c.edadMax === null || edad <= c.edadMax),
-    ) ?? null
-  );
+  return categoriasOrdenadas(reglamento).find((c) => edad >= c.edadMin && (c.edadMax === null || edad <= c.edadMax)) ?? null;
 }
 
 export interface EdadYCategoria {
@@ -41,11 +37,7 @@ export interface EdadYCategoria {
   readonly categoria: Categoria | null;
 }
 
-export function edadYCategoria(
-  reglamento: ReglamentoEvento,
-  evento: FechasEvento,
-  fechaNacimiento: FechaISO,
-): EdadYCategoria {
+export function edadYCategoria(reglamento: ReglamentoEvento, evento: FechasEvento, fechaNacimiento: FechaISO): EdadYCategoria {
   const edad = edadCumplida(fechaNacimiento, fechaReferencia(reglamento, evento));
   return { edad, categoria: categoriaPorEdad(reglamento, edad) };
 }

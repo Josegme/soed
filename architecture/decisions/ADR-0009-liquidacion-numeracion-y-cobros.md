@@ -19,11 +19,11 @@ SOED no procesa pagos. Calcula cuánto debe cada academia, emite una liquidació
 
 ## Alternativas
 
-| Opción | Contras | Veredicto |
-| --- | --- | --- |
-| `SEQUENCE` de Postgres por evento | Deja huecos en rollbacks; una secuencia por evento | Descartada |
-| `max(numero) + 1` | Duplicados bajo concurrencia | Descartada |
-| **Tabla contador con `UPDATE … RETURNING`** | Bloqueo breve por fila | **Elegida** |
+| Opción                                      | Contras                                            | Veredicto   |
+| ------------------------------------------- | -------------------------------------------------- | ----------- |
+| `SEQUENCE` de Postgres por evento           | Deja huecos en rollbacks; una secuencia por evento | Descartada  |
+| `max(numero) + 1`                           | Duplicados bajo concurrencia                       | Descartada  |
+| **Tabla contador con `UPDATE … RETURNING`** | Bloqueo breve por fila                             | **Elegida** |
 
 ## Consecuencias
 

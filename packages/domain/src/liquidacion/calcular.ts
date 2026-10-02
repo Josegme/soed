@@ -35,23 +35,14 @@ function factorFicha(tarifario: Tarifario, ficha: FichaALiquidar): number {
     .reduce((acc, r) => acc * (r.tipo === 'MULTIPLICADOR_COREOGRAFIA' ? r.factor : 1), 1);
 }
 
-function linea(
-  concepto: LineaLiquidacion['concepto'],
-  cantidad: number,
-  precioUnitario: number,
-  referencia?: string,
-): LineaLiquidacion {
+function linea(concepto: LineaLiquidacion['concepto'], cantidad: number, precioUnitario: number, referencia?: string): LineaLiquidacion {
   const importe = redondear(cantidad * precioUnitario);
   return referencia === undefined
     ? { concepto, cantidad, precioUnitario, importe }
     : { concepto, referencia, cantidad, precioUnitario, importe };
 }
 
-function lineasBase(
-  tarifario: Tarifario,
-  inscripcion: InscripcionALiquidar,
-  opciones: OpcionesLiquidacion,
-): LineaLiquidacion[] {
+function lineasBase(tarifario: Tarifario, inscripcion: InscripcionALiquidar, opciones: OpcionesLiquidacion): LineaLiquidacion[] {
   const fichas = fichasCobrables(inscripcion.fichas, opciones);
   const lineas: LineaLiquidacion[] = [];
 
@@ -90,9 +81,7 @@ function lineasBase(
       if (n > 0) lineas.push(linea('RECARGO', n, recargo.monto, recargo.codigo));
     }
     if (recargo.tipo === 'MONTO_POR_BAILARIN') {
-      const coreografos = new Set(
-        fichas.flatMap((f) => f.integrantes.filter((i) => i.esCoreografo).map((i) => i.bailarinId)),
-      );
+      const coreografos = new Set(fichas.flatMap((f) => f.integrantes.filter((i) => i.esCoreografo).map((i) => i.bailarinId)));
       if (coreografos.size > 0) lineas.push(linea('RECARGO', coreografos.size, recargo.monto, recargo.codigo));
     }
   }
@@ -170,8 +159,7 @@ export function estadoLiquidacion(totalCentavos: number, cobradoCentavos: number
 }
 
 /** Saldo pendiente; negativo si se cobró de más (saldo a favor). */
-export const saldoLiquidacion = (totalCentavos: number, cobradoCentavos: number): number =>
-  totalCentavos - cobradoCentavos;
+export const saldoLiquidacion = (totalCentavos: number, cobradoCentavos: number): number => totalCentavos - cobradoCentavos;
 
 const PATRON_SLUG = /^[A-Z0-9]{2,16}$/;
 

@@ -1,12 +1,7 @@
 import 'server-only';
 import type { ReglamentoEvento, Traducible } from '@soed/domain';
 import { supabasePublico } from '@/lib/supabase/publico';
-import type {
-  EventoPublico,
-  FilaOrdenPublica,
-  FilaResultadoPublico,
-  RepositorioEventosPublicos,
-} from '../application/eventos-publicos';
+import type { EventoPublico, FilaOrdenPublica, FilaResultadoPublico, RepositorioEventosPublicos } from '../application/eventos-publicos';
 
 /** Columnas con grant para anon (migración 0800). Nunca usar select('*') con anon. */
 const COLUMNAS =
@@ -76,40 +71,36 @@ export function repositorioEventosPublicos(): RepositorioEventosPublicos {
       if (!db) return [];
       const { data, error } = await db.rpc('publico_orden', { p_slug: slug });
       if (error) throw new Error(`orden ${slug}: ${error.message}`);
-      return (data ?? []).map(
-        (f): FilaOrdenPublica => ({
-          pista: (f.pista ?? {}) as Traducible,
-          bloque: (f.bloque ?? {}) as Traducible,
-          inicioProgramado: f.inicio_programado,
-          posicion: f.posicion,
-          estado: f.estado,
-          coreografia: f.coreografia,
-          academia: f.academia,
-          ciudad: f.ciudad,
-          categoria: f.categoria,
-          formacion: f.formacion,
-          genero: f.genero,
-        }),
-      );
+      return (data ?? []).map((f): FilaOrdenPublica => ({
+        pista: (f.pista ?? {}) as Traducible,
+        bloque: (f.bloque ?? {}) as Traducible,
+        inicioProgramado: f.inicio_programado,
+        posicion: f.posicion,
+        estado: f.estado,
+        coreografia: f.coreografia,
+        academia: f.academia,
+        ciudad: f.ciudad,
+        categoria: f.categoria,
+        formacion: f.formacion,
+        genero: f.genero,
+      }));
     },
     async resultadosPublicos(slug) {
       if (!db) return [];
       const { data, error } = await db.rpc('publico_resultados', { p_slug: slug });
       if (error) throw new Error(`resultados ${slug}: ${error.message}`);
-      return (data ?? []).map(
-        (f): FilaResultadoPublico => ({
-          grupo: f.grupo,
-          puesto: f.puesto,
-          puntaje: Number(f.puntaje),
-          banda: f.banda,
-          coreografia: f.coreografia,
-          academia: f.academia,
-          ciudad: f.ciudad,
-          categoria: f.categoria,
-          formacion: f.formacion,
-          genero: f.genero,
-        }),
-      );
+      return (data ?? []).map((f): FilaResultadoPublico => ({
+        grupo: f.grupo,
+        puesto: f.puesto,
+        puntaje: Number(f.puntaje),
+        banda: f.banda,
+        coreografia: f.coreografia,
+        academia: f.academia,
+        ciudad: f.ciudad,
+        categoria: f.categoria,
+        formacion: f.formacion,
+        genero: f.genero,
+      }));
     },
   };
 }

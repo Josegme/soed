@@ -37,8 +37,8 @@ export default async function Coreografias({ params }: { params: Promise<{ local
                 <Tarjeta className="flex h-full flex-col gap-2">
                   <p className="font-display text-lg font-bold">{c.nombre}</p>
                   <p className="text-sm text-texto-suave">
-                    {nombreCodigo(reglamento, 'generos', c.genero, locale)} · {nombreCodigo(reglamento, 'formaciones', c.formacion, locale)} ·{' '}
-                    {t('integrantes', { cantidad: c.coreografia_bailarin.length })}
+                    {nombreCodigo(reglamento, 'generos', c.genero, locale)} · {nombreCodigo(reglamento, 'formaciones', c.formacion, locale)}{' '}
+                    · {t('integrantes', { cantidad: c.coreografia_bailarin.length })}
                   </p>
                   <div>
                     {c.musica_duracion_seg ? (
@@ -47,7 +47,10 @@ export default async function Coreografias({ params }: { params: Promise<{ local
                       <Insignia tono="alerta">{t('sinMusica')}</Insignia>
                     )}
                   </div>
-                  <Link href={`/academia/coreografias/${c.id}`} className="mt-auto font-semibold text-marca underline-offset-4 hover:underline">
+                  <Link
+                    href={`/academia/coreografias/${c.id}`}
+                    className="mt-auto font-semibold text-marca underline-offset-4 hover:underline"
+                  >
                     {t('editar')}
                   </Link>
                 </Tarjeta>

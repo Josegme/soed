@@ -17,11 +17,11 @@ El WiFi de los venues es inestable. La mesa de acreditación y cobros y la plani
 
 ## Alternativas
 
-| Opción | Contras | Veredicto |
-| --- | --- | --- |
-| Base local completa con replicación (PowerSync, ElectricSQL) | Proveedor extra por instancia y costo | Descartada para v1 |
-| Solo reintento en memoria | Pierde datos si se cierra la pestaña | Descartada |
-| **Outbox en IndexedDB + idempotencia en base** | Lógica de sincronización propia acotada | **Elegida** |
+| Opción                                                       | Contras                                 | Veredicto          |
+| ------------------------------------------------------------ | --------------------------------------- | ------------------ |
+| Base local completa con replicación (PowerSync, ElectricSQL) | Proveedor extra por instancia y costo   | Descartada para v1 |
+| Solo reintento en memoria                                    | Pierde datos si se cierra la pestaña    | Descartada         |
+| **Outbox en IndexedDB + idempotencia en base**               | Lógica de sincronización propia acotada | **Elegida**        |
 
 ## Consecuencias
 

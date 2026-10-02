@@ -32,7 +32,10 @@ export default async function Inicio({ params }: { params: Promise<{ locale: str
             </Link>
             <Link
               href="/eventos"
-              className={cn(estilosBoton({ variante: 'fantasma', tamano: 'grande' }), 'text-marca-contraste ring-1 ring-marca-contraste/50 hover:bg-marca-contraste/10')}
+              className={cn(
+                estilosBoton({ variante: 'fantasma', tamano: 'grande' }),
+                'text-marca-contraste ring-1 ring-marca-contraste/50 hover:bg-marca-contraste/10',
+              )}
             >
               {t('ctaEventos')}
             </Link>
@@ -63,7 +66,10 @@ export default async function Inicio({ params }: { params: Promise<{ locale: str
           <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pasos.map((n) => (
               <li key={n} className="flex flex-col gap-2">
-                <span className="flex size-9 items-center justify-center rounded-full bg-acento font-display font-bold text-acento-contraste" aria-hidden>
+                <span
+                  className="flex size-9 items-center justify-center rounded-full bg-acento font-display font-bold text-acento-contraste"
+                  aria-hidden
+                >
                   {n}
                 </span>
                 <h3 className="font-semibold">{t(`paso${n}Titulo`)}</h3>

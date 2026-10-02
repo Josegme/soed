@@ -17,7 +17,11 @@ export async function setup() {
       const token = (req.headers.authorization ?? '').replace(/^Bearer /, '');
       const claims = verificarJwt(token, secreto);
       res.writeHead(claims?.sub ? 200 : 401, { 'content-type': 'application/json' });
-      res.end(JSON.stringify(claims?.sub ? { id: claims.sub, email: claims.email ?? null, aud: 'authenticated', role: claims.role } : { message: 'invalid' }));
+      res.end(
+        JSON.stringify(
+          claims?.sub ? { id: claims.sub, email: claims.email ?? null, aud: 'authenticated', role: claims.role } : { message: 'invalid' },
+        ),
+      );
       return;
     }
     if (!url.startsWith('/rest/v1')) {
@@ -25,7 +29,13 @@ export async function setup() {
       return;
     }
     const proxy = request(
-      { hostname: destino.hostname, port: destino.port, path: url.replace('/rest/v1', '') || '/', method: req.method, headers: { ...req.headers, host: destino.host } },
+      {
+        hostname: destino.hostname,
+        port: destino.port,
+        path: url.replace('/rest/v1', '') || '/',
+        method: req.method,
+        headers: { ...req.headers, host: destino.host },
+      },
       (respuesta) => {
         res.writeHead(respuesta.statusCode ?? 502, respuesta.headers);
         respuesta.pipe(res);

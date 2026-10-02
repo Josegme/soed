@@ -15,12 +15,7 @@ export interface CobroNuevo {
 }
 
 export type CodigoErrorCobro =
-  | 'MONTO_INVALIDO'
-  | 'MONEDA_DISTINTA'
-  | 'MEDIO_NO_HABILITADO'
-  | 'CLIENT_UUID_INVALIDO'
-  | 'MOTIVO_REQUERIDO'
-  | 'COBRO_YA_ANULADO';
+  'MONTO_INVALIDO' | 'MONEDA_DISTINTA' | 'MEDIO_NO_HABILITADO' | 'CLIENT_UUID_INVALIDO' | 'MOTIVO_REQUERIDO' | 'COBRO_YA_ANULADO';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -49,10 +44,7 @@ export function validarCobro(
 export const montoSugerido = (saldoCentavos: number): number => Math.max(0, saldoCentavos);
 
 /** Un cobro se anula con motivo; nunca se borra (OR-30). */
-export function validarAnulacion(
-  motivo: string,
-  yaAnulado: boolean,
-): Result<{ readonly motivo: string }, ErrorDominio<CodigoErrorCobro>> {
+export function validarAnulacion(motivo: string, yaAnulado: boolean): Result<{ readonly motivo: string }, ErrorDominio<CodigoErrorCobro>> {
   if (yaAnulado) return err(errorDominio('COBRO_YA_ANULADO'));
   const limpio = motivo.trim();
   if (limpio.length < 3) return err(errorDominio('MOTIVO_REQUERIDO'));

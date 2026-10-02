@@ -52,9 +52,7 @@ export const configClienteSchema = z
       terminos: traducibleSchema,
       privacidad: traducibleSchema,
     }),
-    redes: z
-      .object({ instagram: z.url().optional(), facebook: z.url().optional(), sitio: z.url().optional() })
-      .default({}),
+    redes: z.object({ instagram: z.url().optional(), facebook: z.url().optional(), sitio: z.url().optional() }).default({}),
   })
   .refine((c) => c.idiomas.includes(c.idiomaDefecto), { message: 'IDIOMA_DEFECTO_NO_HABILITADO', path: ['idiomaDefecto'] });
 

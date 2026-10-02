@@ -17,7 +17,11 @@ export function puertosEventosSupabase(db: ClienteSupabase, sesion: Sesion): Pue
     },
     async configuracionDe(eventoId) {
       const [{ data: e }, { data: criterios }, { data: pistas }] = await Promise.all([
-        db.from('evento').select('reglamento, tarifario, medios_cobro, datos_pago, bases, config_operacion').eq('id', eventoId).maybeSingle(),
+        db
+          .from('evento')
+          .select('reglamento, tarifario, medios_cobro, datos_pago, bases, config_operacion')
+          .eq('id', eventoId)
+          .maybeSingle(),
         db.from('criterio').select('codigo, nombre, peso, orden').eq('evento_id', eventoId).order('orden'),
         db.from('pista').select('nombre, orden').eq('evento_id', eventoId).order('orden'),
       ]);
@@ -30,7 +34,12 @@ export function puertosEventosSupabase(db: ClienteSupabase, sesion: Sesion): Pue
         datosPago: e.datos_pago as Traducible,
         bases: e.bases as Traducible,
         configOperacion: e.config_operacion as Record<string, unknown>,
-        criterios: (criterios ?? []).map((c) => ({ codigo: c.codigo, nombre: c.nombre as Traducible, peso: Number(c.peso), orden: c.orden })),
+        criterios: (criterios ?? []).map((c) => ({
+          codigo: c.codigo,
+          nombre: c.nombre as Traducible,
+          peso: Number(c.peso),
+          orden: c.orden,
+        })),
         pistas: (pistas ?? []).map((p) => ({ nombre: p.nombre as Traducible, orden: p.orden })),
       } satisfies ConfiguracionClonable;
     },

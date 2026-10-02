@@ -18,24 +18,24 @@ El plan dice a la vez que el reglamento es único para la temporada (§3, "Regla
 
 ### Parámetros del reglamento
 
-| Grupo | Parámetros |
-| --- | --- |
-| Edad | `fechaReferenciaEdad` (`INICIO_EVENTO`, `FIN_EVENTO` o fecha fija); edad en años cumplidos |
-| Categorías | código, nombre, `edadMin`, `edadMax` (abierta), orden |
-| Formaciones | código (`SOLO`, `DUO`, `TRIO`, `GRUPO`, `QUADRO`…), integrantes mín/máx, tolerancia de tiempo en segundos, criterio de categoría (`MAYOR` o `TOLERANCIA_GRUPO`) |
-| Tolerancia de grupo | porcentaje (30), redondeo (`FLOOR`, `CEIL`, `ROUND`), dirección (`AMBAS`, `SOLO_MENORES`, `SOLO_MAYORES`), solo categorías adyacentes (sí/no) |
-| Géneros | código, nombre, categorías habilitadas (vacío = todas), edad mínima opcional |
-| Tiempos | reglas `{ genero?, formacion?, categoria?, maxSegundos }`; gana la regla más específica |
-| Clasificación | bandas ordenadas `{ codigo, nombre, umbral }` (preset: 9,0 / 8,0 / 7,0) |
-| Puntaje | escala mín/máx, decimales, agregación (`PROMEDIO` o `PROMEDIO_SIN_EXTREMOS`), umbral de desvío |
+| Grupo               | Parámetros                                                                                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Edad                | `fechaReferenciaEdad` (`INICIO_EVENTO`, `FIN_EVENTO` o fecha fija); edad en años cumplidos                                                                      |
+| Categorías          | código, nombre, `edadMin`, `edadMax` (abierta), orden                                                                                                           |
+| Formaciones         | código (`SOLO`, `DUO`, `TRIO`, `GRUPO`, `QUADRO`…), integrantes mín/máx, tolerancia de tiempo en segundos, criterio de categoría (`MAYOR` o `TOLERANCIA_GRUPO`) |
+| Tolerancia de grupo | porcentaje (30), redondeo (`FLOOR`, `CEIL`, `ROUND`), dirección (`AMBAS`, `SOLO_MENORES`, `SOLO_MAYORES`), solo categorías adyacentes (sí/no)                   |
+| Géneros             | código, nombre, categorías habilitadas (vacío = todas), edad mínima opcional                                                                                    |
+| Tiempos             | reglas `{ genero?, formacion?, categoria?, maxSegundos }`; gana la regla más específica                                                                         |
+| Clasificación       | bandas ordenadas `{ codigo, nombre, umbral }` (preset: 9,0 / 8,0 / 7,0)                                                                                         |
+| Puntaje             | escala mín/máx, decimales, agregación (`PROMEDIO` o `PROMEDIO_SIN_EXTREMOS`), umbral de desvío                                                                  |
 
 ## Alternativas
 
-| Opción | Pros | Contras | Veredicto |
-| --- | --- | --- | --- |
-| Constantes en `packages/domain` | Simple | No vendible a otro cliente | Descartada |
-| Tablas normalizadas (`categoria`, `genero`, `tiempo`…) | FKs reales, SQL directo | Clonar y versionar es costoso; cada parámetro nuevo es una migración | Descartada |
-| **`jsonb` tipado + snapshot por evento** | Clonado trivial, versionado, parámetros nuevos sin migración | Integridad por trigger y Zod en lugar de FK | **Elegida** |
+| Opción                                                 | Pros                                                         | Contras                                                              | Veredicto   |
+| ------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------- | ----------- |
+| Constantes en `packages/domain`                        | Simple                                                       | No vendible a otro cliente                                           | Descartada  |
+| Tablas normalizadas (`categoria`, `genero`, `tiempo`…) | FKs reales, SQL directo                                      | Clonar y versionar es costoso; cada parámetro nuevo es una migración | Descartada  |
+| **`jsonb` tipado + snapshot por evento**               | Clonado trivial, versionado, parámetros nuevos sin migración | Integridad por trigger y Zod en lugar de FK                          | **Elegida** |
 
 ## Consecuencias
 

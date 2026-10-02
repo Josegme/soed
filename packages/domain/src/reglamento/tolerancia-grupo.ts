@@ -36,10 +36,7 @@ export function evaluarGrupoEnCategoria(
   for (const integrante of fuera) {
     if (integrante.categoria === null) continue;
     const distancia = distanciaCategorias(reglamento, integrante.categoria, categoria);
-    if (
-      (tolerancia.direccion === 'SOLO_MENORES' && distancia > 0) ||
-      (tolerancia.direccion === 'SOLO_MAYORES' && distancia < 0)
-    ) {
+    if ((tolerancia.direccion === 'SOLO_MENORES' && distancia > 0) || (tolerancia.direccion === 'SOLO_MAYORES' && distancia < 0)) {
       infracciones.push(
         infraccion('INTEGRANTE_FUERA_DE_DIRECCION', {
           bailarinId: integrante.bailarinId,
@@ -80,10 +77,7 @@ export interface CategoriaSugerida {
  * de integrantes dentro de la categoría. Con tolerancia menor al 50 % hay a lo
  * sumo una.
  */
-export function sugerirCategoriasGrupo(
-  reglamento: ReglamentoEvento,
-  integrantes: readonly IntegranteCategorizado[],
-): CategoriaSugerida[] {
+export function sugerirCategoriasGrupo(reglamento: ReglamentoEvento, integrantes: readonly IntegranteCategorizado[]): CategoriaSugerida[] {
   return categoriasOrdenadas(reglamento)
     .filter((c) => evaluarGrupoEnCategoria(reglamento, c.codigo, integrantes).length === 0)
     .map((c) => ({

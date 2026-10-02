@@ -20,7 +20,13 @@ describe('[TR-22] [PR-22] emails en el idioma del destinatario', () => {
     expect(r.texto).toContain('Este documento não é uma fatura.');
   });
   it('renderiza comunicados con párrafos y escapa HTML del organizador', async () => {
-    const r = await renderizarComunicado({ idioma: 'es', marca, vistaPrevia: 'Aviso', asunto: 'Cronograma', cuerpo: 'Hola\n\n<script>x</script>' });
+    const r = await renderizarComunicado({
+      idioma: 'es',
+      marca,
+      vistaPrevia: 'Aviso',
+      asunto: 'Cronograma',
+      cuerpo: 'Hola\n\n<script>x</script>',
+    });
     expect(r.html).toContain('Cronograma');
     expect(r.html).not.toContain('<script>x</script>');
   });

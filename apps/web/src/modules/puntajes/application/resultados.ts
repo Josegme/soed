@@ -83,10 +83,16 @@ export async function calcularResultados(
       pendientes.push(f.id);
       continue;
     }
-    const puntaje = puntajeFinal(enviadas.map((pl) => Number(pl.total)), reglamento.puntaje);
+    const puntaje = puntajeFinal(
+      enviadas.map((pl) => Number(pl.total)),
+      reglamento.puntaje,
+    );
     if (puntaje === null) continue;
     completas.push({ fichaId: f.id, categoria: f.categoria, formacion: f.formacion, genero: f.genero, puntaje });
-    const d = detectarDesvios(enviadas.map((pl) => ({ juradoId: pl.juradoId, total: Number(pl.total) })), reglamento.puntaje.umbralDesvio);
+    const d = detectarDesvios(
+      enviadas.map((pl) => ({ juradoId: pl.juradoId, total: Number(pl.total) })),
+      reglamento.puntaje.umbralDesvio,
+    );
     if (d.length > 0) desvios.push({ fichaId: f.id, desvios: d });
   }
 

@@ -17,9 +17,17 @@ export function puertosLiquidacionSupabase(db: ClienteSupabase, sesion: Sesion):
         .maybeSingle();
       if (!i) return null;
       const [fichas, ajustes, pases] = await Promise.all([
-        db.from('ficha').select('id, formacion, genero, categoria, estado, ficha_bailarin (bailarin_id, es_coreografo)').eq('inscripcion_id', id),
+        db
+          .from('ficha')
+          .select('id, formacion, genero, categoria, estado, ficha_bailarin (bailarin_id, es_coreografo)')
+          .eq('inscripcion_id', id),
         db.from('ajuste_liquidacion').select('tipo, monto_centavos, porcentaje, motivo').eq('inscripcion_id', id).is('anulado_at', null),
-        db.from('pase').select('beneficio, motivo').eq('evento_destino_id', i.evento_id).eq('academia_id', i.academia_id).is('anulado_at', null),
+        db
+          .from('pase')
+          .select('beneficio, motivo')
+          .eq('evento_destino_id', i.evento_id)
+          .eq('academia_id', i.academia_id)
+          .is('anulado_at', null),
       ]);
       const tarifario = tarifarioSchema.safeParse(i.evento?.tarifario);
       return {
@@ -27,20 +35,19 @@ export function puertosLiquidacionSupabase(db: ClienteSupabase, sesion: Sesion):
         eventoId: i.evento_id,
         academiaId: i.academia_id,
         tarifario: tarifario.success ? (tarifario.data as Tarifario) : null,
-        fichas: (fichas.data ?? []).map(
-          (f): FichaALiquidar => ({
-            id: f.id,
-            formacion: f.formacion,
-            genero: f.genero,
-            categoria: f.categoria,
-            estado: f.estado as FichaALiquidar['estado'],
-            integrantes: f.ficha_bailarin.map((b) => ({ bailarinId: b.bailarin_id, esCoreografo: b.es_coreografo })),
-          }),
-        ),
+        fichas: (fichas.data ?? []).map((f): FichaALiquidar => ({
+          id: f.id,
+          formacion: f.formacion,
+          genero: f.genero,
+          categoria: f.categoria,
+          estado: f.estado as FichaALiquidar['estado'],
+          integrantes: f.ficha_bailarin.map((b) => ({ bailarinId: b.bailarin_id, esCoreografo: b.es_coreografo })),
+        })),
         rubros: Array.isArray(i.rubros) ? (i.rubros as { codigo: string; cantidad: number }[]) : [],
         ajustes: (ajustes.data ?? []).map((a): Ajuste => {
           if (a.tipo === 'SIN_CARGO') return { tipo: 'SIN_CARGO', motivo: a.motivo };
-          if (a.tipo === 'DESCUENTO_PORCENTAJE') return { tipo: 'DESCUENTO_PORCENTAJE', porcentaje: Number(a.porcentaje), motivo: a.motivo };
+          if (a.tipo === 'DESCUENTO_PORCENTAJE')
+            return { tipo: 'DESCUENTO_PORCENTAJE', porcentaje: Number(a.porcentaje), motivo: a.motivo };
           return { tipo: a.tipo as 'MONTO_LIBRE' | 'DESCUENTO_MONTO', monto: Number(a.monto_centavos), motivo: a.motivo };
         }),
         beneficios: (pases.data ?? [])
@@ -59,7 +66,9 @@ export function puertosLiquidacionSupabase(db: ClienteSupabase, sesion: Sesion):
         .order('version', { ascending: false })
         .limit(1)
         .maybeSingle();
-      return data ? { version: data.version, totalCentavos: Number(data.total_centavos), detalle: data.detalle as unknown as CalculoLiquidacion } : null;
+      return data
+        ? { version: data.version, totalCentavos: Number(data.total_centavos), detalle: data.detalle as unknown as CalculoLiquidacion }
+        : null;
     },
     async asegurarLiquidacion(inscripcionId) {
       const { data, error } = await supabaseAdmin().rpc('crear_liquidacion', { p_inscripcion: inscripcionId });

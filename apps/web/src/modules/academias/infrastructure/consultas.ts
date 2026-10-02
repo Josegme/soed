@@ -35,7 +35,9 @@ export async function listarBailarines(db: ClienteSupabase, academiaId: string) 
 export async function listarCoreografias(db: ClienteSupabase, academiaId: string) {
   const { data } = await db
     .from('coreografia')
-    .select('id, nombre, genero, formacion, coreografo, musica_path, musica_nombre, musica_duracion_seg, activa, coreografia_bailarin (bailarin_id, es_coreografo)')
+    .select(
+      'id, nombre, genero, formacion, coreografo, musica_path, musica_nombre, musica_duracion_seg, activa, coreografia_bailarin (bailarin_id, es_coreografo)',
+    )
     .eq('academia_id', academiaId)
     .eq('activa', true)
     .order('nombre');
@@ -59,7 +61,9 @@ export async function reglamentoDeReferencia(db: ClienteSupabase): Promise<Regla
 export async function eventosPublicadosParaAcademia(db: ClienteSupabase) {
   const { data } = await db
     .from('evento')
-    .select('id, slug, tipo, nombre, idioma_defecto, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, sede')
+    .select(
+      'id, slug, tipo, nombre, idioma_defecto, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, sede',
+    )
     .eq('publicado', true)
     .order('fecha_inicio');
   return data ?? [];
@@ -76,7 +80,12 @@ export async function pasesDeAcademia(db: ClienteSupabase, academiaId: string) {
 }
 
 export async function comunicadosDeAcademia(db: ClienteSupabase) {
-  const { data } = await db.from('comunicado').select('id, asunto, cuerpo, enviado_at, evento_id').eq('estado', 'ENVIADO').order('enviado_at', { ascending: false }).limit(10);
+  const { data } = await db
+    .from('comunicado')
+    .select('id, asunto, cuerpo, enviado_at, evento_id')
+    .eq('estado', 'ENVIADO')
+    .order('enviado_at', { ascending: false })
+    .limit(10);
   return data ?? [];
 }
 
@@ -100,7 +109,9 @@ export interface FichaDeAcademia {
 export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, academiaId: string) {
   const { data: evento } = await db
     .from('evento')
-    .select('id, slug, tipo, nombre, idioma_defecto, moneda, zona_horaria, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, tarifario, datos_pago, orden_publicado_at, resultados_publicados_at, publicado')
+    .select(
+      'id, slug, tipo, nombre, idioma_defecto, moneda, zona_horaria, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, tarifario, datos_pago, orden_publicado_at, resultados_publicados_at, publicado',
+    )
     .eq('slug', slug.toUpperCase())
     .maybeSingle();
   if (!evento) return null;
@@ -112,12 +123,25 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
     .maybeSingle();
   let fichas: FichaDeAcademia[] = [];
   let liquidacion = null;
-  let devoluciones: { ficha_id: string | null; jurado_numero: number | null; total: number | null; comentario: string | null; notas: unknown }[] = [];
-  let orden: { ficha_id: string; posicion: number; estado: string; bloque: { nombre: unknown; inicio_programado: string | null } | null }[] = [];
+  let devoluciones: {
+    ficha_id: string | null;
+    jurado_numero: number | null;
+    total: number | null;
+    comentario: string | null;
+    notas: unknown;
+  }[] = [];
+  let orden: {
+    ficha_id: string;
+    posicion: number;
+    estado: string;
+    bloque: { nombre: unknown; inicio_programado: string | null } | null;
+  }[] = [];
   if (inscripcion) {
     const { data } = await db
       .from('ficha')
-      .select('id, nombre, genero, formacion, categoria, categoria_declarada, estado, bloqueada, observacion, validacion, musica_duracion_seg, coreografia_id, ficha_bailarin (bailarin_id, nombre_mostrado, edad, categoria)')
+      .select(
+        'id, nombre, genero, formacion, categoria, categoria_declarada, estado, bloqueada, observacion, validacion, musica_duracion_seg, coreografia_id, ficha_bailarin (bailarin_id, nombre_mostrado, edad, categoria)',
+      )
       .eq('inscripcion_id', inscripcion.id)
       .order('creado_at');
     fichas = (data ?? []).map((f) => ({
@@ -138,7 +162,11 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
     const [liq, dev, ord] = await Promise.all([
       db.from('v_liquidacion_estado').select('*').eq('inscripcion_id', inscripcion.id).maybeSingle(),
       db.from('v_devolucion_jurado').select('ficha_id, jurado_numero, total, comentario, notas').eq('evento_id', evento.id),
-      db.from('orden_item').select('ficha_id, posicion, estado, bloque:bloque!orden_item_bloque_id_evento_id_fkey (nombre, inicio_programado)').eq('evento_id', evento.id).order('posicion'),
+      db
+        .from('orden_item')
+        .select('ficha_id, posicion, estado, bloque:bloque!orden_item_bloque_id_evento_id_fkey (nombre, inicio_programado)')
+        .eq('evento_id', evento.id)
+        .order('posicion'),
     ]);
     liquidacion = liq.data;
     devoluciones = (dev.data ?? []) as typeof devoluciones;

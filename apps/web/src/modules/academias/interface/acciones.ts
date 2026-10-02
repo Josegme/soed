@@ -122,7 +122,11 @@ export async function guardarCoreografia(_previo: EstadoFormulario, datos: FormD
     coreografiaId = idExistente.data;
     await db.from('coreografia_bailarin').delete().eq('coreografia_id', coreografiaId);
   } else {
-    const { data, error } = await db.from('coreografia').insert({ ...fila, academia_id: academiaId.data }).select('id').single();
+    const { data, error } = await db
+      .from('coreografia')
+      .insert({ ...fila, academia_id: academiaId.data })
+      .select('id')
+      .single();
     if (error || !data) return { ok: false, mensaje: codigoDe(error), valores };
     coreografiaId = data.id;
   }
@@ -190,7 +194,9 @@ export async function inscribirFicha(_previo: EstadoFormulario, datos: FormData)
   const [{ data: coreo }, { data: insc }] = await Promise.all([
     db
       .from('coreografia')
-      .select('id, nombre, genero, formacion, musica_path, musica_duracion_seg, coreografia_bailarin (bailarin_id, es_coreografo, bailarin:bailarin!coreografia_bailarin_bailarin_id_academia_id_fkey (nombre, apellido))')
+      .select(
+        'id, nombre, genero, formacion, musica_path, musica_duracion_seg, coreografia_bailarin (bailarin_id, es_coreografo, bailarin:bailarin!coreografia_bailarin_bailarin_id_academia_id_fkey (nombre, apellido))',
+      )
       .eq('id', coreografiaId)
       .eq('academia_id', academiaId)
       .maybeSingle(),
@@ -267,7 +273,9 @@ export async function guardarRubros(entrada: unknown): Promise<{ ok: boolean; me
   return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true, mensaje: 'guardado' };
 }
 
-export async function emitirLiquidacionAccion(inscripcionId: string): Promise<{ ok: boolean; mensaje?: string; numero?: string; version?: number }> {
+export async function emitirLiquidacionAccion(
+  inscripcionId: string,
+): Promise<{ ok: boolean; mensaje?: string; numero?: string; version?: number }> {
   if (!uuidSchema.safeParse(inscripcionId).success) return { ok: false };
   const { sesion, db } = await requerirSesion();
   const idioma = (await getLocale()) as Idioma;

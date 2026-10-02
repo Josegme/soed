@@ -9,7 +9,11 @@ import { ajusteSchema, tarifarioSchema } from './tarifario';
 describe('[TR-31] validación en el borde', () => {
   it('[TR-01] acepta el preset y reporta errores de coherencia del dominio', () => {
     expect(reglamentoSchema.safeParse(PRESET_ENCUENTRO_2026).success).toBe(true);
-    const roto = { ...PRESET_ENCUENTRO_2026, toleranciaGrupo: { ...PRESET_ENCUENTRO_2026.toleranciaGrupo, porcentaje: 30 }, bandas: [...PRESET_ENCUENTRO_2026.bandas].reverse() };
+    const roto = {
+      ...PRESET_ENCUENTRO_2026,
+      toleranciaGrupo: { ...PRESET_ENCUENTRO_2026.toleranciaGrupo, porcentaje: 30 },
+      bandas: [...PRESET_ENCUENTRO_2026.bandas].reverse(),
+    };
     const r = reglamentoSchema.safeParse(roto);
     expect(r.success).toBe(false);
     expect(r.error?.issues.map((i) => i.message)).toContain('BANDAS_NO_ORDENADAS');
@@ -20,7 +24,9 @@ describe('[TR-31] validación en el borde', () => {
       tarifarioSchema.safeParse({
         moneda: 'BRL',
         porBailarin: { precio: 10000 },
-        recargos: [{ codigo: 'QUADRO', nombre: { es: 'Quadro' }, tipo: 'MULTIPLICADOR_COREOGRAFIA', filtro: { formacion: 'QUADRO' }, factor: 2 }],
+        recargos: [
+          { codigo: 'QUADRO', nombre: { es: 'Quadro' }, tipo: 'MULTIPLICADOR_COREOGRAFIA', filtro: { formacion: 'QUADRO' }, factor: 2 },
+        ],
       }).success,
     ).toBe(true);
     expect(tarifarioSchema.safeParse({ moneda: 'EUR' }).success).toBe(false);
@@ -56,7 +62,9 @@ describe('[TR-31] validación en el borde', () => {
   });
 
   it('valida planillas y reservas públicas con honeypot', () => {
-    expect(guardarPlanillaSchema.safeParse({ fichaId: randomUUID(), notas: [], enviar: false, clientUuid: randomUUID() }).success).toBe(true);
+    expect(guardarPlanillaSchema.safeParse({ fichaId: randomUUID(), notas: [], enviar: false, clientUuid: randomUUID() }).success).toBe(
+      true,
+    );
     const reserva = { entradaTipoId: randomUUID(), nombre: 'Ana', email: 'ana@example.com', cantidad: 2 };
     expect(reservaEntradaSchema.safeParse(reserva).success).toBe(true);
     expect(reservaEntradaSchema.safeParse({ ...reserva, sitioWeb: 'spam.com' }).success).toBe(false);

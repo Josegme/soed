@@ -47,9 +47,13 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
     ? await Promise.all([listarCoreografias(db, academia.id), liquidacionPrevia(puertosLiquidacionSupabase(db, sesion), inscripcion.id)])
     : [[], null];
   const inscriptas = new Set(fichas.map((f) => f.coreografiaId));
-  const disponibles = coreografias.filter((c) => !inscriptas.has(c.id)).map((c) => ({ id: c.id, nombre: c.nombre, formacion: c.formacion }));
+  const disponibles = coreografias
+    .filter((c) => !inscriptas.has(c.id))
+    .map((c) => ({ id: c.id, nombre: c.nombre, formacion: c.formacion }));
   const rubrosTarifario = (evento.tarifario as { rubros?: { codigo: string; nombre: unknown; precioUnitario: number }[] })?.rubros ?? [];
-  const seleccionRubros = Object.fromEntries(((inscripcion?.rubros as { codigo: string; cantidad: number }[]) ?? []).map((r) => [r.codigo, r.cantidad]));
+  const seleccionRubros = Object.fromEntries(
+    ((inscripcion?.rubros as { codigo: string; cantidad: number }[]) ?? []).map((r) => [r.codigo, r.cantidad]),
+  );
   const resultadosPublicados = evento.resultados_publicados_at !== null;
 
   return (
@@ -87,8 +91,11 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                         <div className="flex flex-col gap-1">
                           <p className="font-display text-lg font-bold">{f.nombre}</p>
                           <p className="text-sm text-texto-suave">
-                            {nombreCodigo(reglamento, 'generos', f.genero, locale)} · {nombreCodigo(reglamento, 'formaciones', f.formacion, locale)} · {t('categoria')}:{' '}
-                            <strong className="text-texto">{f.categoria ? nombreCodigo(reglamento, 'categorias', f.categoria, locale) : t('sinCategoria')}</strong>
+                            {nombreCodigo(reglamento, 'generos', f.genero, locale)} ·{' '}
+                            {nombreCodigo(reglamento, 'formaciones', f.formacion, locale)} · {t('categoria')}:{' '}
+                            <strong className="text-texto">
+                              {f.categoria ? nombreCodigo(reglamento, 'categorias', f.categoria, locale) : t('sinCategoria')}
+                            </strong>
                           </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -98,7 +105,11 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                         </div>
                       </div>
                       {f.observacion ? (
-                        <Aviso tono="alerta">{f.observacion === 'REVALIDACION_REGLAMENTO' ? t('observacionRevalidacion') : t('observacion', { texto: f.observacion })}</Aviso>
+                        <Aviso tono="alerta">
+                          {f.observacion === 'REVALIDACION_REGLAMENTO'
+                            ? t('observacionRevalidacion')
+                            : t('observacion', { texto: f.observacion })}
+                        </Aviso>
                       ) : null}
                       {v === null ? <p className="text-sm text-texto-suave">{t('sinValidar')}</p> : null}
                       {v && v.infracciones.length > 0 ? (
@@ -128,7 +139,8 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                         </ul>
                         {f.musicaDuracion && v?.tiempoMaximoSegundos ? (
                           <p className="mt-2 text-texto-suave">
-                            {t('duracion')}: {formatearDuracion(f.musicaDuracion)} · {t('tiempoMaximo', { maximo: v.tiempoMaximoSegundos, tolerancia: v.toleranciaSegundos })}
+                            {t('duracion')}: {formatearDuracion(f.musicaDuracion)} ·{' '}
+                            {t('tiempoMaximo', { maximo: v.tiempoMaximoSegundos, tolerancia: v.toleranciaSegundos })}
                           </p>
                         ) : null}
                       </details>
@@ -174,7 +186,11 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                 <FormularioRubros
                   inscripcionId={inscripcion.id}
                   seleccion={seleccionRubros}
-                  rubros={rubrosTarifario.map((r) => ({ codigo: r.codigo, nombre: texto(r.nombre, locale, defecto) || r.codigo, precio: monto(r.precioUnitario) }))}
+                  rubros={rubrosTarifario.map((r) => ({
+                    codigo: r.codigo,
+                    nombre: texto(r.nombre, locale, defecto) || r.codigo,
+                    precio: monto(r.precioUnitario),
+                  }))}
                 />
               </Tarjeta>
               <Tarjeta className="flex flex-col gap-3">
@@ -191,11 +207,22 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                       <dd className="text-right font-bold tabular-nums">{monto(liquidacion.saldo_centavos)}</dd>
                     </dl>
                     <div>
-                      <Insignia tono={liquidacion.estado === 'PAGADA' || liquidacion.estado === 'SIN_CARGO' ? 'exito' : liquidacion.estado === 'PARCIAL' ? 'alerta' : 'neutro'}>
+                      <Insignia
+                        tono={
+                          liquidacion.estado === 'PAGADA' || liquidacion.estado === 'SIN_CARGO'
+                            ? 'exito'
+                            : liquidacion.estado === 'PARCIAL'
+                              ? 'alerta'
+                              : 'neutro'
+                        }
+                      >
                         {te(`liquidacion.${liquidacion.estado as 'PAGADA'}`)}
                       </Insignia>
                     </div>
-                    <a href={`/api/liquidaciones/${liquidacion.liquidacion_id}/pdf?idioma=${locale}`} className="font-semibold text-marca underline-offset-4 hover:underline">
+                    <a
+                      href={`/api/liquidaciones/${liquidacion.liquidacion_id}/pdf?idioma=${locale}`}
+                      className="font-semibold text-marca underline-offset-4 hover:underline"
+                    >
                       {t('descargarPdf')}
                     </a>
                   </>

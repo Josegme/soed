@@ -32,8 +32,12 @@ export default async function DetalleEvento({ params }: Props) {
   const defecto = evento.idiomaDefecto as Idioma;
   const lugar = [evento.sede.venue, evento.sede.ciudad, evento.sede.region, evento.sede.pais].filter(Boolean).join(', ');
   const bases = texto(evento.bases, locale, defecto);
-  const fechaCierre = evento.inscripcionCierre ? formatearInstante(evento.inscripcionCierre, locale, evento.zonaHoraria, { dateStyle: 'long' }) : null;
-  const fechaApertura = evento.inscripcionApertura ? formatearInstante(evento.inscripcionApertura, locale, evento.zonaHoraria, { dateStyle: 'long' }) : null;
+  const fechaCierre = evento.inscripcionCierre
+    ? formatearInstante(evento.inscripcionCierre, locale, evento.zonaHoraria, { dateStyle: 'long' })
+    : null;
+  const fechaApertura = evento.inscripcionApertura
+    ? formatearInstante(evento.inscripcionApertura, locale, evento.zonaHoraria, { dateStyle: 'long' })
+    : null;
 
   return (
     <article className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6">

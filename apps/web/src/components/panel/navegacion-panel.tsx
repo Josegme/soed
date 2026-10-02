@@ -50,9 +50,7 @@ export async function NavegacionPanel({ sesion, db, idioma }: { sesion: Sesion; 
         .filter((p) => p.enlaces.length > 0)
         .map(({ evento, enlaces }) => (
           <div key={evento.id} className="flex flex-col gap-1">
-            <p className="px-3 text-xs font-semibold text-texto-suave">
-              {texto(evento.nombre, idioma, evento.idiomaDefecto as Idioma)}
-            </p>
+            <p className="px-3 text-xs font-semibold text-texto-suave">{texto(evento.nombre, idioma, evento.idiomaDefecto as Idioma)}</p>
             <ul className="flex flex-col gap-0.5">
               {enlaces.map((l) => (
                 <li key={l.href}>

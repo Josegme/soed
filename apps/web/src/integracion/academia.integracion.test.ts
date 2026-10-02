@@ -22,7 +22,12 @@ describe('[TR-36] sesión: roles y permisos leídos con RLS', () => {
   });
   it('arma la sesión del staff con los permisos de su rol en el evento A', async () => {
     const s = await construirSesion(clienteDe('staff_a'), { id: ids.staff_a! });
-    expect([...(s.permisos.get(ids.evento_a!) ?? [])].sort()).toEqual(['acreditacion.operar', 'cobros.registrar', 'inscripciones.ver', 'liquidaciones.ver']);
+    expect([...(s.permisos.get(ids.evento_a!) ?? [])].sort()).toEqual([
+      'acreditacion.operar',
+      'cobros.registrar',
+      'inscripciones.ver',
+      'liquidaciones.ver',
+    ]);
   });
   it('reconoce al Super Admin', async () => {
     expect((await construirSesion(clienteDe('sa'), { id: ids.sa! })).esSuperAdmin).toBe(true);
@@ -81,12 +86,22 @@ describe('[PR-10] [PR-12] [PR-13] [PR-15] flujo de la academia sobre PostgREST',
       .single();
     expect(error).toBeNull();
     expect(ficha?.estado).toBe('BORRADOR');
-    await db.from('ficha_bailarin').insert({ ficha_id: ficha!.id, bailarin_id: ids.bailarin1b!, evento_id: ids.evento_a!, academia_id: ids.academia1!, nombre_mostrado: 'Bruno Uno' });
+    await db.from('ficha_bailarin').insert({
+      ficha_id: ficha!.id,
+      bailarin_id: ids.bailarin1b!,
+      evento_id: ids.evento_a!,
+      academia_id: ids.academia1!,
+      nombre_mostrado: 'Bruno Uno',
+    });
 
     const sesion = await construirSesion(db, { id: ids.prof1! });
     const r = await revalidarFicha(puertosFichaSupabase(db, sesion), ficha!.id);
     expect(r.ok && r.value.valida).toBe(true);
-    const { data: guardada } = await db.from('ficha').select('categoria, validacion, ficha_bailarin (edad, categoria)').eq('id', ficha!.id).single();
+    const { data: guardada } = await db
+      .from('ficha')
+      .select('categoria, validacion, ficha_bailarin (edad, categoria)')
+      .eq('id', ficha!.id)
+      .single();
     expect(guardada?.categoria).toBe('INFANTO_JUVENIL');
     expect(guardada?.ficha_bailarin[0]?.edad).toBeGreaterThan(10);
   });
@@ -94,7 +109,10 @@ describe('[PR-10] [PR-12] [PR-13] [PR-15] flujo de la academia sobre PostgREST',
     const db = clienteDe('prof2');
     const sesion = await construirSesion(db, { id: ids.prof2! });
     const { data } = await clienteDe('prof1').from('ficha').select('id').eq('coreografia_id', ids.coreo1b!).single();
-    expect(await revalidarFicha(puertosFichaSupabase(db, sesion), data!.id)).toMatchObject({ ok: false, error: { codigo: 'FICHA_INEXISTENTE' } });
+    expect(await revalidarFicha(puertosFichaSupabase(db, sesion), data!.id)).toMatchObject({
+      ok: false,
+      error: { codigo: 'FICHA_INEXISTENTE' },
+    });
   });
   it('calcula la liquidación en vivo y emite versiones con número correlativo', async () => {
     const db = clienteDe('prof1');

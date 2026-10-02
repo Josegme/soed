@@ -16,11 +16,11 @@ Cobros, anulaciones, pases, publicación de resultados, reaperturas de planillas
 
 ## Alternativas
 
-| Opción | Contras | Veredicto |
-| --- | --- | --- |
-| Auditoría en los casos de uso | Se omite si alguien escribe por otra vía | Descartada |
-| Extensión `pgaudit` | Log de servidor, no consultable por el organizador | Complementaria, no reemplaza |
-| **Triggers + tabla append-only** | Costo de escritura extra en tablas sensibles | **Elegida** |
+| Opción                           | Contras                                            | Veredicto                    |
+| -------------------------------- | -------------------------------------------------- | ---------------------------- |
+| Auditoría en los casos de uso    | Se omite si alguien escribe por otra vía           | Descartada                   |
+| Extensión `pgaudit`              | Log de servidor, no consultable por el organizador | Complementaria, no reemplaza |
+| **Triggers + tabla append-only** | Costo de escritura extra en tablas sensibles       | **Elegida**                  |
 
 ## Consecuencias
 

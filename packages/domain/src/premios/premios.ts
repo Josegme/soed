@@ -13,11 +13,7 @@ export interface Asignacion {
  * Reparte un premio entre fichas ganadoras (OR-43). Con DIVIDIR_MONTO el empate
  * divide el monto y los centavos sobrantes van a las primeras.
  */
-export function repartirPremio(
-  fichas: readonly string[],
-  monto: Dinero | null,
-  regla: ReglaEmpate,
-): Asignacion[] {
+export function repartirPremio(fichas: readonly string[], monto: Dinero | null, regla: ReglaEmpate): Asignacion[] {
   if (fichas.length === 0) return [];
   if (monto === null) return fichas.map((fichaId) => ({ fichaId, monto: null }));
   if (regla === 'MONTO_COMPLETO_CADA_UNO') return fichas.map((fichaId) => ({ fichaId, monto }));

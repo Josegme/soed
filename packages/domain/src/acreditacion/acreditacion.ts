@@ -22,5 +22,4 @@ export function acreditar(credencial: Credencial, ahora: string): ResultadoAcred
 }
 
 /** Control de acceso por zona (OP-24). Una credencial sin zonas no accede a zonas restringidas. */
-export const puedeAcceder = (credencial: Credencial, zona: string): boolean =>
-  !credencial.anulada && credencial.zonas.includes(zona);
+export const puedeAcceder = (credencial: Credencial, zona: string): boolean => !credencial.anulada && credencial.zonas.includes(zona);

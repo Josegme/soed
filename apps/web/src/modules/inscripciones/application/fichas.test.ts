@@ -29,7 +29,10 @@ const ficha = (over: Partial<FichaParaValidar> = {}): FichaParaValidar => ({
 });
 
 function fake(f: FichaParaValidar | null, permisos = { academia: true, gestor: false }) {
-  const registro: { guardadas: [string, ResultadoValidacion, number, string | undefined][]; enviadas: string[] } = { guardadas: [], enviadas: [] };
+  const registro: { guardadas: [string, ResultadoValidacion, number, string | undefined][]; enviadas: string[] } = {
+    guardadas: [],
+    enviadas: [],
+  };
   const puertos: PuertosFicha = {
     leerFicha: async () => f,
     leerEvento: async (id) => (id === 'e1' ? evento : null),
@@ -59,8 +62,14 @@ describe('[PR-12] [TR-11] revalidar ficha', () => {
   });
   it('rechaza fichas inexistentes, eventos inexistentes y usuarios sin permiso', async () => {
     expect(await revalidarFicha(fake(null).puertos, 'x')).toMatchObject({ ok: false, error: { codigo: 'FICHA_INEXISTENTE' } });
-    expect(await revalidarFicha(fake(ficha({ eventoId: 'otro' })).puertos, 'f1')).toMatchObject({ ok: false, error: { codigo: 'EVENTO_INEXISTENTE' } });
-    expect(await revalidarFicha(fake(ficha(), { academia: false, gestor: false }).puertos, 'f1')).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
+    expect(await revalidarFicha(fake(ficha({ eventoId: 'otro' })).puertos, 'f1')).toMatchObject({
+      ok: false,
+      error: { codigo: 'EVENTO_INEXISTENTE' },
+    });
+    expect(await revalidarFicha(fake(ficha(), { academia: false, gestor: false }).puertos, 'f1')).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
   });
 });
 
@@ -82,14 +91,23 @@ describe('[PR-12] [PR-19] enviar ficha', () => {
     expect(registro.enviadas).toEqual(['f1']);
   });
   it('[OR-23] la academia no envía con la ficha bloqueada o la ventana cerrada', async () => {
-    expect(await enviarFicha(fake(ficha({ bloqueada: true })).puertos, 'f1', enVentana)).toMatchObject({ ok: false, error: { codigo: 'FICHA_NO_MODIFICABLE' } });
-    expect(await enviarFicha(fake(ficha()).puertos, 'f1', new Date('2026-04-26T00:00:00Z'))).toMatchObject({ ok: false, error: { codigo: 'FICHA_NO_MODIFICABLE' } });
+    expect(await enviarFicha(fake(ficha({ bloqueada: true })).puertos, 'f1', enVentana)).toMatchObject({
+      ok: false,
+      error: { codigo: 'FICHA_NO_MODIFICABLE' },
+    });
+    expect(await enviarFicha(fake(ficha()).puertos, 'f1', new Date('2026-04-26T00:00:00Z'))).toMatchObject({
+      ok: false,
+      error: { codigo: 'FICHA_NO_MODIFICABLE' },
+    });
   });
   it('el organizador puede enviar fuera de término', async () => {
     const { puertos } = fake(ficha({ bloqueada: true }), { academia: false, gestor: true });
     expect((await enviarFicha(puertos, 'f1', new Date('2026-04-26T00:00:00Z'))).ok).toBe(true);
   });
   it('[PR-21] no envía una ficha retirada', async () => {
-    expect(await enviarFicha(fake(ficha({ estado: 'RETIRADA' })).puertos, 'f1', enVentana)).toMatchObject({ ok: false, error: { codigo: 'FICHA_RETIRADA' } });
+    expect(await enviarFicha(fake(ficha({ estado: 'RETIRADA' })).puertos, 'f1', enVentana)).toMatchObject({
+      ok: false,
+      error: { codigo: 'FICHA_RETIRADA' },
+    });
   });
 });

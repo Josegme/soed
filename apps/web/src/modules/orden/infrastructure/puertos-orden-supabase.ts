@@ -22,15 +22,13 @@ export function puertosOrdenSupabase(db: ClienteSupabase, sesion: Sesion): Puert
       const ordenCategoria = (c: string | null) => (c && categorias.includes(c) ? categorias.indexOf(c) : categorias.length);
       return (data ?? [])
         .filter((f) => f.orden_item.length === 0)
-        .map(
-          (f): FichaParaOrden => ({
-            fichaId: f.id,
-            academia: f.academia_id,
-            categoriaOrden: ordenCategoria(f.categoria),
-            formacion: f.formacion,
-            genero: f.genero,
-          }),
-        );
+        .map((f): FichaParaOrden => ({
+          fichaId: f.id,
+          academia: f.academia_id,
+          categoriaOrden: ordenCategoria(f.categoria),
+          formacion: f.formacion,
+          genero: f.genero,
+        }));
     },
     async ordenFormaciones(eventoId) {
       const { data } = await db.from('evento').select('reglamento').eq('id', eventoId).maybeSingle();
@@ -38,7 +36,13 @@ export function puertosOrdenSupabase(db: ClienteSupabase, sesion: Sesion): Puert
       return formaciones.map((f) => f.codigo);
     },
     async ultimaPosicion(bloqueId) {
-      const { data } = await db.from('orden_item').select('posicion').eq('bloque_id', bloqueId).order('posicion', { ascending: false }).limit(1).maybeSingle();
+      const { data } = await db
+        .from('orden_item')
+        .select('posicion')
+        .eq('bloque_id', bloqueId)
+        .order('posicion', { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return data?.posicion ?? 0;
     },
     async bloque(bloqueId) {
@@ -47,7 +51,13 @@ export function puertosOrdenSupabase(db: ClienteSupabase, sesion: Sesion): Puert
     },
     async insertarItems(items) {
       const { error } = await db.from('orden_item').insert(
-        items.map((i) => ({ evento_id: i.eventoId, pista_id: i.pistaId, bloque_id: i.bloqueId, ficha_id: i.fichaId, posicion: i.posicion })),
+        items.map((i) => ({
+          evento_id: i.eventoId,
+          pista_id: i.pistaId,
+          bloque_id: i.bloqueId,
+          ficha_id: i.fichaId,
+          posicion: i.posicion,
+        })),
       );
       if (error) throw new Error(error.message);
     },

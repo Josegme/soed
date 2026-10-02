@@ -30,7 +30,13 @@ function useAccion(namespace: string) {
     iniciar(async () => {
       const r = await fn();
       const clave = r.mensaje ?? (r.ok ? '' : 'INESPERADO');
-      const textoResultado = !clave ? '' : t.has(clave) ? t(clave, { ...valores, numero: r.numero ?? '', version: r.version ?? '' }) : te.has(clave) ? te(clave) : te('INESPERADO');
+      const textoResultado = !clave
+        ? ''
+        : t.has(clave)
+          ? t(clave, { ...valores, numero: r.numero ?? '', version: r.version ?? '' })
+          : te.has(clave)
+            ? te(clave)
+            : te('INESPERADO');
       setResultado(textoResultado ? { ok: r.ok, texto: textoResultado } : null);
     });
   return { pendiente, resultado, ejecutar };
@@ -157,7 +163,13 @@ export function FormularioSolicitud({ fichaId }: { fichaId: string }) {
       <form action={accion} className="mt-3 flex flex-col gap-3" noValidate>
         {mensaje ? <Aviso tono={estado.ok ? 'exito' : 'error'}>{mensaje}</Aviso> : null}
         <input type="hidden" name="fichaId" value={fichaId} />
-        <CampoArea name="descripcion" etiqueta={t('descripcionSolicitud')} requerido textoRequerido={tc('requerido')} error={m.campo(estado, 'descripcion')} />
+        <CampoArea
+          name="descripcion"
+          etiqueta={t('descripcionSolicitud')}
+          requerido
+          textoRequerido={tc('requerido')}
+          error={m.campo(estado, 'descripcion')}
+        />
         <div>
           <Boton type="submit" tamano="chico" cargando={pendiente}>
             {tc('enviar')}
@@ -223,7 +235,11 @@ export function FormularioRubros({
           tamano="chico"
           variante="secundario"
           cargando={pendiente}
-          onClick={() => ejecutar(() => guardarRubros({ inscripcionId, rubros: Object.entries(cantidades).map(([codigo, cantidad]) => ({ codigo, cantidad })) }))}
+          onClick={() =>
+            ejecutar(() =>
+              guardarRubros({ inscripcionId, rubros: Object.entries(cantidades).map(([codigo, cantidad]) => ({ codigo, cantidad })) }),
+            )
+          }
         >
           {t('guardarRubros')}
         </Boton>

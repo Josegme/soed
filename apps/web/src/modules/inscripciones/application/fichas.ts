@@ -46,22 +46,12 @@ export interface PuertosFicha {
    * Escritura de columnas derivadas (servidor, ADR-0006). `nuevoEstado` llega
    * cuando una ficha enviada deja de cumplir tras un cambio de reglamento.
    */
-  guardarValidacion(
-    fichaId: string,
-    resultado: ResultadoValidacion,
-    reglamentoVersion: number,
-    nuevoEstado?: 'OBSERVADA',
-  ): Promise<void>;
+  guardarValidacion(fichaId: string, resultado: ResultadoValidacion, reglamentoVersion: number, nuevoEstado?: 'OBSERVADA'): Promise<void>;
   marcarEnviada(fichaId: string): Promise<void>;
 }
 
 export type CodigoErrorFicha =
-  | 'FICHA_INEXISTENTE'
-  | 'EVENTO_INEXISTENTE'
-  | 'SIN_PERMISO'
-  | 'FICHA_NO_MODIFICABLE'
-  | 'FICHA_INVALIDA'
-  | 'FICHA_RETIRADA';
+  'FICHA_INEXISTENTE' | 'EVENTO_INEXISTENTE' | 'SIN_PERMISO' | 'FICHA_NO_MODIFICABLE' | 'FICHA_INVALIDA' | 'FICHA_RETIRADA';
 
 type Salida = Result<ResultadoValidacion, ErrorDominio<CodigoErrorFicha>>;
 
@@ -100,8 +90,7 @@ export async function revalidarFicha(p: PuertosFicha, fichaId: string): Promise<
   const resultado = ejecutarValidacion(ficha, evento);
   // Una ficha enviada que deja de cumplir no se rechaza en silencio: pasa a
   // observada con la nueva infracción a la vista de academia y organizador.
-  const dejaDeCumplir =
-    !resultado.valida && !ficha.tieneExcepcion && (ficha.estado === 'ENVIADA' || ficha.estado === 'APROBADA');
+  const dejaDeCumplir = !resultado.valida && !ficha.tieneExcepcion && (ficha.estado === 'ENVIADA' || ficha.estado === 'APROBADA');
   await p.guardarValidacion(ficha.id, resultado, evento.reglamentoVersion, dejaDeCumplir ? 'OBSERVADA' : undefined);
   return ok(resultado);
 }

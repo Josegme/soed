@@ -5,10 +5,20 @@ import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const PARES = [
-  ['texto', 'fondo'], ['texto', 'superficie'], ['texto', 'superficie-2'],
-  ['texto-suave', 'fondo'], ['texto-suave', 'superficie'], ['texto-suave', 'superficie-2'],
-  ['marca-contraste', 'marca'], ['acento-contraste', 'acento'], ['marca', 'fondo'], ['marca', 'superficie'],
-  ['exito', 'superficie'], ['alerta', 'superficie'], ['error', 'superficie'], ['info', 'superficie'],
+  ['texto', 'fondo'],
+  ['texto', 'superficie'],
+  ['texto', 'superficie-2'],
+  ['texto-suave', 'fondo'],
+  ['texto-suave', 'superficie'],
+  ['texto-suave', 'superficie-2'],
+  ['marca-contraste', 'marca'],
+  ['acento-contraste', 'acento'],
+  ['marca', 'fondo'],
+  ['marca', 'superficie'],
+  ['exito', 'superficie'],
+  ['alerta', 'superficie'],
+  ['error', 'superficie'],
+  ['info', 'superficie'],
 ];
 const MINIMO = 4.5;
 

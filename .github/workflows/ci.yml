@@ -31,6 +31,7 @@ jobs:
       - run: pnpm i18n:check
       - run: pnpm contraste
       - run: pnpm --filter @soed/web cliente
+      - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

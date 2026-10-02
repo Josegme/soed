@@ -55,12 +55,33 @@ const funciones = psql(`
 
 function tipoTs(pg) {
   const arreglo = pg.endsWith('[]');
-  const base = pg.replace(/\[\]$/, '').replace(/\(.*\)/, '').trim();
+  const base = pg
+    .replace(/\[\]$/, '')
+    .replace(/\(.*\)/, '')
+    .trim();
   const mapa = {
-    uuid: 'string', text: 'string', 'character varying': 'string', character: 'string', citext: 'string',
-    date: 'string', 'timestamp with time zone': 'string', 'timestamp without time zone': 'string', time: 'string', interval: 'string',
-    smallint: 'number', integer: 'number', bigint: 'number', numeric: 'number', real: 'number', 'double precision': 'number',
-    boolean: 'boolean', jsonb: 'Json', json: 'Json', bytea: 'string', void: 'undefined', inet: 'string',
+    uuid: 'string',
+    text: 'string',
+    'character varying': 'string',
+    character: 'string',
+    citext: 'string',
+    date: 'string',
+    'timestamp with time zone': 'string',
+    'timestamp without time zone': 'string',
+    time: 'string',
+    interval: 'string',
+    smallint: 'number',
+    integer: 'number',
+    bigint: 'number',
+    numeric: 'number',
+    real: 'number',
+    'double precision': 'number',
+    boolean: 'boolean',
+    jsonb: 'Json',
+    json: 'Json',
+    bytea: 'string',
+    void: 'undefined',
+    inet: 'string',
   };
   const ts = mapa[base] ?? 'unknown';
   return arreglo ? `${ts}[]` : ts;
@@ -117,8 +138,14 @@ function bloqueFuncion(f) {
   return `      ${q(f.nombre)}: {\n        Args: ${args};\n        Returns: ${retorno};\n      };`;
 }
 
-const tablas = [...porTabla].filter(([, i]) => i.tipo === 'r').map(([n, i]) => bloqueTabla(n, i)).join('\n');
-const vistas = [...porTabla].filter(([, i]) => i.tipo === 'v').map(([n, i]) => bloqueTabla(n, i)).join('\n');
+const tablas = [...porTabla]
+  .filter(([, i]) => i.tipo === 'r')
+  .map(([n, i]) => bloqueTabla(n, i))
+  .join('\n');
+const vistas = [...porTabla]
+  .filter(([, i]) => i.tipo === 'v')
+  .map(([n, i]) => bloqueTabla(n, i))
+  .join('\n');
 const fns = funciones.map(bloqueFuncion).join('\n');
 
 const salida = `// GENERADO por scripts/gen-db-types.mjs desde supabase/migrations — no editar a mano.

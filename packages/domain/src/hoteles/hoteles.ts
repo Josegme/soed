@@ -36,11 +36,7 @@ function comparar(criterio: CriterioHotel) {
 }
 
 /** Asigna plazas hasta agotar el cupo; el resto queda en lista de espera en orden de prioridad. */
-export function asignarHotel(
-  solicitudes: readonly SolicitudHotel[],
-  cupo: number,
-  criterio: CriterioHotel,
-): AsignacionHotel[] {
+export function asignarHotel(solicitudes: readonly SolicitudHotel[], cupo: number, criterio: CriterioHotel): AsignacionHotel[] {
   let disponibles = Math.max(0, cupo);
   return [...solicitudes].sort(comparar(criterio)).map((s, i) => {
     const asignadas = Math.min(s.plazas, disponibles);

@@ -18,8 +18,7 @@ export interface EntornoPublico {
 export function entornoPublico(): EntornoPublico | null {
   const r = publicoSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
   return r.success ? { supabaseUrl: r.data.NEXT_PUBLIC_SUPABASE_URL, supabaseClave: r.data.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY } : null;
 }

@@ -35,7 +35,9 @@ export type CodigoErrorComunicado = 'SIN_PERMISO' | 'SIN_DESTINATARIOS';
 export async function enviarComunicado(
   p: PuertosComunicados,
   c: { eventoId: string; asunto: Traducible; cuerpo: Traducible; audiencia: Audiencia[] },
-): Promise<Result<{ comunicadoId: string; enviados: number; porIdioma: Partial<Record<Idioma, number>> }, ErrorDominio<CodigoErrorComunicado>>> {
+): Promise<
+  Result<{ comunicadoId: string; enviados: number; porIdioma: Partial<Record<Idioma, number>> }, ErrorDominio<CodigoErrorComunicado>>
+> {
   if (!p.puedeEnviar(c.eventoId)) return err(errorDominio('SIN_PERMISO'));
   const defecto = await p.idiomaDefecto(c.eventoId);
   const unicos = new Map<string, Destinatario>();

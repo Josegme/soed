@@ -77,7 +77,11 @@ describe('result', () => {
 });
 
 describe('[OR-03] [PR-19] ventana de inscripción', () => {
-  const v = { apertura: '2025-08-10T00:00:00-03:00', cierre: '2026-04-20T23:59:59-03:00', cierreModificaciones: '2026-04-25T23:59:59-03:00' };
+  const v = {
+    apertura: '2025-08-10T00:00:00-03:00',
+    cierre: '2026-04-20T23:59:59-03:00',
+    cierreModificaciones: '2026-04-25T23:59:59-03:00',
+  };
   it('recorre los cuatro estados', () => {
     expect(estadoVentana(v, new Date('2025-08-01T00:00:00Z'))).toBe('NO_ABIERTA');
     expect(estadoVentana(v, new Date('2026-01-01T00:00:00Z'))).toBe('ABIERTA');
@@ -91,7 +95,10 @@ describe('[OR-03] [PR-19] ventana de inscripción', () => {
     const abierto = new Date('2026-01-01T00:00:00Z');
     expect(puedeCrearFicha(v, abierto, { maximo: 10, usadas: 9 })).toEqual({ permitido: true });
     expect(puedeCrearFicha(v, abierto, { maximo: 10, usadas: 10 })).toEqual({ permitido: false, motivo: 'CUPO_AGOTADO' });
-    expect(puedeCrearFicha(v, new Date('2026-04-22T00:00:00Z'), { maximo: null, usadas: 0 })).toEqual({ permitido: false, motivo: 'VENTANA_CERRADA' });
+    expect(puedeCrearFicha(v, new Date('2026-04-22T00:00:00Z'), { maximo: null, usadas: 0 })).toEqual({
+      permitido: false,
+      motivo: 'VENTANA_CERRADA',
+    });
     expect(puedeModificarFicha(v, new Date('2026-04-22T00:00:00Z'), false)).toBe(true);
     expect(puedeModificarFicha(v, abierto, true)).toBe(false);
     expect(puedeModificarFicha(v, new Date('2026-05-01T00:00:00Z'), false)).toBe(false);
@@ -123,10 +130,19 @@ describe('[OR-16] [PR-18] campos adicionales', () => {
 
 describe('[OR-33] [OR-34] [TR-13] pases manuales', () => {
   it('exige un único destino y motivo', () => {
-    expect(validarPase({ coreografiaId: 'c', eventoDestinoId: 'e', motivo: '  2º puesto  ' })).toEqual({ ok: true, value: { coreografiaId: 'c', eventoDestinoId: 'e', motivo: '2º puesto' } });
-    expect(validarPase({ coreografiaId: 'c', academiaId: 'a', eventoDestinoId: 'e', motivo: 'x x x' })).toMatchObject({ ok: false, error: { codigo: 'DESTINO_AMBIGUO' } });
+    expect(validarPase({ coreografiaId: 'c', eventoDestinoId: 'e', motivo: '  2º puesto  ' })).toEqual({
+      ok: true,
+      value: { coreografiaId: 'c', eventoDestinoId: 'e', motivo: '2º puesto' },
+    });
+    expect(validarPase({ coreografiaId: 'c', academiaId: 'a', eventoDestinoId: 'e', motivo: 'x x x' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'DESTINO_AMBIGUO' },
+    });
     expect(validarPase({ eventoDestinoId: 'e', motivo: 'x x x' })).toMatchObject({ ok: false, error: { codigo: 'DESTINO_AMBIGUO' } });
-    expect(validarPase({ academiaId: 'a', eventoDestinoId: 'e', motivo: 'no' })).toMatchObject({ ok: false, error: { codigo: 'MOTIVO_REQUERIDO' } });
+    expect(validarPase({ academiaId: 'a', eventoDestinoId: 'e', motivo: 'no' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'MOTIVO_REQUERIDO' },
+    });
   });
   it('valida y traduce beneficios a ajustes de liquidación', () => {
     const base = { academiaId: 'a', eventoDestinoId: 'e', motivo: 'Mejor puntaje' };
@@ -134,8 +150,16 @@ describe('[OR-33] [OR-34] [TR-13] pases manuales', () => {
     expect(validarPase({ ...base, beneficio: { tipo: 'DESCUENTO_MONTO', montoCentavos: 0 } }).ok).toBe(false);
     expect(validarPase({ ...base, beneficio: { tipo: 'BECA' } }).ok).toBe(true);
     expect(ajusteDesdeBeneficio({ tipo: 'BECA' }, 'm')).toEqual({ tipo: 'SIN_CARGO', motivo: 'm' });
-    expect(ajusteDesdeBeneficio({ tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 20 }, 'm')).toEqual({ tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 20, motivo: 'm' });
-    expect(ajusteDesdeBeneficio({ tipo: 'DESCUENTO_MONTO', montoCentavos: 500 }, 'm')).toEqual({ tipo: 'DESCUENTO_MONTO', monto: 500, motivo: 'm' });
+    expect(ajusteDesdeBeneficio({ tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 20 }, 'm')).toEqual({
+      tipo: 'DESCUENTO_PORCENTAJE',
+      porcentaje: 20,
+      motivo: 'm',
+    });
+    expect(ajusteDesdeBeneficio({ tipo: 'DESCUENTO_MONTO', montoCentavos: 500 }, 'm')).toEqual({
+      tipo: 'DESCUENTO_MONTO',
+      monto: 500,
+      motivo: 'm',
+    });
   });
 });
 

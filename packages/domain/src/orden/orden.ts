@@ -23,17 +23,11 @@ const TRANSICIONES: Readonly<Record<EstadoOrden, readonly EstadoOrden[]>> = {
 
 export type CodigoErrorOrden = 'TRANSICION_INVALIDA' | 'ITEM_INEXISTENTE' | 'POSICION_INVALIDA';
 
-export function transicionEstado(
-  desde: EstadoOrden,
-  hacia: EstadoOrden,
-): Result<EstadoOrden, ErrorDominio<CodigoErrorOrden>> {
-  return TRANSICIONES[desde].includes(hacia)
-    ? ok(hacia)
-    : err(errorDominio('TRANSICION_INVALIDA', { desde, hacia }));
+export function transicionEstado(desde: EstadoOrden, hacia: EstadoOrden): Result<EstadoOrden, ErrorDominio<CodigoErrorOrden>> {
+  return TRANSICIONES[desde].includes(hacia) ? ok(hacia) : err(errorDominio('TRANSICION_INVALIDA', { desde, hacia }));
 }
 
-const porPosicion = (items: readonly ItemOrden[]): ItemOrden[] =>
-  [...items].sort((a, b) => a.posicion - b.posicion);
+const porPosicion = (items: readonly ItemOrden[]): ItemOrden[] => [...items].sort((a, b) => a.posicion - b.posicion);
 
 const renumerar = (items: readonly ItemOrden[]): ItemOrden[] =>
   items.map((item, i) => (item.posicion === i + 1 ? item : { ...item, posicion: i + 1 }));
@@ -119,10 +113,7 @@ export interface FichaParaOrden {
  * edad), formación y género; dentro del grupo separa coreografías de la misma
  * academia cuando es posible para dar tiempo de cambio de vestuario.
  */
-export function proponerOrden(
-  fichas: readonly FichaParaOrden[],
-  ordenFormaciones: readonly string[],
-): string[] {
+export function proponerOrden(fichas: readonly FichaParaOrden[], ordenFormaciones: readonly string[]): string[] {
   const rangoFormacion = (f: string): number => {
     const i = ordenFormaciones.indexOf(f);
     return i < 0 ? ordenFormaciones.length : i;

@@ -20,11 +20,19 @@ function fake(permiso = true) {
 describe('[OR-47] [TR-22] comunicados por idioma', () => {
   it('envía uno por email en el idioma de cada destinatario, con fallback', async () => {
     const { p, encolados } = fake();
-    const r = await enviarComunicado(p, { eventoId: 'e1', asunto: { es: 'Cronograma', 'pt-BR': 'Cronograma' }, cuerpo: { es: 'Hola' }, audiencia: ['ACADEMIAS'] });
+    const r = await enviarComunicado(p, {
+      eventoId: 'e1',
+      asunto: { es: 'Cronograma', 'pt-BR': 'Cronograma' },
+      cuerpo: { es: 'Hola' },
+      audiencia: ['ACADEMIAS'],
+    });
     expect(r).toEqual({ ok: true, value: { comunicadoId: 'c1', enviados: 2, porIdioma: { 'pt-BR': 1, es: 1 } } });
     expect(encolados.find((e) => e.idioma === 'pt-BR')?.cuerpo).toBe('Hola');
   });
   it('requiere permiso', async () => {
-    expect(await enviarComunicado(fake(false).p, { eventoId: 'e1', asunto: {}, cuerpo: {}, audiencia: ['STAFF'] })).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
+    expect(await enviarComunicado(fake(false).p, { eventoId: 'e1', asunto: {}, cuerpo: {}, audiencia: ['STAFF'] })).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
   });
 });

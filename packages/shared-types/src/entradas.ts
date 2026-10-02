@@ -44,7 +44,10 @@ export const academiaSchema = z.object({
   ciudad: textoOpcional(120),
   region: textoOpcional(120),
   pais: textoOpcional(80),
-  email: z.email('EMAIL_INVALIDO').optional().or(z.literal('').transform(() => undefined)),
+  email: z
+    .email('EMAIL_INVALIDO')
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
   telefono: textoOpcional(40),
 });
 
@@ -100,7 +103,10 @@ export const registrarCobroSchema = z.object({
   liquidacionId: uuidSchema,
   montoCentavos: centavosSchema.refine((v) => v > 0, 'MONTO_INVALIDO'),
   moneda: monedaSchema,
-  medio: z.string().regex(/^[A-Z_]{2,30}$/).default(MEDIOS_COBRO_DEFECTO[0]),
+  medio: z
+    .string()
+    .regex(/^[A-Z_]{2,30}$/)
+    .default(MEDIOS_COBRO_DEFECTO[0]),
   referencia: textoOpcional(200),
   nota: textoOpcional(1000),
   clientUuid: uuidSchema,
@@ -153,7 +159,11 @@ export const sedeSchema = z.object({
 export const crearEventoSchema = z
   .object({
     temporadaId: uuidSchema,
-    slug: z.string().trim().toUpperCase().regex(/^[A-Z0-9]{2,16}$/, 'SLUG_INVALIDO'),
+    slug: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9]{2,16}$/, 'SLUG_INVALIDO'),
     tipo: z.enum(['SELECTIVO', 'FINAL', 'UNICO']),
     nombre: traducibleRequeridoSchema,
     moneda: monedaSchema,

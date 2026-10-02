@@ -23,7 +23,8 @@ export default async function ResultadosPublicos({ params }: { params: Promise<{
   for (const f of filas) grupos.set(f.grupo, [...(grupos.get(f.grupo) ?? []), f]);
   const defecto = evento.idiomaDefecto as Idioma;
   const decimales = evento.reglamento?.puntaje?.decimalesResultado ?? 2;
-  const nombreBanda = (codigo: string | null) => (codigo ? texto(evento.reglamento?.bandas?.find((b) => b.codigo === codigo)?.nombre, locale) || codigo : '');
+  const nombreBanda = (codigo: string | null) =>
+    codigo ? texto(evento.reglamento?.bandas?.find((b) => b.codigo === codigo)?.nombre, locale) || codigo : '';
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
@@ -32,7 +33,13 @@ export default async function ResultadosPublicos({ params }: { params: Promise<{
       {[...grupos].map(([grupo, lista]) => {
         const muestra = lista[0];
         const titulo = muestra
-          ? [nombreCodigo(evento.reglamento, 'categorias', muestra.categoria, locale), nombreCodigo(evento.reglamento, 'formaciones', muestra.formacion, locale), nombreCodigo(evento.reglamento, 'generos', muestra.genero, locale)].filter(Boolean).join(' · ')
+          ? [
+              nombreCodigo(evento.reglamento, 'categorias', muestra.categoria, locale),
+              nombreCodigo(evento.reglamento, 'formaciones', muestra.formacion, locale),
+              nombreCodigo(evento.reglamento, 'generos', muestra.genero, locale),
+            ]
+              .filter(Boolean)
+              .join(' · ')
           : grupo;
         return (
           <section key={grupo} className="flex flex-col gap-3" aria-label={titulo}>

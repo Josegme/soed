@@ -36,7 +36,9 @@ describe('[OR-28] [OR-30] [OP-20] cobros con RLS y trigger', () => {
     const clientUuid = randomUUID();
     const r = await registrarCobro(p, { liquidacionId: ids.liq1!, montoCentavos: 4000, moneda: 'BRL', medio: 'PIX', clientUuid });
     expect(r).toMatchObject({ ok: true, value: { duplicado: false } });
-    expect(await registrarCobro(p, { liquidacionId: ids.liq1!, montoCentavos: 4000, moneda: 'BRL', medio: 'PIX', clientUuid })).toMatchObject({
+    expect(
+      await registrarCobro(p, { liquidacionId: ids.liq1!, montoCentavos: 4000, moneda: 'BRL', medio: 'PIX', clientUuid }),
+    ).toMatchObject({
       ok: true,
       value: { duplicado: true },
     });
@@ -49,11 +51,23 @@ describe('[OR-28] [OR-30] [OP-20] cobros con RLS y trigger', () => {
   it('rechaza moneda distinta y el organizador de otro evento no ve la liquidación', async () => {
     const { db, sesion } = await contexto('staff_a');
     expect(
-      await registrarCobro(puertosCobroSupabase(db, sesion), { liquidacionId: ids.liq1!, montoCentavos: 100, moneda: 'ARS', medio: 'PIX', clientUuid: randomUUID() }),
+      await registrarCobro(puertosCobroSupabase(db, sesion), {
+        liquidacionId: ids.liq1!,
+        montoCentavos: 100,
+        moneda: 'ARS',
+        medio: 'PIX',
+        clientUuid: randomUUID(),
+      }),
     ).toMatchObject({ ok: false, error: { codigo: 'MONEDA_DISTINTA' } });
     const b = await contexto('org_b');
     expect(
-      await registrarCobro(puertosCobroSupabase(b.db, b.sesion), { liquidacionId: ids.liq1!, montoCentavos: 100, moneda: 'BRL', medio: 'PIX', clientUuid: randomUUID() }),
+      await registrarCobro(puertosCobroSupabase(b.db, b.sesion), {
+        liquidacionId: ids.liq1!,
+        montoCentavos: 100,
+        moneda: 'BRL',
+        medio: 'PIX',
+        clientUuid: randomUUID(),
+      }),
     ).toMatchObject({ ok: false, error: { codigo: 'LIQUIDACION_INEXISTENTE' } });
   });
 
@@ -71,7 +85,11 @@ describe('[OR-28] [OR-30] [OP-20] cobros con RLS y trigger', () => {
     const p = puertosCobroSupabase(db, sesion);
     expect(await anularCobro(p, r.value.cobroId, 'monto equivocado')).toEqual({ ok: true, value: true });
     expect(await anularCobro(p, r.value.cobroId, 'otra vez')).toMatchObject({ ok: false, error: { codigo: 'COBRO_YA_ANULADO' } });
-    expect(sql(`select anulado_por = '${ids.org_a}' and motivo_anulacion = 'monto equivocado' from public.cobro where id = '${r.value.cobroId}'`)).toBe('t');
+    expect(
+      sql(
+        `select anulado_por = '${ids.org_a}' and motivo_anulacion = 'monto equivocado' from public.cobro where id = '${r.value.cobroId}'`,
+      ),
+    ).toBe('t');
     expect((await db.from('cobro').delete().eq('id', r.value.cobroId)).error?.code).toBe('42501');
   });
 });
@@ -93,10 +111,19 @@ describe('[OR-21] [OR-22] [OR-23] gestión de fichas por el organizador', () => 
   it('observa, no aprueba una ficha inválida sin excepción y aprueba con excepción registrada', async () => {
     const { db, sesion } = await contexto('org_a');
     const p = puertosGestionFichaSupabase(db, sesion);
-    expect(await gestionarFicha(p, { accion: 'OBSERVAR', fichaId, observacion: 'Música excede el tiempo' }, new Date())).toEqual({ ok: true, value: true });
+    expect(await gestionarFicha(p, { accion: 'OBSERVAR', fichaId, observacion: 'Música excede el tiempo' }, new Date())).toEqual({
+      ok: true,
+      value: true,
+    });
     expect(sql(`select estado || '|' || observacion from public.ficha where id = '${fichaId}'`)).toBe('OBSERVADA|Música excede el tiempo');
-    expect(await gestionarFicha(p, { accion: 'APROBAR', fichaId }, new Date())).toMatchObject({ ok: false, error: { codigo: 'FICHA_INVALIDA' } });
-    expect(await gestionarFicha(p, { accion: 'EXCEPCION', fichaId, motivo: 'Autorizado por la organización' }, new Date())).toEqual({ ok: true, value: true });
+    expect(await gestionarFicha(p, { accion: 'APROBAR', fichaId }, new Date())).toMatchObject({
+      ok: false,
+      error: { codigo: 'FICHA_INVALIDA' },
+    });
+    expect(await gestionarFicha(p, { accion: 'EXCEPCION', fichaId, motivo: 'Autorizado por la organización' }, new Date())).toEqual({
+      ok: true,
+      value: true,
+    });
     expect(sql(`select excepcion ->> 'por' from public.ficha where id = '${fichaId}'`)).toBe(ids.org_a);
     expect(await gestionarFicha(p, { accion: 'APROBAR', fichaId }, new Date())).toEqual({ ok: true, value: true });
     expect(sql(`select estado from public.ficha where id = '${fichaId}'`)).toBe('APROBADA');
@@ -104,7 +131,9 @@ describe('[OR-21] [OR-22] [OR-23] gestión de fichas por el organizador', () => 
 
   it('el staff con inscripciones.ver no gestiona fichas', async () => {
     const { db, sesion } = await contexto('staff_a');
-    expect(await gestionarFicha(puertosGestionFichaSupabase(db, sesion), { accion: 'BLOQUEAR', fichaId, bloqueada: true }, new Date())).toMatchObject({
+    expect(
+      await gestionarFicha(puertosGestionFichaSupabase(db, sesion), { accion: 'BLOQUEAR', fichaId, bloqueada: true }, new Date()),
+    ).toMatchObject({
       ok: false,
       error: { codigo: 'SIN_PERMISO' },
     });
@@ -116,7 +145,9 @@ describe('[OR-35] [OP-07] orden de salida', () => {
     // Evento B aislado: pista, bloque y dos fichas enviadas de la academia 2.
     const bloque = sql(`
       with p as (insert into public.pista (evento_id, nombre) values ('${ids.evento_b}', '{"es":"Pista B"}') returning id)
-      insert into public.bloque (evento_id, pista_id, nombre) select '${ids.evento_b}', p.id, '{"es":"Bloque B"}' from p returning id`).split('\n')[0]!;
+      insert into public.bloque (evento_id, pista_id, nombre) select '${ids.evento_b}', p.id, '{"es":"Bloque B"}' from p returning id`).split(
+      '\n',
+    )[0]!;
     for (const [nombre, categoria] of [
       ['Solo juvenil B', 'JUVENIL'],
       ['Solo infantil B', 'INFANTIL'],
@@ -130,10 +161,15 @@ describe('[OR-35] [OP-07] orden de salida', () => {
     expect(await asignarFichasABloque(puertosOrdenSupabase(db, sesion), bloque)).toEqual({ ok: true, value: { agregadas: 2 } });
     // Las categorías menores salen primero (orden del reglamento); la ficha en borrador no entra.
     expect(
-      sql(`select string_agg(f.nombre, ',' order by o.posicion) from public.orden_item o join public.ficha f on f.id = o.ficha_id where o.bloque_id = '${bloque}'`),
+      sql(
+        `select string_agg(f.nombre, ',' order by o.posicion) from public.orden_item o join public.ficha f on f.id = o.ficha_id where o.bloque_id = '${bloque}'`,
+      ),
     ).toBe('Solo infantil B,Solo juvenil B');
     const a = await contexto('org_a');
-    expect(await asignarFichasABloque(puertosOrdenSupabase(a.db, a.sesion), bloque)).toMatchObject({ ok: false, error: { codigo: 'BLOQUE_INEXISTENTE' } });
+    expect(await asignarFichasABloque(puertosOrdenSupabase(a.db, a.sesion), bloque)).toMatchObject({
+      ok: false,
+      error: { codigo: 'BLOQUE_INEXISTENTE' },
+    });
   });
 
   it('opera estados en vivo con una sola coreografía en escena por pista', async () => {
@@ -141,13 +177,18 @@ describe('[OR-35] [OP-07] orden de salida', () => {
     const p = puertosOrdenSupabase(db, sesion);
     expect(await cambiarEstadoOrden(p, ids.item1!, 'EN_ESCENA')).toEqual({ ok: true, value: 'EN_ESCENA' });
     expect(await cambiarEstadoOrden(p, ids.item2!, 'EN_ESCENA')).toEqual({ ok: true, value: 'EN_ESCENA' });
-    expect(sql(`select string_agg(estado, ',' order by posicion) from public.orden_item where bloque_id = '${ids.bloque1}'`)).toBe('PRESENTADA,EN_ESCENA');
+    expect(sql(`select string_agg(estado, ',' order by posicion) from public.orden_item where bloque_id = '${ids.bloque1}'`)).toBe(
+      'PRESENTADA,EN_ESCENA',
+    );
     expect(await cambiarEstadoOrden(p, ids.item1!, 'AUSENTE')).toMatchObject({ ok: false, error: { codigo: 'TRANSICION_INVALIDA' } });
   });
 
   it('el locutor solo ve el orden: no puede operar', async () => {
     const { db, sesion } = await contexto('loc_a');
-    expect(await cambiarEstadoOrden(puertosOrdenSupabase(db, sesion), ids.item2!, 'PRESENTADA')).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
+    expect(await cambiarEstadoOrden(puertosOrdenSupabase(db, sesion), ids.item2!, 'PRESENTADA')).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
   });
 });
 
@@ -203,11 +244,23 @@ describe('[OR-33] [TR-13] pases manuales', () => {
   it('registra el pase con traza y valida destino y permisos', async () => {
     const { db, sesion } = await contexto('org_a');
     const p = puertosPaseSupabase(db, sesion);
-    const base = { eventoOrigenId: ids.evento_a!, academiaId: ids.academia1!, coreografiaId: ids.coreo1!, motivo: 'Primer puesto Infanto Juvenil' };
-    const r = await registrarPase(p, { ...base, eventoDestinoId: ids.evento_final!, beneficio: { tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 50 } });
+    const base = {
+      eventoOrigenId: ids.evento_a!,
+      academiaId: ids.academia1!,
+      coreografiaId: ids.coreo1!,
+      motivo: 'Primer puesto Infanto Juvenil',
+    };
+    const r = await registrarPase(p, {
+      ...base,
+      eventoDestinoId: ids.evento_final!,
+      beneficio: { tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 50 },
+    });
     expect(r.ok).toBe(true);
     expect(sql(`select registrado_por from public.pase where coreografia_id = '${ids.coreo1}'`)).toBe(ids.org_a);
-    expect(await registrarPase(p, { ...base, eventoDestinoId: ids.evento_a! })).toMatchObject({ ok: false, error: { codigo: 'DESTINO_INVALIDO' } });
+    expect(await registrarPase(p, { ...base, eventoDestinoId: ids.evento_a! })).toMatchObject({
+      ok: false,
+      error: { codigo: 'DESTINO_INVALIDO' },
+    });
     const b = await contexto('org_b');
     expect(await registrarPase(puertosPaseSupabase(b.db, b.sesion), { ...base, eventoDestinoId: ids.evento_final! })).toMatchObject({
       ok: false,
@@ -228,7 +281,9 @@ describe('[OR-47] [TR-21] comunicados bilingües', () => {
     });
     expect(r).toMatchObject({ ok: true, value: { enviados: 2, porIdioma: { es: 1, 'pt-BR': 1 } } });
     expect(sql(`select string_agg(distinct estado, ',') from public.email_envio where plantilla = 'comunicado'`)).toBe('SIMULADO');
-    expect(sql(`select payload ->> 'asunto' from public.email_envio where usuario_id = '${ids.prof2}' and plantilla = 'comunicado'`)).toBe('Mudança de horário');
+    expect(sql(`select payload ->> 'asunto' from public.email_envio where usuario_id = '${ids.prof2}' and plantilla = 'comunicado'`)).toBe(
+      'Mudança de horário',
+    );
     const { data } = await clienteDe('prof1').from('comunicado').select('asunto').eq('evento_id', ids.evento_a!);
     expect(data?.length).toBe(1);
   });
@@ -272,8 +327,14 @@ describe('[SA-02] [SA-03] alta de eventos por el Super Admin', () => {
       fechaFin: '2027-06-01',
       sede: {},
     };
-    expect(await crearEvento(puertosEventosSupabase(o.db, o.sesion), { ...base, slug: 'SELX' })).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
+    expect(await crearEvento(puertosEventosSupabase(o.db, o.sesion), { ...base, slug: 'SELX' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
     const s = await contexto('sa');
-    expect(await crearEvento(puertosEventosSupabase(s.db, s.sesion), { ...base, slug: 'SELA' })).toMatchObject({ ok: false, error: { codigo: 'SLUG_EN_USO' } });
+    expect(await crearEvento(puertosEventosSupabase(s.db, s.sesion), { ...base, slug: 'SELA' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'SLUG_EN_USO' },
+    });
   });
 });

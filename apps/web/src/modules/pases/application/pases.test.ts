@@ -19,7 +19,10 @@ const base = { eventoOrigenId: 'e1', eventoDestinoId: 'f1', academiaId: 'a1', mo
 describe('[OR-33] [TR-13] registrar pase manual', () => {
   it('registra un pase de coreografía con beneficio', async () => {
     const { p, insertados } = fake();
-    expect(await registrarPase(p, { ...base, coreografiaId: 'c1', beneficio: { tipo: 'BECA' } })).toEqual({ ok: true, value: { paseId: 'p1' } });
+    expect(await registrarPase(p, { ...base, coreografiaId: 'c1', beneficio: { tipo: 'BECA' } })).toEqual({
+      ok: true,
+      value: { paseId: 'p1' },
+    });
     expect(insertados[0]).toMatchObject({ coreografiaId: 'c1', academiaId: 'a1', beneficio: { tipo: 'BECA' } });
   });
   it('registra un pase de academia completa', async () => {
@@ -31,6 +34,9 @@ describe('[OR-33] [TR-13] registrar pase manual', () => {
     expect(await registrarPase(fake({ permiso: false }).p, base)).toMatchObject({ ok: false, error: { codigo: 'SIN_PERMISO' } });
     expect(await registrarPase(fake({ destino: false }).p, base)).toMatchObject({ ok: false, error: { codigo: 'DESTINO_INVALIDO' } });
     expect(await registrarPase(fake().p, { ...base, motivo: 'no' })).toMatchObject({ ok: false, error: { codigo: 'MOTIVO_REQUERIDO' } });
-    expect(await registrarPase(fake({ propia: false }).p, { ...base, coreografiaId: 'c9' })).toMatchObject({ ok: false, error: { codigo: 'COREOGRAFIA_AJENA' } });
+    expect(await registrarPase(fake({ propia: false }).p, { ...base, coreografiaId: 'c9' })).toMatchObject({
+      ok: false,
+      error: { codigo: 'COREOGRAFIA_AJENA' },
+    });
   });
 });

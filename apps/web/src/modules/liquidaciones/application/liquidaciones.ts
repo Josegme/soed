@@ -79,7 +79,11 @@ export async function liquidacionPrevia(
   if (!i) return err(errorDominio('INSCRIPCION_INEXISTENTE'));
   if (!(await p.puedeVer(i))) return err(errorDominio('SIN_PERMISO'));
   if (!i.tarifario) return err(errorDominio('SIN_TARIFARIO'));
-  const r = calcularLiquidacion(i.tarifario, { fichas: i.fichas, rubros: i.rubros, ajustes: ajustesTotales(i) }, { incluirBorradores: true });
+  const r = calcularLiquidacion(
+    i.tarifario,
+    { fichas: i.fichas, rubros: i.rubros, ajustes: ajustesTotales(i) },
+    { incluirBorradores: true },
+  );
   return r.ok ? ok(r.value) : err(errorDominio('CALCULO_INVALIDO', { causa: r.error.codigo }));
 }
 
@@ -116,6 +120,13 @@ export async function emitirLiquidacion(
   if (igual) return ok({ numero: liquidacion.numero, version: ultima.version, totalCentavos: ultima.totalCentavos, nueva: false });
 
   const version = (ultima?.version ?? 0) + 1;
-  await p.insertarVersion({ liquidacionId: liquidacion.id, eventoId: i.eventoId, academiaId: i.academiaId, version, calculo: calculo.value, idioma });
+  await p.insertarVersion({
+    liquidacionId: liquidacion.id,
+    eventoId: i.eventoId,
+    academiaId: i.academiaId,
+    version,
+    calculo: calculo.value,
+    idioma,
+  });
   return ok({ numero: liquidacion.numero, version, totalCentavos: calculo.value.total, nueva: true });
 }

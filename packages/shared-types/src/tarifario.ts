@@ -19,9 +19,7 @@ export const recargoSchema = z.discriminatedUnion('tipo', [
 export const tarifarioSchema = z.object({
   moneda: monedaSchema,
   porBailarin: z.object({ precio: centavosSchema }).optional(),
-  porCoreografia: z
-    .object({ precioBase: centavosSchema, porFormacion: z.record(codigoSchema, centavosSchema).optional() })
-    .optional(),
+  porCoreografia: z.object({ precioBase: centavosSchema, porFormacion: z.record(codigoSchema, centavosSchema).optional() }).optional(),
   porParticipacion: z.object({ precio: centavosSchema, desdeNumero: z.int().min(1).max(20) }).optional(),
   fijoAcademia: z.object({ precio: centavosSchema }).optional(),
   rubros: z

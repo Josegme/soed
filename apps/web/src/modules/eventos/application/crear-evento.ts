@@ -51,7 +51,10 @@ export type CodigoErrorEvento = 'SIN_PERMISO' | 'SLUG_EN_USO' | 'SIN_REGLAMENTO'
  * clonando la configuración de otro evento (SA-02, SA-03). La moneda del
  * tarifario clonado se alinea con la del nuevo evento.
  */
-export async function crearEvento(p: PuertosEventos, e: NuevoEvento): Promise<Result<{ eventoId: string }, ErrorDominio<CodigoErrorEvento>>> {
+export async function crearEvento(
+  p: PuertosEventos,
+  e: NuevoEvento,
+): Promise<Result<{ eventoId: string }, ErrorDominio<CodigoErrorEvento>>> {
   if (!p.esSuperAdmin()) return err(errorDominio('SIN_PERMISO'));
   if (!(await p.slugDisponible(e.slug))) return err(errorDominio('SLUG_EN_USO', { slug: e.slug }));
 

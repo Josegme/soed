@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  calcularLiquidacion,
-  esSlugNumeracionValido,
-  estadoLiquidacion,
-  formatearNumeroLiquidacion,
-  saldoLiquidacion,
-} from './calcular';
+import { calcularLiquidacion, esSlugNumeracionValido, estadoLiquidacion, formatearNumeroLiquidacion, saldoLiquidacion } from './calcular';
 import type { FichaALiquidar, InscripcionALiquidar, Tarifario } from './tipos';
 
 const ficha = (id: string, bailarines: string[], over: Partial<FichaALiquidar> = {}): FichaALiquidar => ({
@@ -55,7 +49,9 @@ describe('[OR-06] [TR-18] cálculo de la liquidación', () => {
       moneda: 'BRL',
       porCoreografia: { precioBase: 20000 },
       porParticipacion: { precio: 1000, desdeNumero: 1 },
-      recargos: [{ codigo: 'QUADRO_X2', nombre: { es: 'Quadro' }, tipo: 'MULTIPLICADOR_COREOGRAFIA', filtro: { formacion: 'QUADRO' }, factor: 2 }],
+      recargos: [
+        { codigo: 'QUADRO_X2', nombre: { es: 'Quadro' }, tipo: 'MULTIPLICADOR_COREOGRAFIA', filtro: { formacion: 'QUADRO' }, factor: 2 },
+      ],
     };
     const i = inscripcion([ficha('q', ['a', 'b', 'c', 'd'], { formacion: 'QUADRO' }), ficha('g', ['e', 'f', 'g', 'h'])]);
     expect(total(t, i)).toBe(20000 * 2 + 20000 + 4 * 1000 * 2 + 4 * 1000);
@@ -95,11 +91,24 @@ describe('[OR-06] [TR-18] cálculo de la liquidación', () => {
   });
   it('rechaza rubros desconocidos, cantidades y ajustes inválidos', () => {
     const t: Tarifario = { moneda: 'BRL', rubros: [{ codigo: 'R', nombre: {}, precioUnitario: 1 }] };
-    expect(calcularLiquidacion(t, inscripcion([], { rubros: [{ codigo: 'X', cantidad: 1 }] }))).toMatchObject({ ok: false, error: { codigo: 'RUBRO_DESCONOCIDO' } });
-    expect(calcularLiquidacion(t, inscripcion([], { rubros: [{ codigo: 'R', cantidad: -1 }] }))).toMatchObject({ ok: false, error: { codigo: 'CANTIDAD_INVALIDA' } });
-    expect(calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'SIN_CARGO', motivo: ' ' }] }))).toMatchObject({ ok: false, error: { codigo: 'AJUSTE_INVALIDO' } });
-    expect(calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 0, motivo: 'x' }] }))).toMatchObject({ ok: false });
-    expect(calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'MONTO_LIBRE', monto: -5, motivo: 'x' }] }))).toMatchObject({ ok: false });
+    expect(calcularLiquidacion(t, inscripcion([], { rubros: [{ codigo: 'X', cantidad: 1 }] }))).toMatchObject({
+      ok: false,
+      error: { codigo: 'RUBRO_DESCONOCIDO' },
+    });
+    expect(calcularLiquidacion(t, inscripcion([], { rubros: [{ codigo: 'R', cantidad: -1 }] }))).toMatchObject({
+      ok: false,
+      error: { codigo: 'CANTIDAD_INVALIDA' },
+    });
+    expect(calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'SIN_CARGO', motivo: ' ' }] }))).toMatchObject({
+      ok: false,
+      error: { codigo: 'AJUSTE_INVALIDO' },
+    });
+    expect(
+      calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'DESCUENTO_PORCENTAJE', porcentaje: 0, motivo: 'x' }] })),
+    ).toMatchObject({ ok: false });
+    expect(calcularLiquidacion(t, inscripcion([], { ajustes: [{ tipo: 'MONTO_LIBRE', monto: -5, motivo: 'x' }] }))).toMatchObject({
+      ok: false,
+    });
   });
   it('un rubro en cero no genera línea', () => {
     const t: Tarifario = { moneda: 'BRL', rubros: [{ codigo: 'R', nombre: {}, precioUnitario: 100 }] };

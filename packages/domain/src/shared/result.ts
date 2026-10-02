@@ -14,7 +14,5 @@ export interface ErrorDominio<C extends string = string> {
   readonly params?: Readonly<Record<string, string | number>>;
 }
 
-export const errorDominio = <C extends string>(
-  codigo: C,
-  params?: Record<string, string | number>,
-): ErrorDominio<C> => (params === undefined ? { codigo } : { codigo, params });
+export const errorDominio = <C extends string>(codigo: C, params?: Record<string, string | number>): ErrorDominio<C> =>
+  params === undefined ? { codigo } : { codigo, params };
