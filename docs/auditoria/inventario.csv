@@ -1,0 +1,208 @@
+id,area,fase,etapa,funcionalidad,fuente,confianza,modulo,datos_rls,pantalla,test
+SA-01,Super Admin,F1,3,"Crear y editar temporadas (año, nombre es/pt, reglamento por defecto)",Plan §3,EXPLICITA,eventos,"temporada · rls: escritura solo super admin; lectura pública si publicada",/admin/temporadas,rls:temporada · e2e:admin-temporada
+SA-02,Super Admin,F1,3,"Crear eventos (selectivo, final o evento único) dentro de una temporada",Plan §3,EXPLICITA,eventos,"evento · rls: insert solo super admin",/admin/eventos/nuevo,rls:evento · e2e:admin-evento
+SA-03,Super Admin,F1,3,Clonar la configuración de un evento anterior (reglamento, tarifario, criterios, pistas, premios),Plan §3,EXPLICITA,eventos,"evento, reglamento, tarifario, criterio, pista · fn clonar_evento (security definer, solo super admin)",/admin/eventos/nuevo,db:clonar_evento
+SA-04,Super Admin,F1,3,Crear y administrar usuarios organizadores por evento (rol ORGANIZADOR_EVENTO),Plan §3,EXPLICITA,identidad,"evento_miembro · rls: escritura super admin u organizador con permiso evento.miembros",/admin/usuarios,rls:evento_miembro
+SA-05,Super Admin,F1,3,Asignar un mismo organizador a más de un evento,Plan §3 (supuesto a validar),DERIVADA,identidad,evento_miembro (PK evento_id+usuario_id+rol),/admin/usuarios,rls:organizador-multievento
+SA-06,Super Admin,F1,3,Revocar el acceso de un organizador o miembro de evento,Inferida de SA-04,INFERIDA,identidad,evento_miembro · auditoria,/admin/usuarios,rls:evento_miembro-delete
+SA-07,Super Admin,T,2,Gestionar el reglamento de temporada desde un preset y versionarlo,Plan §3 y §5; CLAUDE.md,EXPLICITA,reglamento,"reglamento (config jsonb validada) · rls: escritura super admin",/admin/temporadas/[id]/reglamento,dom:reglamento-schema · db:reglamento-version
+SA-08,Super Admin,F3,5,Crear premios globales a la temporada o propios de un evento,Plan §3,EXPLICITA,premios,"premio (evento_id nullable) · rls: super admin; organizador solo los de su evento",/admin/premios,rls:premio
+SA-09,Super Admin,F3,5,"Definir criterio de asignación de premios (manual o por ranking) y regla de empate",Plan §3,EXPLICITA,premios,premio.criterio · premio.regla_empate,/admin/premios,dom:premio-empate
+SA-10,Super Admin,F4,6,Ver total esperado y cobrado por temporada,Plan §3,EXPLICITA,liquidaciones,vista v_resumen_cobranza (security invoker),/admin,rls:v_resumen_cobranza
+SA-11,Super Admin,F4,6,Dashboard por temporada con métricas por evento,Plan §9 etapa 6,EXPLICITA,admin,vistas agregadas,/admin,e2e:admin-dashboard
+SA-12,Super Admin,T,6,Consultar y filtrar el audit log de toda la instancia,Prompt (audit log); Plan §9,EXPLICITA,auditoria,"auditoria · rls: select super admin; sin update/delete",/admin/auditoria,rls:auditoria
+SA-13,Super Admin,T,2,Alta y baja de Super Admins solo por canal privilegiado (CLI o service role),Inferida (seguridad),INFERIDA,identidad,"rol_global · rls: sin escritura para authenticated",—,rls:rol_global-escalada
+SA-14,Super Admin,T,1,"Configurar marca, módulos e idiomas de la instancia (client.config)",Plan §7,EXPLICITA,plataforma,clients/<slug>/client.config.ts (Zod),—,unit:client-config
+SA-15,Super Admin,F4,6,Ver el historial de resultados y pases de academias y coreografías en la temporada,Plan §3 (compartido),EXPLICITA,resultados,resultado · pase,/admin/temporadas/[id]/historial,rls:resultado
+SA-16,Super Admin,T,2,"Gestionar catálogo de categorías, géneros y formaciones del reglamento (traducibles)",Plan §3,EXPLICITA,reglamento,reglamento.config,/admin/temporadas/[id]/reglamento,dom:reglamento-schema
+SA-17,Super Admin,F4,6,Archivar un evento finalizado (solo lectura),Inferida,INFERIDA,eventos,"evento.estado = ARCHIVADO · trigger bloquea escritura",/admin/eventos,db:evento-archivado
+SA-18,Super Admin,F4,6,Exportar datos de la temporada (CSV),Plan §9 etapa 6,EXPLICITA,exportaciones,route handler con verificación de permiso,/admin/exportaciones,e2e:exportar
+OR-01,Organizador,F1,3,"Editar datos generales del evento (nombre es/pt, tipo, estado, idioma por defecto)",Plan §3,EXPLICITA,eventos,"evento · rls: update con permiso evento.configurar",/gestion/[eventoId]/configuracion,rls:evento-organizador
+OR-02,Organizador,F1,3,"Configurar sede y fechas (venue, ciudad, estado o provincia, país, zona horaria, fechas)",Plan §3,EXPLICITA,eventos,evento.sede (jsonb) · evento.zona_horaria,/gestion/[eventoId]/configuracion,unit:evento-schema
+OR-03,Organizador,F1,3,"Configurar ventana de inscripción (apertura, cierre, cierre de modificaciones) y cupos",Plan §3,EXPLICITA,eventos,evento.inscripcion_* · evento.cupo_fichas,/gestion/[eventoId]/configuracion,dom:ventana-inscripcion
+OR-04,Organizador,T,3,"Ajustar el reglamento del evento (categorías y edades, tolerancias, géneros por categoría, tiempos, tamaño de grupo, umbrales)",Plan §3,EXPLICITA,reglamento,"evento.reglamento (snapshot versionado) · rls: permiso evento.configurar",/gestion/[eventoId]/reglamento,dom:reglamento
+OR-05,Organizador,T,3,Configurar la moneda del evento (BRL / ARS / USD),Prompt; Plan §3,EXPLICITA,eventos,evento.moneda (check),/gestion/[eventoId]/configuracion,db:moneda-check
+OR-06,Organizador,F1,3,"Configurar tarifario: por bailarín, por coreografía (precio por formación), por participación, monto fijo, rubros opcionales y recargos",Plan §3,EXPLICITA,liquidaciones,evento.tarifario (jsonb validada),/gestion/[eventoId]/tarifario,dom:liquidacion
+OR-07,Organizador,F1,3,Configurar datos de pago informativos que muestra la liquidación,Plan §3,EXPLICITA,liquidaciones,evento.datos_pago (jsonb {es pt}),/gestion/[eventoId]/tarifario,unit:datos-pago
+OR-08,Organizador,F1,3,"Configurar medios de cobro aceptados (efectivo, Mercado Pago, transferencia, PIX u otros)",Plan §3,EXPLICITA,cobros,evento.medios_cobro,/gestion/[eventoId]/tarifario,dom:cobro-medio
+OR-09,Organizador,F1,3,Configurar paquetes y hoteles con regla de asignación (orden de inscripción y primer pago) y cupo,Plan §3,EXPLICITA,hoteles,hotel · hotel_solicitud,/gestion/[eventoId]/hoteles,dom:hotel-prioridad
+OR-10,Organizador,F3,5,Configurar premios del evento con monto y regla de empate,Plan §3,EXPLICITA,premios,premio,/gestion/[eventoId]/premios,rls:premio
+OR-11,Organizador,F2,4,Configurar pistas (varias en paralelo),Plan §1 y §3,EXPLICITA,orden,"pista · rls: permiso evento.configurar",/gestion/[eventoId]/configuracion,rls:pista
+OR-12,Organizador,F1,3,"Asignar jurados, director técnico y staff (coordinador, locutor, DJ, acreditación)",Plan §3,EXPLICITA,identidad,"evento_miembro · rls: permiso evento.miembros",/gestion/[eventoId]/equipo,rls:evento_miembro
+OR-13,Organizador,F3,5,"Configurar criterios de puntaje (nombre es/pt, peso, escala)",Plan §3,EXPLICITA,puntajes,criterio,/gestion/[eventoId]/puntajes,rls:criterio
+OR-14,Organizador,F2,4,Configurar el cronograma (bloques por pista y horario),Plan §3,EXPLICITA,orden,bloque,/gestion/[eventoId]/orden,rls:bloque
+OR-15,Organizador,F5,7,Configurar horario y zonas de acreditación,Plan §3; etapa 7,EXPLICITA,acreditacion,evento.acreditacion (jsonb),/gestion/[eventoId]/configuracion,unit:acreditacion-config
+OR-16,Organizador,F1,3,"Configurar campos adicionales de inscripción, ficha o bailarín",Plan §3 y §9,EXPLICITA,inscripciones,campo_adicional · datos_adicionales jsonb,/gestion/[eventoId]/campos,dom:campos-adicionales
+OR-17,Organizador,F1,3,Publicar o despublicar el evento en el sitio público,Inferida,INFERIDA,eventos,"evento.publicado · rls: anon solo ve publicados",/gestion/[eventoId]/configuracion,rls:evento-anon
+OR-18,Organizador,T,3,Editar contenido traducible lado a lado y ver traducciones pendientes,Plan §4,EXPLICITA,i18n,columnas jsonb {es pt},/gestion/[eventoId]/configuracion,unit:traducible
+OR-19,Organizador,F1,3,Ver academias inscriptas con estado y totales,Plan §3,EXPLICITA,inscripciones,"inscripcion · rls: permiso inscripciones.ver",/gestion/[eventoId]/inscripciones,rls:inscripcion-organizador
+OR-20,Organizador,F1,3,"Ver, filtrar y buscar fichas por estado, categoría, género y formación",Inferida,INFERIDA,inscripciones,ficha (índices evento_id+estado),/gestion/[eventoId]/fichas,e2e:fichas-filtro
+OR-21,Organizador,F1,3,Observar o aprobar una ficha con comentario,Inferida (estados de ficha),INFERIDA,inscripciones,"ficha.estado · rls: permiso inscripciones.gestionar",/gestion/[eventoId]/fichas,rls:ficha-organizador
+OR-22,Organizador,F1,3,Registrar una excepción de reglamento con motivo (auditada),Inferida (el sistema no decide por el organizador),INFERIDA,inscripciones,ficha.excepcion · auditoria,/gestion/[eventoId]/fichas,db:auditoria-ficha
+OR-23,Organizador,F1,3,Bloquear o desbloquear modificaciones de fichas tras el cierre,Plan §3 (estado y bloqueo),EXPLICITA,inscripciones,ficha.bloqueada · trigger,/gestion/[eventoId]/fichas,db:ficha-bloqueo
+OR-24,Organizador,F4,6,Gestionar solicitudes de modificación de las academias,Plan §9 etapa 6,EXPLICITA,inscripciones,solicitud_modificacion,/gestion/[eventoId]/solicitudes,rls:solicitud_modificacion
+OR-25,Organizador,F1,3,"Fijar monto libre o sin cargo para una academia (becas, invitados)",Plan §3,EXPLICITA,liquidaciones,inscripcion.ajuste (jsonb),/gestion/[eventoId]/liquidaciones,dom:liquidacion-libre
+OR-26,Organizador,F1,3,Ver la liquidación de cada academia con historial de versiones,Plan §3,EXPLICITA,liquidaciones,"liquidacion · liquidacion_version · rls: permiso liquidaciones.ver",/gestion/[eventoId]/liquidaciones,rls:liquidacion
+OR-27,Organizador,F1,3,Ver total esperado por academia y por evento,Plan §3,EXPLICITA,liquidaciones,vista v_resumen_cobranza,/gestion/[eventoId],rls:v_resumen_cobranza
+OR-28,Organizador,F1,3,"Registrar un cobro (monto propuesto = saldo, medio, referencia, nota)",Plan §3,EXPLICITA,cobros,"cobro · rls: permiso cobros.registrar",/gestion/[eventoId]/cobros,rls:cobro · dom:cobro
+OR-29,Organizador,F1,3,Aceptar pagos parciales y varios cobros por liquidación,Plan §3,EXPLICITA,cobros,cobro (n por liquidación),/gestion/[eventoId]/cobros,dom:liquidacion-estado
+OR-30,Organizador,F1,3,"Anular un cobro con motivo, nunca borrarlo",Plan §3,EXPLICITA,cobros,"cobro.anulado_* · sin policy delete · trigger anti-delete",/gestion/[eventoId]/cobros,rls:cobro-delete · db:cobro-anulacion
+OR-31,Organizador,F5,7,Cierre de caja por turno: total por medio y por persona,Plan §3,EXPLICITA,cobros,turno_caja · vista v_caja,/gestion/[eventoId]/caja,dom:cierre-caja
+OR-32,Organizador,F1,3,"Buscar una liquidación por QR, número o academia",Plan §3,EXPLICITA,liquidaciones,liquidacion.numero (unique) · liquidacion_version.qr_token,/gestion/[eventoId]/cobros,e2e:buscar-liquidacion
+OR-33,Organizador,F3,5,"Registrar un pase manual (coreografía o academia) con motivo, autor y fecha",Plan §3; Prompt,EXPLICITA,pases,"pase · rls: permiso pases.registrar",/gestion/[eventoId]/pases,rls:pase
+OR-34,Organizador,F3,5,Registrar el beneficio opcional del pase (descuento o beca),Plan §3,EXPLICITA,pases,pase.beneficio (jsonb),/gestion/[eventoId]/pases,dom:pase-beneficio
+OR-35,Organizador,F3,5,Ver la lista por puesto como ayuda para decidir pases,Plan §3,EXPLICITA,resultados,resultado,/gestion/[eventoId]/pases,dom:ranking
+OR-36,Organizador,F3,5,Anular un pase con motivo,Inferida,INFERIDA,pases,pase.anulado_*,/gestion/[eventoId]/pases,rls:pase
+OR-37,Organizador,F2,4,Generar el orden de salida por pista y bloque,Plan §9 etapa 4,EXPLICITA,orden,orden_item,/gestion/[eventoId]/orden,dom:orden
+OR-38,Organizador,F2,4,Reordenar manualmente con propagación en tiempo real,Plan §1 y §9,EXPLICITA,orden,"orden_item · realtime publication",/gestion/[eventoId]/orden,dom:orden-reordenar · e2e:realtime
+OR-39,Organizador,F2,4,Publicar el orden de salida para academias y público,Inferida,INFERIDA,orden,evento.orden_publicado_at,/gestion/[eventoId]/orden,rls:orden-publico
+OR-40,Organizador,F2,4,Exportar o imprimir el orden del día en el idioma elegido,Plan §4 (salidas),EXPLICITA,orden,route handler PDF/CSV,/gestion/[eventoId]/orden,e2e:orden-export
+OR-41,Organizador,F3,5,"Calcular el ranking por categoría, formación y género",Plan §9 etapa 5,EXPLICITA,resultados,resultado · fn calcular_resultados,/gestion/[eventoId]/resultados,dom:ranking
+OR-42,Organizador,F3,5,"Publicar resultados, lo que habilita notas y comentarios a los dirigentes (Art. 32)",Prompt; Plan §3,EXPLICITA,resultados,"evento.resultados_publicados_at · rls condicionada",/gestion/[eventoId]/resultados,rls:art32
+OR-43,Organizador,F3,5,"Asignar premios (manual o por ranking); el empate divide el monto",Plan §3,EXPLICITA,premios,premio_asignacion,/gestion/[eventoId]/premios,dom:premio-empate
+OR-44,Organizador,F3,5,Generar certificados bilingües,Plan §4,EXPLICITA,documentos,storage documentos (privado),/gestion/[eventoId]/resultados,e2e:certificado
+OR-45,Organizador,F4,6,"Dashboard del evento (inscripciones, cobranza, fichas por estado, música faltante)",Plan §9 etapa 6,EXPLICITA,admin,vistas agregadas,/gestion/[eventoId],e2e:dashboard-evento
+OR-46,Organizador,F4,6,"Exportar academias, bailarines, fichas, cobros y puntajes (CSV)",Plan §9 etapa 6,EXPLICITA,exportaciones,route handler con permiso exportar.datos,/gestion/[eventoId]/exportaciones,e2e:exportar
+OR-47,Organizador,F4,6,Enviar comunicados por evento e idioma (email),Plan §9 etapa 6,EXPLICITA,comunicados,"comunicado · email_envio · pgmq",/gestion/[eventoId]/comunicados,unit:comunicado-idioma
+OR-48,Organizador,F4,6,Ver el audit log del evento,Plan §9 etapa 6,EXPLICITA,auditoria,"auditoria · rls: permiso auditoria.ver",/gestion/[eventoId]/auditoria,rls:auditoria
+OR-49,Organizador,F2,4,Descargar un ZIP de música por bloque o pista,Plan §5 y §11,EXPLICITA,musica,"Edge Function + pgmq · storage musica",/gestion/[eventoId]/orden,e2e:zip-musica
+OR-50,Organizador,F4,6,"Enviar recordatorios automáticos (cierre de inscripción, música faltante)",Plan §5 (pg_cron),EXPLICITA,comunicados,pg_cron + pgmq,—,db:cron-recordatorio
+OR-51,Organizador,F6,8,"Gestionar clases (catálogo, cupos, precios)",Plan §9 etapa 8,EXPLICITA,clases,clase,/gestion/[eventoId]/clases,rls:clase
+OR-52,Organizador,F6,8,"Gestionar entradas (tipos, cupos, precios) y reservas",Plan §9 etapa 8,EXPLICITA,entradas,entrada_tipo · reserva_entrada,/gestion/[eventoId]/entradas,rls:entrada
+OR-53,Organizador,F6,8,Registrar el cobro manual de clases y entradas,Plan §11 (cobro manual),EXPLICITA,entradas,reserva_*.estado_pago,/gestion/[eventoId]/entradas,dom:reserva-cobro
+OR-54,Organizador,F1,3,Ver la asignación de hotel según orden de inscripción y primer pago,Plan §3,EXPLICITA,hoteles,hotel_solicitud · vista v_hotel_prioridad,/gestion/[eventoId]/hoteles,dom:hotel-prioridad
+PR-01,Profesor/Academia,F1,3,"Registrarse e iniciar sesión (email y contraseña, Google o magic link)",Plan §5,EXPLICITA,identidad,auth.users · perfil (trigger alta),/ingresar · /registro,e2e:auth
+PR-02,Profesor/Academia,T,3,Elegir idioma y guardarlo en el perfil,Plan §4,EXPLICITA,i18n,perfil.idioma,selector global,e2e:idioma-perfil
+PR-03,Profesor/Academia,F1,3,Crear y editar el perfil de la academia,Plan §3,EXPLICITA,academias,"academia · rls: miembros de la academia",/academia/perfil,rls:academia
+PR-04,Profesor/Academia,F1,3,Invitar a otros profesores a la academia,Inferida,INFERIDA,academias,academia_miembro,/academia/perfil,rls:academia_miembro
+PR-05,Profesor/Academia,F1,3,"Cargar bailarines una vez para toda la temporada (nombre, fecha de nacimiento, documento)",Plan §3,EXPLICITA,academias,"bailarin · rls: miembros de su academia; organizador ve los inscriptos a su evento",/academia/bailarines,rls:bailarin
+PR-06,Profesor/Academia,F1,3,Editar o dar de baja bailarines,Inferida,INFERIDA,academias,bailarin.activo,/academia/bailarines,rls:bailarin
+PR-07,Profesor/Academia,F1,3,"Crear coreografías reutilizables (nombre, género, formación, elenco, música)",Plan §3,EXPLICITA,coreografias,coreografia · coreografia_bailarin,/academia/coreografias,rls:coreografia
+PR-08,Profesor/Academia,F1,3,Subir música con validación de formato y duración,Plan §9 etapa 3,EXPLICITA,musica,"storage musica (privado, políticas por academia)",/academia/coreografias/[id],rls:storage-musica
+PR-09,Profesor/Academia,F1,3,Inscribir la academia a un evento,Plan §3,EXPLICITA,inscripciones,"inscripcion · rls: miembros de la academia, evento con inscripción abierta",/academia/eventos/[eventoId],rls:inscripcion
+PR-10,Profesor/Academia,F1,3,"Inscribir una coreografía al evento en un clic, reutilizando elenco y música",Plan §3,EXPLICITA,inscripciones,ficha · ficha_bailarin (snapshot),/academia/eventos/[eventoId],dom:ficha-desde-coreografia
+PR-11,Profesor/Academia,F1,3,Ver la categoría calculada de cada bailarín a la fecha del evento,Plan §3; Prompt,EXPLICITA,reglamento,ficha_bailarin.edad · categoria,/academia/eventos/[eventoId],dom:categoria-edad
+PR-12,Profesor/Academia,F1,3,"Validación en vivo de la ficha (categoría, tolerancia 30 %, tiempo, género habilitado, tamaño de grupo)",Plan §3; Prompt,EXPLICITA,reglamento,ficha.validacion (jsonb),/academia/eventos/[eventoId]/fichas/[fichaId],dom:validar-ficha
+PR-13,Profesor/Academia,F1,3,Ver el total de la liquidación recalculado en vivo,Plan §3,EXPLICITA,liquidaciones,cálculo en dominio,/academia/eventos/[eventoId]/liquidacion,dom:liquidacion
+PR-14,Profesor/Academia,F1,3,Seleccionar rubros opcionales,Plan §3,EXPLICITA,liquidaciones,inscripcion.rubros (jsonb),/academia/eventos/[eventoId]/liquidacion,dom:liquidacion-rubros
+PR-15,Profesor/Academia,F1,3,"Descargar la liquidación en PDF en su idioma, con número, QR y aclaración de que no es factura",Plan §3,EXPLICITA,documentos,liquidacion_version · storage documentos,/academia/eventos/[eventoId]/liquidacion,e2e:liquidacion-pdf
+PR-16,Profesor/Academia,F1,3,Ver el historial de versiones de la liquidación,Plan §3,EXPLICITA,liquidaciones,liquidacion_version,/academia/eventos/[eventoId]/liquidacion,rls:liquidacion-academia
+PR-17,Profesor/Academia,F1,3,Ver lo cobrado y el saldo de cada liquidación,Plan §3,EXPLICITA,cobros,vista v_liquidacion_estado,/academia/eventos/[eventoId]/liquidacion,rls:cobro-academia
+PR-18,Profesor/Academia,F1,3,Completar los campos adicionales del evento,Plan §9,EXPLICITA,inscripciones,datos_adicionales jsonb,/academia/eventos/[eventoId],dom:campos-adicionales
+PR-19,Profesor/Academia,F1,3,Editar fichas hasta el cierre de modificaciones,Plan §3,EXPLICITA,inscripciones,"ficha · rls + trigger de ventana",/academia/eventos/[eventoId]/fichas/[fichaId],db:ficha-ventana
+PR-20,Profesor/Academia,F4,6,Solicitar una modificación después del cierre,Plan §9 etapa 6,EXPLICITA,inscripciones,solicitud_modificacion,/academia/eventos/[eventoId]/fichas/[fichaId],rls:solicitud_modificacion
+PR-21,Profesor/Academia,F1,3,Retirar una ficha,Inferida,INFERIDA,inscripciones,ficha.estado = RETIRADA,/academia/eventos/[eventoId],dom:ficha-estado
+PR-22,Profesor/Academia,T,3,"Recibir emails transaccionales en su idioma (inscripción, liquidación, cobro, orden, resultados)",Plan §4; Prompt,EXPLICITA,comunicados,email_envio · plantillas React Email,—,unit:email-idioma
+PR-23,Profesor/Academia,F2,4,Ver el orden de salida de sus coreografías,Plan §1,EXPLICITA,orden,orden_item (si publicado),/academia/eventos/[eventoId]/orden,rls:orden-academia
+PR-24,Profesor/Academia,F2,4,Recibir cambios del orden en tiempo real,Plan §1,EXPLICITA,orden,realtime orden_item,/academia/eventos/[eventoId]/orden,e2e:realtime
+PR-25,Profesor/Academia,F3,5,"Ver resultados, notas y comentarios del jurado tras la publicación (Art. 32)",Plan §3; Prompt,EXPLICITA,resultados,"planilla, planilla_nota, resultado · rls condicionada a publicación",/academia/eventos/[eventoId]/resultados,rls:art32
+PR-26,Profesor/Academia,F3,5,Ver pases recibidos y sus beneficios,Plan §3,EXPLICITA,pases,pase · rls academia propietaria,/academia,rls:pase-academia
+PR-27,Profesor/Academia,F1,3,Reinscribir en la final la coreografía presentada en un selectivo,Plan §3,EXPLICITA,inscripciones,ficha (coreografia_id reutilizada),/academia/eventos/[eventoId],dom:ficha-desde-coreografia
+PR-28,Profesor/Academia,F5,7,Descargar las credenciales QR de sus bailarines,Etapa 7,EXPLICITA,acreditacion,credencial · storage documentos,/academia/eventos/[eventoId]/credenciales,rls:credencial-academia
+PR-29,Profesor/Academia,F4,6,Ver el historial de resultados de la academia en la temporada,Plan §3,EXPLICITA,resultados,resultado (publicados),/academia,rls:resultado-academia
+PR-30,Profesor/Academia,F1,3,Solicitar hotel o paquete,Plan §3,EXPLICITA,hoteles,hotel_solicitud,/academia/eventos/[eventoId],rls:hotel_solicitud
+PR-31,Profesor/Academia,F6,8,Reservar clases para sus bailarines,Etapa 8,EXPLICITA,clases,reserva_clase,/academia/eventos/[eventoId]/clases,rls:reserva_clase
+PR-32,Profesor/Academia,F3,5,Descargar certificados,Plan §4,EXPLICITA,documentos,storage documentos,/academia/eventos/[eventoId]/resultados,e2e:certificado
+PR-33,Profesor/Academia,F4,6,Ver los comunicados del evento en su panel,Plan §9,EXPLICITA,comunicados,comunicado (audiencia academias),/academia,rls:comunicado
+JU-01,Jurado,F3,5,Acceder con magic link,Plan §5,EXPLICITA,identidad,auth magic link · evento_miembro JURADO,/ingresar,e2e:jurado-magic-link
+JU-02,Jurado,F3,5,Ver las coreografías a puntuar en el orden de salida en vivo,Inferida,INFERIDA,puntajes,orden_item · ficha (campos mínimos),/jurado/[eventoId],rls:ficha-jurado
+JU-03,Jurado,F3,5,Cargar puntajes por criterio con la escala configurada,Plan §9 etapa 5,EXPLICITA,puntajes,"planilla · planilla_nota · rls: jurado dueño",/jurado/[eventoId]/planilla/[fichaId],rls:planilla · dom:puntaje
+JU-04,Jurado,F3,5,Escribir un comentario por coreografía,Plan §3 (Art. 32),EXPLICITA,puntajes,planilla.comentario,/jurado/[eventoId]/planilla/[fichaId],rls:planilla
+JU-05,Jurado,F3,5,"Planilla offline: carga sin conexión y sincronización idempotente",Plan §11,EXPLICITA,puntajes,planilla.client_uuid (unique),/jurado/[eventoId],unit:outbox · e2e:offline-jurado
+JU-06,Jurado,F3,5,Enviar la planilla (bloquea la edición),Inferida,INFERIDA,puntajes,planilla.estado · trigger,/jurado/[eventoId]/planilla/[fichaId],db:planilla-enviada
+JU-07,Jurado,F3,5,Ver solo sus propias planillas,Inferida (seguridad),INFERIDA,puntajes,rls planilla.jurado_id = auth.uid(),/jurado/[eventoId],rls:planilla-aislamiento
+JU-08,Jurado,F3,5,"Ver los datos técnicos de la coreografía (categoría, género, formación, duración)",Inferida,INFERIDA,puntajes,vista v_ficha_jurado,/jurado/[eventoId]/planilla/[fichaId],rls:ficha-jurado
+JU-09,Jurado,T,5,Usar la interfaz en su idioma,Plan §4,EXPLICITA,i18n,perfil.idioma,global,e2e:idioma-perfil
+JU-10,Jurado,F2,5,Ver en tiempo real qué coreografía está en escena,Inferida,INFERIDA,orden,realtime orden_item,/jurado/[eventoId],e2e:realtime
+OP-01,Operativos,F3,5,Director técnico: ver todas las planillas del evento en tiempo real,Plan §1 y §9,EXPLICITA,puntajes,"planilla · rls: permiso puntajes.supervisar",/vivo/[eventoId]/director-tecnico,rls:planilla-dt
+OP-02,Operativos,F3,5,Director técnico: control de desvíos (alerta si un jurado se aparta más del umbral),Plan §1,EXPLICITA,puntajes,cálculo en dominio,/vivo/[eventoId]/director-tecnico,dom:desvio
+OP-03,Operativos,F3,5,Director técnico: reabrir la planilla de un jurado con motivo (auditado),Inferida,INFERIDA,puntajes,planilla.estado · auditoria,/vivo/[eventoId]/director-tecnico,db:planilla-reabrir
+OP-04,Operativos,F3,5,Director técnico: cerrar puntajes de un bloque y disparar el cálculo del ranking,Inferida,INFERIDA,resultados,fn calcular_resultados,/vivo/[eventoId]/director-tecnico,db:calcular-resultados
+OP-05,Operativos,F3,5,Director técnico: ver el ranking antes de la publicación,Inferida,INFERIDA,resultados,"resultado · rls: puntajes.supervisar",/vivo/[eventoId]/director-tecnico,rls:resultado-dt
+OP-06,Operativos,F2,4,Coordinador: vista en vivo del orden por pista,Plan §9 etapa 4,EXPLICITA,orden,orden_item,/vivo/[eventoId]/coordinador,e2e:coordinador
+OP-07,Operativos,F2,4,"Coordinador: marcar estados (llamada, en escena, presentada, ausente)",Inferida,INFERIDA,orden,"orden_item.estado · rls: permiso orden.operar",/vivo/[eventoId]/coordinador,dom:orden-estado
+OP-08,Operativos,F2,4,Coordinador: reordenar en vivo con propagación en menos de 1 segundo,Plan §9 etapa 4,EXPLICITA,orden,"orden_item · fn reordenar (transaccional)",/vivo/[eventoId]/coordinador,e2e:realtime
+OP-09,Operativos,F2,4,Coordinador: mover una coreografía entre bloques o pistas,Inferida (multi-pista),INFERIDA,orden,orden_item.bloque_id,/vivo/[eventoId]/coordinador,dom:orden-mover
+OP-10,Operativos,F2,4,Coordinador: ver la hora estimada recalculada,Inferida,INFERIDA,orden,cálculo en dominio,/vivo/[eventoId]/coordinador,dom:orden-horario
+OP-11,Operativos,F2,4,"Locutor: ver actual, próxima y siguientes con los datos para anunciar, en tiempo real",Plan §1 y §9,EXPLICITA,orden,vista v_orden_vivo,/vivo/[eventoId]/locutor,e2e:locutor
+OP-12,Operativos,F2,4,Locutor: ver los nombres traducibles en el idioma del evento,Plan §4,EXPLICITA,i18n,jsonb {es pt},/vivo/[eventoId]/locutor,unit:traducible
+OP-13,Operativos,F2,4,DJ: lista de música en orden de salida con reproducción y descarga por ítem,Plan §1,EXPLICITA,musica,"URL firmada (60 s) · rls: permiso musica.descargar",/vivo/[eventoId]/dj,rls:storage-musica-dj
+OP-14,Operativos,F2,4,"DJ: descargar ZIP de música por bloque, rotulado con número de orden",Plan §5 y §11,EXPLICITA,musica,Edge Function + pgmq,/vivo/[eventoId]/dj,e2e:zip-musica
+OP-15,Operativos,F2,4,DJ: alerta de música faltante o fuera de tiempo,Inferida,INFERIDA,musica,ficha.validacion,/vivo/[eventoId]/dj,dom:validar-ficha
+OP-16,Operativos,F2,4,DJ: recibir el reorden en tiempo real,Plan §1,EXPLICITA,orden,realtime orden_item,/vivo/[eventoId]/dj,e2e:realtime
+OP-17,Operativos,F5,7,Staff de acreditación: escanear el QR de la credencial y marcar acreditación,Etapa 7,EXPLICITA,acreditacion,"credencial · acreditacion_registro · rls: permiso acreditacion.operar",/acreditacion/[eventoId],rls:acreditacion
+OP-18,Operativos,F5,7,"Staff de acreditación: buscar por nombre, documento o academia",Inferida,INFERIDA,acreditacion,índices de búsqueda,/acreditacion/[eventoId],e2e:acreditacion-busqueda
+OP-19,Operativos,F5,7,"Staff de acreditación: escanear la liquidación y ver total, cobrado y saldo",Plan §3,EXPLICITA,cobros,vista v_liquidacion_estado,/acreditacion/[eventoId]/caja,rls:liquidacion-staff
+OP-20,Operativos,F5,7,Staff de acreditación: registrar cobros en la mesa sin conexión y sincronizar al volver la red,Plan §3; Prompt,EXPLICITA,cobros,"cobro.client_uuid (unique, idempotente)",/acreditacion/[eventoId]/caja,unit:outbox · db:cobro-idempotente
+OP-21,Operativos,F5,7,Staff de acreditación: ver su caja del turno por medio de cobro,Plan §3,EXPLICITA,cobros,turno_caja · v_caja,/acreditacion/[eventoId]/caja,rls:turno_caja
+OP-22,Operativos,F5,7,Escáner de acreditación sin conexión con sincronización,Plan §11; etapa 7,EXPLICITA,acreditacion,acreditacion_registro.client_uuid,/acreditacion/[eventoId],unit:outbox
+OP-23,Operativos,F5,7,Emitir credenciales PDF bilingües,Etapa 7,EXPLICITA,documentos,storage documentos,/acreditacion/[eventoId],e2e:credencial-pdf
+OP-24,Operativos,F5,7,Control de acceso por zonas,Etapa 7,EXPLICITA,acreditacion,credencial.zonas,/acreditacion/[eventoId],dom:zona
+OP-25,Operativos,F5,7,La acreditación nunca se bloquea por deuda: solo informa el saldo,Plan §3; Prompt,EXPLICITA,acreditacion,sin dependencia de cobro en reglas ni triggers,/acreditacion/[eventoId],db:pago-no-bloquea
+PU-01,Sitio público,T,1,Rutas /es y /pt con selector de idioma visible,Plan §4,EXPLICITA,publico,next-intl routing,/es · /pt,e2e:locale
+PU-02,Sitio público,T,1,"Home con la marca del cliente (logo, colores, tipografía)",Plan §7,EXPLICITA,publico,clients/<slug>,/[locale],e2e:home-marca
+PU-03,Sitio público,F1,3,Listado de eventos de la temporada,Inferida,INFERIDA,publico,"evento · rls anon: publicado = true",/[locale]/eventos,rls:evento-anon
+PU-04,Sitio público,F1,3,"Detalle del evento: sede, fechas, zona horaria y estado de la inscripción",Inferida,INFERIDA,publico,evento,/[locale]/eventos/[slug],e2e:evento-publico
+PU-05,Sitio público,F1,3,Bases y condiciones del evento en ambos idiomas,Plan §4,EXPLICITA,publico,evento.bases (jsonb {es pt}),/[locale]/eventos/[slug],unit:traducible
+PU-06,Sitio público,F2,4,Cronograma público,Inferida,INFERIDA,publico,bloque (si publicado),/[locale]/eventos/[slug],rls:bloque-anon
+PU-07,Sitio público,F2,4,Orden de salida público en vivo (si el organizador lo publica),Plan §1,EXPLICITA,publico,"v_orden_publico (sin datos personales)",/[locale]/eventos/[slug]/orden,rls:orden-publico
+PU-08,Sitio público,F3,5,Resultados publicados,Inferida,INFERIDA,publico,v_resultado_publico,/[locale]/eventos/[slug]/resultados,rls:art32-anon
+PU-09,Sitio público,F6,8,Catálogo y reserva de clases,Etapa 8,EXPLICITA,clases,clase · reserva_clase (insert anon vía server action),/[locale]/eventos/[slug]/clases,e2e:reserva-clase
+PU-10,Sitio público,F6,8,"Entradas: tipos, precios y reserva",Etapa 8,EXPLICITA,entradas,entrada_tipo · reserva_entrada,/[locale]/eventos/[slug]/entradas,e2e:reserva-entrada
+PU-11,Sitio público,T,1,"Textos legales por cliente (términos, privacidad)",Plan §11,EXPLICITA,publico,clients/<slug>/legal,/[locale]/legal/[doc],e2e:legal
+PU-12,Sitio público,T,1,"SEO por idioma (hreflang, metadata, sitemap)",Inferida,INFERIDA,publico,metadata API,—,unit:seo
+PU-13,Sitio público,T,1,Accesibilidad WCAG 2.2 AA,Prompt,EXPLICITA,publico,—,todas,e2e:axe
+PU-14,Sitio público,F7,9,PWA instalable (manifest y shell offline),Etapa 9,EXPLICITA,plataforma,manifest · service worker,—,e2e:pwa
+PU-15,Sitio público,F1,1,Acceso a ingreso y registro de academias,Inferida,INFERIDA,publico,—,/[locale]/ingresar,e2e:auth
+TR-01,Transversal,T,2,ReglamentoEvento configurable (sin constantes de reglamento en código),CLAUDE.md; Plan §5,EXPLICITA,reglamento,reglamento.config (Zod),—,dom:reglamento-schema
+TR-02,Transversal,T,2,Categoría calculada por edad completa a la fecha de referencia del evento,Prompt; Plan §3,EXPLICITA,reglamento,dominio puro,—,dom:categoria-edad
+TR-03,Transversal,T,2,Tolerancia de grupos del 30 % (configurable),Prompt,EXPLICITA,reglamento,reglamento.config.tolerancias,—,dom:tolerancia-grupo
+TR-04,Transversal,T,2,"Tolerancia de tiempo: 30 s en grupos, 15 s en solo, dúo y trío (configurable)",Prompt,EXPLICITA,reglamento,reglamento.config.formaciones,—,dom:tolerancia-tiempo
+TR-05,Transversal,T,2,"Tiempos máximos por género, formación y categoría (regla más específica gana)",Plan §3,EXPLICITA,reglamento,reglamento.config.tiempos,—,dom:tiempo-maximo
+TR-06,Transversal,T,2,"Géneros restringidos por categoría (Composições solo 40+, Reggaeton desde Infantil)",Plan §3,EXPLICITA,reglamento,reglamento.config.generos,—,dom:genero-categoria
+TR-07,Transversal,T,2,Tamaño mínimo y máximo de integrantes por formación,Plan §3,EXPLICITA,reglamento,reglamento.config.formaciones,—,dom:formacion-integrantes
+TR-08,Transversal,T,2,Clasificación por bandas 9.0 / 8.0 / 7.0 (configurable),Prompt,EXPLICITA,resultados,reglamento.config.bandas,—,dom:bandas
+TR-09,Transversal,T,2,Quadro de hasta 10 minutos con recargo equivalente a dos coreografías,Plan §3,EXPLICITA,liquidaciones,reglamento + tarifario,—,dom:quadro
+TR-10,Transversal,T,2,Preset de reglamento 2026 cargado como seed,CLAUDE.md,EXPLICITA,reglamento,clients/_template/seed.sql,—,db:preset-2026
+TR-11,Transversal,T,3,Versionado del reglamento y revalidación de fichas al cambiar,Inferida,INFERIDA,reglamento,evento.reglamento_version · ficha.validacion,—,dom:revalidacion
+TR-12,Transversal,T,2,El pago nunca limita la participación (sin bloqueos por deuda),Prompt; CLAUDE.md,EXPLICITA,cobros,sin FK ni trigger de cobro en inscripción/acreditación/orden,—,db:pago-no-bloquea
+TR-13,Transversal,T,5,"Pases manuales: el sistema registra, no decide",Prompt; CLAUDE.md,EXPLICITA,pases,pase (sin triggers automáticos),—,db:pase-manual
+TR-14,Transversal,T,5,Resultados y notas visibles solo tras la publicación (Art. 32),Prompt; Plan §3,EXPLICITA,resultados,rls condicionada a evento.resultados_publicados_at,—,rls:art32
+TR-15,Transversal,T,3,"Numeración LIQ-<SLUG>-0001 correlativa por evento, sin duplicados concurrentes",Prompt,EXPLICITA,liquidaciones,"evento_contador · fn private.siguiente_numero (UPDATE … RETURNING)",—,dom:numero-liquidacion · db:numeracion-concurrente
+TR-16,Transversal,T,2,Eventos independientes: cada organizador administra solo el suyo,Prompt; ADR-0004,EXPLICITA,identidad,RLS por evento_id en todas las tablas de evento,—,rls:aislamiento-evento
+TR-17,Transversal,T,2,Moneda por evento (BRL / ARS / USD) con formato por idioma,Prompt; Plan §4,EXPLICITA,i18n,evento.moneda,—,unit:formato-moneda
+TR-18,Transversal,T,3,"Liquidación: recálculo, versiones y saldo como diferencia",Plan §3,EXPLICITA,liquidaciones,liquidacion_version,—,dom:liquidacion-version
+TR-19,Transversal,T,3,"Estados de liquidación (Pendiente, Parcial, Pagada, Sin cargo) derivados, sin efecto bloqueante",Plan §3,EXPLICITA,liquidaciones,vista v_liquidacion_estado,—,dom:liquidacion-estado
+TR-20,Transversal,T,1,UI en es y pt-BR con next-intl; ningún texto visible en literal,CLAUDE.md; ADR-0005,EXPLICITA,i18n,messages/{es pt},—,ci:i18n-check
+TR-21,Transversal,T,2,Contenido del organizador en jsonb {es pt} con fallback al idioma por defecto del evento,Plan §4,EXPLICITA,i18n,columnas traducibles,—,unit:traducible
+TR-22,Transversal,T,3,"Emails, PDFs, certificados y credenciales en el idioma del destinatario",Plan §4,EXPLICITA,i18n,perfil.idioma,—,unit:email-idioma
+TR-23,Transversal,T,1,Fechas y horas en la zona horaria de la sede; montos en la moneda del evento,Plan §4,EXPLICITA,i18n,evento.zona_horaria,—,unit:formato-fecha
+TR-24,Transversal,T,1,CI falla si falta una clave de traducción,CLAUDE.md; ADR-0005,EXPLICITA,i18n,scripts/i18n-check,—,ci:i18n-check
+TR-25,Transversal,T,1,Agregar un idioma nuevo sin tocar pantallas (catálogo de idiomas configurable),Prompt (extensibilidad),EXPLICITA,i18n,lib/i18n/locales.ts · client.config.idiomas,—,unit:locales
+TR-26,Transversal,T,6,Traducción asistida por IA con revisión humana (opcional),Plan §4,EXPLICITA,i18n,—,/gestion/[eventoId]/configuracion,—
+TR-27,Transversal,T,2,RLS habilitada en cada tabla en la misma migración,CLAUDE.md,EXPLICITA,seguridad,todas las tablas,—,db:rls-habilitada
+TR-28,Transversal,T,2,Pruebas de RLS por rol,Prompt,EXPLICITA,seguridad,supabase/tests,—,rls:*
+TR-29,Transversal,T,2,Storage privado con URLs firmadas de corta duración,Prompt; CLAUDE.md,EXPLICITA,seguridad,storage.objects políticas por bucket,—,rls:storage-musica
+TR-30,Transversal,T,2,"Audit log de cambios sensibles, append-only",Prompt,EXPLICITA,auditoria,auditoria · triggers,—,db:auditoria
+TR-31,Transversal,T,1,Validación Zod en el borde (server actions y route handlers),CLAUDE.md,EXPLICITA,seguridad,packages/shared-types,—,unit:schemas
+TR-32,Transversal,T,1,service_role solo en servidor; secretos fuera del repo,CLAUDE.md,EXPLICITA,seguridad,lib/supabase/admin.ts (server-only),—,ci:secret-scan
+TR-33,Transversal,T,2,"Protección de datos de menores (minimización, logs sin PII, retención)",Plan §11,EXPLICITA,seguridad,bailarin.documento restringido,—,rls:bailarin-pii
+TR-34,Transversal,T,3,Rate limiting en endpoints públicos y de autenticación,Inferida,INFERIDA,seguridad,Supabase Auth rate limits + proxy,—,—
+TR-35,Transversal,T,1,"Headers de seguridad (CSP, HSTS, frame-ancestors)",Inferida,INFERIDA,seguridad,next.config headers,—,unit:headers
+TR-36,Transversal,T,2,Roles extensibles mediante catálogo de permisos,Prompt (extensibilidad),EXPLICITA,identidad,rol · rol_permiso · fn private.tiene_permiso,—,rls:permisos
+TR-37,Transversal,T,1,client.config.ts validado con Zod en build,Plan §7,EXPLICITA,plataforma,clients/<slug>/client.config.ts,—,unit:client-config
+TR-38,Transversal,T,1,Theming por instancia con tokens CSS,Plan §7,EXPLICITA,plataforma,clients/<slug>/theme.css,—,e2e:home-marca
+TR-39,Transversal,T,1,Feature flags de módulos por cliente,Plan §7,EXPLICITA,plataforma,client.config.modulos,—,unit:modulos
+TR-40,Transversal,F7,9,Plantilla clients/_template y comando /nuevo-cliente,Plan §10,EXPLICITA,plataforma,clients/_template,—,ci:template
+TR-41,Transversal,T,1,"Migraciones por entorno con GitHub Actions; bloqueo de migraciones destructivas con evento en curso",Plan §6 y §10,EXPLICITA,plataforma,.github/workflows/migraciones.yml,—,ci:migraciones
+TR-42,Transversal,T,1,"CI con lint, typecheck, tests, i18n y RLS",CLAUDE.md,EXPLICITA,plataforma,.github/workflows/ci.yml,—,ci
+TR-43,Transversal,T,1,Previews de Vercel contra staging,Plan §6,EXPLICITA,plataforma,Vercel,—,—
+TR-44,Transversal,T,3,Emails transaccionales con Resend y dominio verificado,Plan §6; Prompt,EXPLICITA,comunicados,packages/email-templates,—,unit:email-idioma
+TR-45,Transversal,T,4,"Tareas largas (ZIP, envíos masivos) en colas pgmq y Edge Functions",Plan §5 y §11,EXPLICITA,plataforma,pgmq · supabase/functions,—,db:cola
+TR-46,Transversal,T,4,Propagación del orden en tiempo real en menos de 1 segundo a todos los roles,Plan §9 etapa 4,EXPLICITA,orden,Supabase Realtime,—,e2e:realtime
+TR-47,Transversal,T,5,"Modo offline (cobros en la mesa y jurado) con cola local idempotente",Plan §11; Prompt,EXPLICITA,plataforma,IndexedDB outbox · client_uuid,—,unit:outbox
+TR-48,Transversal,T,6,"Observabilidad: logs estructurados sin PII y errores",Inferida,INFERIDA,plataforma,lib/log.ts,—,unit:log-redaccion
+TR-49,Transversal,T,9,Backups y restauración por instancia,Inferida,INFERIDA,plataforma,Supabase PITR (plan pago),—,—
+TR-50,Transversal,F7,9,Playbook de alta de cliente en menos de un día,Plan §10,EXPLICITA,plataforma,docs/runbooks,—,—
+TR-51,Transversal,F7,9,PWA instalable con notificaciones push,Etapa 9,EXPLICITA,plataforma,service worker,—,e2e:pwa
+TR-52,Transversal,F8,—,App nativa fuera de alcance hasta tener datos de uso de la PWA,Plan §9,EXPLICITA,plataforma,—,—,—
