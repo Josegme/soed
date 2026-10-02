@@ -236,7 +236,8 @@
     "INVITACION_INEXISTENTE": "O convite não existe.",
     "INVITACION_USADA": "O convite já foi usado.",
     "INVITACION_VENCIDA": "O convite expirou.",
-    "EMAIL_DISTINTO": "Você entrou com outra conta: use o email que recebeu o convite."
+    "EMAIL_DISTINTO": "Você entrou com outra conta: use o email que recebeu o convite.",
+    "HOTEL_CON_SOLICITUDES": "Não é possível excluir: há academias que o pediram."
   },
   "reglamento": {
     "infraccion": {
@@ -468,6 +469,18 @@
         "RUBRO": "Item opcional",
         "RECARGO": "Acréscimo",
         "AJUSTE": "Ajuste"
+      },
+      "hoteles": {
+        "titulo": "Hotel e pacotes",
+        "aclaracion": "Peça vagas e a organização as atribui conforme a prioridade indicada. O pagamento do hotel é combinado com a organização.",
+        "plazas": "Vagas",
+        "solicitar": "Solicitar",
+        "actualizar": "Atualizar pedido",
+        "cancelar": "Cancelar pedido",
+        "estado": "Você pediu {plazas, plural, one {# vaga} other {# vagas}}: {asignadas} com lugar hoje e {espera} na lista de espera.",
+        "precio": "{precio} por vaga",
+        "solicitudHotelGuardada": "Pedido de hotel salvo.",
+        "solicitudHotelCancelada": "Pedido cancelado."
       }
     },
     "equipo": {
@@ -512,7 +525,8 @@
       "equipo": "Equipe",
       "configuracion": "Configuração",
       "auditoria": "Auditoria",
-      "premios": "Prêmios"
+      "premios": "Prêmios",
+      "hoteles": "Hotéis"
     },
     "premios": {
       "titulo": "Prêmios do evento",
@@ -938,6 +952,36 @@
         "credencial": "Credencial",
         "exportacion": "Exportação de dados"
       }
+    },
+    "hoteles": {
+      "aclaracion": "A prioridade segue o critério de cada hotel: primeiro pagamento registrado ou data de inscrição. A organização confirma a reserva com o hotel; o SOED não cobra.",
+      "sinHoteles": "Ainda não há hotéis nem pacotes.",
+      "nuevo": "Adicionar hotel ou pacote",
+      "descripcion": "Descrição",
+      "cupo": "Vagas",
+      "cupoAyuda": "Total de vagas disponíveis.",
+      "precio": "Preço por vaga ({moneda})",
+      "criterio": "Prioridade",
+      "criterios": {
+        "PRIMER_PAGO": "Por primeiro pagamento",
+        "INSCRIPCION": "Por inscrição"
+      },
+      "resumen": "{asignadas} de {cupo} vagas atribuídas · {solicitadas} solicitadas",
+      "excedido": "Mais pedidos que vagas",
+      "sinSolicitudes": "Sem solicitações.",
+      "solicitudesDe": "Solicitações de {hotel}",
+      "prioridad": "Prior.",
+      "academia": "Academia",
+      "plazas": "Pedidas",
+      "asignadas": "Atribuídas",
+      "enEspera": "Em espera",
+      "inscripta": "Inscrição",
+      "primerPago": "Primeiro pagamento",
+      "editar": "Editar",
+      "eliminar": "Excluir",
+      "hotelCreado": "Hotel criado.",
+      "hotelActualizado": "Hotel atualizado.",
+      "hotelEliminado": "Hotel excluído."
     }
   },
   "admin": {
@@ -987,6 +1031,48 @@
       "clonar": "Copiar configuração de",
       "ayudaClonar": "Copia regulamento, tabela, meios de recebimento, critérios e palcos.",
       "sinClonar": "Não copiar: usar o regulamento da temporada"
+    },
+    "tablero": "Painel",
+    "temporada": {
+      "descripcion": "Temporada {anio}: participação e recebimentos de todos os eventos.",
+      "navegacion": "Seções da temporada",
+      "volver": "Temporadas",
+      "tablero": "Painel",
+      "historial": "Histórico",
+      "exportar": "Exportar CSV",
+      "tiposExportacion": {
+        "eventos": "Baixar eventos",
+        "historial": "Baixar histórico"
+      },
+      "eventos": "Eventos",
+      "academias": "Academias",
+      "academiasDetalle": "Cada academia conta uma vez na temporada.",
+      "fichas": "Coreografias inscritas",
+      "aprobadas": "{cantidad} aprovadas",
+      "cobradoMoneda": "Recebido em {moneda}",
+      "avance": "{avance} % de {esperado}",
+      "porEvento": "Por evento",
+      "evento": "Evento",
+      "estado": "Status",
+      "esperado": "Esperado",
+      "cobrado": "Recebido",
+      "pendiente": "Pendente",
+      "sinEventos": "A temporada ainda não tem eventos.",
+      "aclaracionMonedas": "Cada evento cobra na sua moeda: os totais aparecem por moeda, sem conversão. Os pagamentos são registrados fora do sistema.",
+      "historialTitulo": "Histórico · {temporada}",
+      "historialDescripcion": "Resultados e classificações de cada academia e coreografia na temporada.",
+      "buscarAyuda": "Academia ou coreografia",
+      "todosLosEventos": "Todos os eventos",
+      "filtrar": "Filtrar",
+      "filas": "{cantidad, plural, one {# resultado} other {# resultados}}",
+      "sinHistorial": "Sem resultados para mostrar.",
+      "sinHistorialDetalle": "Os resultados aparecem quando a organização os calcula.",
+      "academia": "Academia",
+      "coreografia": "Coreografia",
+      "grupo": "Grupo",
+      "puesto": "Posição",
+      "puntaje": "Pontuação",
+      "pases": "Classificações"
     }
   },
   "offline": {
@@ -1174,7 +1260,17 @@
       "grupo": "Grupo",
       "puesto": "Colocação",
       "puntaje": "Nota",
-      "banda": "Faixa"
+      "banda": "Faixa",
+      "evento": "Evento",
+      "nombreEvento": "Nome do evento",
+      "inicio": "Início",
+      "fin": "Fim",
+      "academias": "Academias",
+      "fichas": "Coreografias",
+      "aprobadas": "Aprovadas",
+      "moneda": "Moeda",
+      "esperado": "Esperado",
+      "pases": "Classificações"
     }
   },
   "emails": {

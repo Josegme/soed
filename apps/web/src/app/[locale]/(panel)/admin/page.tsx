@@ -43,6 +43,13 @@ export default async function Admin({ params }: { params: Promise<{ locale: stri
               {texto(temporada.nombre, idioma)}
             </h2>
             <Insignia tono={temporada.publicada ? 'exito' : 'neutro'}>{temporada.publicada ? t('publicada') : t('borrador')}</Insignia>
+            <Link
+              href={`/admin/temporadas/${temporada.id}`}
+              className="text-sm font-medium text-marca underline-offset-4 hover:underline"
+              aria-label={`${t('tablero')} · ${texto(temporada.nombre, idioma)}`}
+            >
+              {t('tablero')}
+            </Link>
           </div>
           {temporada.eventos.length === 0 ? <p className="text-sm text-texto-suave">{t('sinEventos')}</p> : null}
           <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
