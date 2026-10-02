@@ -22,6 +22,8 @@ export interface PuertosOrden {
   actualizarEstado(itemId: string, estado: EstadoOrden): Promise<void>;
   /** Pone en LLAMADA/PROGRAMADA la que estaba en escena en la misma pista antes de subir otra. */
   liberarEscena(itemId: string): Promise<void>;
+  /** Ítems de una pista en orden de salida (bloque y posición). */
+  itemsDePista(pistaId: string): Promise<{ id: string; eventoId: string; estado: EstadoOrden }[]>;
 }
 
 export type CodigoErrorOrdenApp = 'SIN_PERMISO' | 'BLOQUE_INEXISTENTE' | 'ITEM_INEXISTENTE' | 'TRANSICION_INVALIDA' | 'SIN_FICHAS';
@@ -61,4 +63,26 @@ export async function cambiarEstadoOrden(
   if (estado === 'EN_ESCENA') await p.liberarEscena(itemId);
   await p.actualizarEstado(itemId, estado);
   return ok(estado);
+}
+
+/**
+ * "Siguiente" del coordinador (OP-05, OP-06): la que está en escena pasa a
+ * presentada, sube la llamada (o la próxima programada) y se llama a la que
+ * sigue. Las ausentes y presentadas se saltean.
+ */
+export async function avanzarOrden(
+  p: PuertosOrden,
+  pistaId: string,
+): Promise<Result<{ enEscena: string | null; llamada: string | null }, ErrorDominio<CodigoErrorOrdenApp>>> {
+  const items = await p.itemsDePista(pistaId);
+  if (items.length === 0) return err(errorDominio('ITEM_INEXISTENTE'));
+  if (!p.puede(items[0]!.eventoId, 'orden.operar')) return err(errorDominio('SIN_PERMISO'));
+  const actual = items.findIndex((i) => i.estado === 'EN_ESCENA');
+  if (actual >= 0) await p.actualizarEstado(items[actual]!.id, 'PRESENTADA');
+  const pendientes = items.filter((i, n) => n > actual && (i.estado === 'LLAMADA' || i.estado === 'PROGRAMADA'));
+  const siguiente = pendientes.find((i) => i.estado === 'LLAMADA') ?? pendientes[0] ?? null;
+  if (siguiente) await p.actualizarEstado(siguiente.id, 'EN_ESCENA');
+  const proxima = pendientes.find((i) => i.id !== siguiente?.id) ?? null;
+  if (proxima?.estado === 'PROGRAMADA') await p.actualizarEstado(proxima.id, 'LLAMADA');
+  return ok({ enEscena: siguiente?.id ?? null, llamada: proxima?.id ?? null });
 }

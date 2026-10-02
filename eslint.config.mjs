@@ -11,6 +11,9 @@ import nextTs from 'eslint-config-next/typescript';
 export default defineConfig([
   globalIgnores([
     '**/.next/**',
+    '**/.next-e2e/**',
+    '**/test-results*/**',
+    '**/playwright-report*/**',
     '**/node_modules/**',
     '**/coverage/**',
     '**/dist/**',

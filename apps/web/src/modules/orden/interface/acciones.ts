@@ -7,7 +7,7 @@ import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
 import { instanteDesdeLocal } from '@/lib/fechas-zona';
 import { textoDe, traducibleDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import type { Json } from '@soed/shared-types/database';
-import { asignarFichasABloque, cambiarEstadoOrden } from '../application/orden';
+import { asignarFichasABloque, avanzarOrden, cambiarEstadoOrden } from '../application/orden';
 import { puertosOrdenSupabase } from '../infrastructure/puertos-orden-supabase';
 
 /** Construcción del orden de salida (OR-35 a OR-39) y operación en vivo (OP-05 a OP-08). */
@@ -125,4 +125,17 @@ export async function publicarOrdenAccion(_previo: EstadoFormulario, datos: Form
   refrescar();
   revalidatePath('/[locale]/eventos/[slug]', 'layout');
   return { ok: true, mensaje: publicar ? 'ordenPublicado' : 'ordenRetirado' };
+}
+
+/** "Siguiente" del coordinador en una pista (OP-05, OP-06). */
+export async function avanzarOrdenAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const pistaId = uuidSchema.safeParse(datos.get('pistaId'));
+  if (!pistaId.success) return { ok: false, mensaje: 'ITEM_INEXISTENTE' };
+  return intentar(async () => {
+    const { sesion, db } = await requerirSesion();
+    const r = await avanzarOrden(puertosOrdenSupabase(db, sesion), pistaId.data);
+    if (!r.ok) return { ok: false, mensaje: r.error.codigo };
+    refrescar();
+    return { ok: true };
+  });
 }

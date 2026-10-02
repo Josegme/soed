@@ -1,8 +1,12 @@
 import type { EstadoOrden } from '@soed/domain';
 import { describe, expect, it } from 'vitest';
-import { asignarFichasABloque, cambiarEstadoOrden, type PuertosOrden } from './orden';
+import { asignarFichasABloque, avanzarOrden, cambiarEstadoOrden, type PuertosOrden } from './orden';
 
-function fake(permisos = ['orden.editar', 'orden.operar'], estado: EstadoOrden = 'PROGRAMADA') {
+function fake(
+  permisos = ['orden.editar', 'orden.operar'],
+  estado: EstadoOrden = 'PROGRAMADA',
+  pista: { id: string; eventoId: string; estado: EstadoOrden }[] = [],
+) {
   const insertados: unknown[] = [];
   const cambios: string[] = [];
   const p: PuertosOrden = {
@@ -16,8 +20,9 @@ function fake(permisos = ['orden.editar', 'orden.operar'], estado: EstadoOrden =
     bloque: async (id) => (id === 'b1' ? { id: 'b1', eventoId: 'e1', pistaId: 'p1' } : null),
     insertarItems: async (items) => void insertados.push(...items),
     item: async (id) => (id === 'i1' ? { id: 'i1', eventoId: 'e1', estado } : null),
-    actualizarEstado: async (_id, e) => void cambios.push(e),
+    actualizarEstado: async (id, e) => void cambios.push(pista.length ? `${id}:${e}` : e),
     liberarEscena: async () => void cambios.push('LIBERAR'),
+    itemsDePista: async () => pista,
   };
   return { p, insertados, cambios };
 }
@@ -50,5 +55,33 @@ describe('[OP-07] cambiar estado en vivo', () => {
       error: { codigo: 'SIN_PERMISO' },
     });
     expect(await cambiarEstadoOrden(fake().p, 'x', 'LLAMADA')).toMatchObject({ ok: false, error: { codigo: 'ITEM_INEXISTENTE' } });
+  });
+});
+
+describe('[OP-05] [OP-06] siguiente en escena', () => {
+  const item = (id: string, estado: EstadoOrden) => ({ id, eventoId: 'e1', estado });
+  it('presenta la actual, sube la llamada y llama a la próxima', async () => {
+    const { p, cambios } = fake(undefined, undefined, [
+      item('a', 'PRESENTADA'),
+      item('b', 'EN_ESCENA'),
+      item('c', 'LLAMADA'),
+      item('d', 'PROGRAMADA'),
+    ]);
+    expect(await avanzarOrden(p, 'p1')).toEqual({ ok: true, value: { enEscena: 'c', llamada: 'd' } });
+    expect(cambios).toEqual(['b:PRESENTADA', 'c:EN_ESCENA', 'd:LLAMADA']);
+  });
+  it('arranca el bloque y saltea ausentes', async () => {
+    const { p, cambios } = fake(undefined, undefined, [item('a', 'AUSENTE'), item('b', 'PROGRAMADA'), item('c', 'PROGRAMADA')]);
+    expect(await avanzarOrden(p, 'p1')).toEqual({ ok: true, value: { enEscena: 'b', llamada: 'c' } });
+    expect(cambios).toEqual(['b:EN_ESCENA', 'c:LLAMADA']);
+  });
+  it('al final solo presenta la última y exige permiso de operación', async () => {
+    const { p, cambios } = fake(undefined, undefined, [item('a', 'EN_ESCENA')]);
+    expect(await avanzarOrden(p, 'p1')).toEqual({ ok: true, value: { enEscena: null, llamada: null } });
+    expect(cambios).toEqual(['a:PRESENTADA']);
+    expect(await avanzarOrden(fake(['orden.editar'], undefined, [item('a', 'EN_ESCENA')]).p, 'p1')).toMatchObject({
+      ok: false,
+      error: { codigo: 'SIN_PERMISO' },
+    });
   });
 });

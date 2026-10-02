@@ -5,6 +5,7 @@ import { FormularioAccion } from '@/components/formulario-accion';
 import { etiquetaCodigo } from '@/lib/i18n/claves';
 import { formatearMonto } from '@/lib/i18n/formato';
 import { registrarCobroAccion } from './acciones';
+import { CobroOffline } from './cobro-offline';
 
 export interface LiquidacionFila {
   id: string;
@@ -30,12 +31,15 @@ export async function TablaLiquidaciones({
   medios,
   idioma,
   puedeCobrar,
+  offline,
 }: {
   liquidaciones: readonly LiquidacionFila[];
   moneda: Moneda;
   medios: readonly string[];
   idioma: Idioma;
   puedeCobrar: boolean;
+  /** Mesa de caja: el cobro pasa por la cola offline del usuario (ADR-0010). */
+  offline?: { usuarioId: string };
 }) {
   const t = await getTranslations('gestion.cobros');
   const tl = await getTranslations('estados.liquidacion');
@@ -72,33 +76,44 @@ export async function TablaLiquidaciones({
                 {puedeCobrar && l.saldo > 0 && l.version !== null ? (
                   <details>
                     <summary className="cursor-pointer text-sm font-medium text-marca">{t('registrarCobro')}</summary>
-                    <FormularioAccion
-                      accion={registrarCobroAccion}
-                      namespace="gestion.cobros"
-                      boton={t('confirmarCobro')}
-                      tamano="chico"
-                      idempotente
-                      className="mt-2 max-w-md"
-                    >
-                      <input type="hidden" name="liquidacionId" value={l.id} />
-                      <input type="hidden" name="moneda" value={moneda} />
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <CampoTexto
-                          name="monto"
-                          etiqueta={t('monto', { moneda })}
-                          inputMode="decimal"
-                          defaultValue={decimal(montoSugerido(l.saldo))}
-                          requerido
-                        />
-                        <CampoSelector
-                          name="medio"
-                          etiqueta={t('medio')}
-                          opciones={medios.map((m) => ({ valor: m, etiqueta: etiquetaCodigo(tm, m) }))}
-                        />
-                      </div>
-                      <CampoTexto name="referencia" etiqueta={t('referencia')} maxLength={200} />
-                      <CampoTexto name="nota" etiqueta={t('nota')} maxLength={1000} />
-                    </FormularioAccion>
+                    {offline ? (
+                      <CobroOffline
+                        usuarioId={offline.usuarioId}
+                        liquidacionId={l.id}
+                        numero={l.numero}
+                        moneda={moneda}
+                        medios={medios.map((m) => ({ valor: m, etiqueta: etiquetaCodigo(tm, m) }))}
+                        montoSugerido={decimal(montoSugerido(l.saldo))}
+                      />
+                    ) : (
+                      <FormularioAccion
+                        accion={registrarCobroAccion}
+                        namespace="gestion.cobros"
+                        boton={t('confirmarCobro')}
+                        tamano="chico"
+                        idempotente
+                        className="mt-2 max-w-md"
+                      >
+                        <input type="hidden" name="liquidacionId" value={l.id} />
+                        <input type="hidden" name="moneda" value={moneda} />
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <CampoTexto
+                            name="monto"
+                            etiqueta={t('monto', { moneda })}
+                            inputMode="decimal"
+                            defaultValue={decimal(montoSugerido(l.saldo))}
+                            requerido
+                          />
+                          <CampoSelector
+                            name="medio"
+                            etiqueta={t('medio')}
+                            opciones={medios.map((m) => ({ valor: m, etiqueta: etiquetaCodigo(tm, m) }))}
+                          />
+                        </div>
+                        <CampoTexto name="referencia" etiqueta={t('referencia')} maxLength={200} />
+                        <CampoTexto name="nota" etiqueta={t('nota')} maxLength={1000} />
+                      </FormularioAccion>
+                    )}
                   </details>
                 ) : null}
               </div>

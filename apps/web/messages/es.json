@@ -219,7 +219,14 @@
     "LIQUIDACION_INEXISTENTE": "No encontramos la liquidación.",
     "COBRO_INEXISTENTE": "No encontramos el cobro.",
     "CLIENT_UUID_INVALIDO": "Recargá la página e intentá de nuevo.",
-    "SIN_FICHAS": "No hay fichas enviadas sin asignar."
+    "SIN_FICHAS": "No hay fichas enviadas sin asignar.",
+    "SIN_CRITERIOS": "La organización todavía no definió los criterios de evaluación.",
+    "CRITERIO_DESCONOCIDO": "Ese criterio no pertenece al evento.",
+    "CREDENCIAL_INEXISTENTE": "No encontramos esa credencial.",
+    "SIN_SESION": "Tu sesión venció. Volvé a ingresar para enviar lo pendiente.",
+    "ORIGEN_INVALIDO": "Solicitud rechazada por seguridad.",
+    "DATOS_INVALIDOS": "Los datos guardados no son válidos.",
+    "FORMATO_INVALIDO": "Formato de solicitud inválido."
   },
   "reglamento": {
     "infraccion": {
@@ -880,5 +887,134 @@
       "ayudaClonar": "Copia reglamento, tarifario, medios de cobro, criterios y pistas.",
       "sinClonar": "No copiar: usar el reglamento de la temporada"
     }
+  },
+  "offline": {
+    "enLinea": "Con conexión",
+    "sinConexion": "Sin conexión: lo que registres se guarda en este dispositivo",
+    "pendientes": "{cantidad, plural, one {# operación por enviar} other {# operaciones por enviar}}",
+    "reintentar": "Enviar ahora",
+    "rechazada": "No se pudo registrar: {etiqueta}",
+    "descartar": "Descartar",
+    "guardadoLocal": "Guardado en el dispositivo: se enviará al volver la conexión."
+  },
+  "vivo": {
+    "conectado": "En vivo",
+    "sondeo": "Actualización cada {segundos} s",
+    "pistas": "Pistas",
+    "sinOrden": "Todavía no hay orden de salida para esta pista.",
+    "enEscena": "En escena",
+    "llamada": "Llamada",
+    "proximas": "Próximas",
+    "nadie": "—",
+    "coordinador": {
+      "titulo": "Coordinación en vivo",
+      "siguiente": "Siguiente",
+      "pasarA": {
+        "PROGRAMADA": "Programar",
+        "LLAMADA": "Llamar",
+        "EN_ESCENA": "A escena",
+        "PRESENTADA": "Presentada",
+        "AUSENTE": "Ausente"
+      }
+    },
+    "locutor": {
+      "titulo": "Locución · {evento}",
+      "finPista": "No quedan coreografías en esta pista."
+    },
+    "dj": {
+      "titulo": "Música del evento",
+      "aclaracion": "Los enlaces de descarga vencen a las 3 horas; recargá la página para renovarlos.",
+      "descargar": "Descargar",
+      "noDisponible": "Música no disponible",
+      "sinMusica": "Sin música cargada",
+      "reproducir": "Reproducir la música de {nombre}"
+    },
+    "directorTecnico": {
+      "titulo": "Dirección técnica",
+      "sinActividad": "Todavía no hay coreografías presentadas.",
+      "coreografia": "Coreografía",
+      "jurado": "Jurado {numero}",
+      "sinPlanilla": "Pendiente",
+      "desvio": "Desvío",
+      "reabrir": "Reabrir"
+    }
+  },
+  "jurado": {
+    "titulo": "Planilla de jurado",
+    "avance": "{enviadas} de {total} planillas enviadas",
+    "sinCriterios": "La organización todavía no definió los criterios: no se puede puntuar.",
+    "sinOrden": "El orden de salida todavía no está armado",
+    "sinOrdenDetalle": "Las coreografías aparecen acá cuando la organización arma el orden.",
+    "orden": "Orden de salida",
+    "enEscena": "En escena",
+    "posicion": "N.º {posicion}",
+    "planilla": {
+      "enviada": "Planilla enviada",
+      "totalEnviado": "Total enviado: {total}",
+      "reabierta": "La dirección técnica reabrió la planilla: {motivo}",
+      "notas": "Notas por criterio",
+      "peso": "peso {peso}",
+      "escala": "Escala de {min} a {max}, hasta {decimales} decimal.",
+      "comentario": "Devolución para la academia",
+      "ayudaComentario": "La academia la ve sin tu nombre cuando se publican los resultados.",
+      "total": "Total ponderado",
+      "incompleta": "Completá todas las notas para enviar.",
+      "guardarBorrador": "Guardar borrador",
+      "enviar": "Enviar planilla",
+      "confirmarEnvio": "Confirmar envío",
+      "cancelar": "Seguir editando",
+      "avisoEnvio": "Una vez enviada solo la dirección técnica puede reabrirla.",
+      "guardadaLocal": "Sin conexión: la planilla quedó en este dispositivo y se enviará sola.",
+      "enviadaOk": "Planilla enviada.",
+      "borradorOk": "Borrador guardado."
+    }
+  },
+  "acreditacion": {
+    "titulo": "Acreditación",
+    "irCaja": "Mesa de cobros",
+    "escanear": "Escanear credencial",
+    "aclaracionDeuda": "La acreditación nunca depende del pago: los saldos se gestionan en la mesa de cobros.",
+    "acreditadas": "Acreditadas",
+    "emitir": "Emitir credenciales faltantes",
+    "ayudaEmitir": "Crea una credencial por bailarín de fichas enviadas, por profesor y por integrante del equipo. Se puede repetir sin duplicar.",
+    "credencialesEmitidas": "Se emitieron {emitidas} credenciales.",
+    "imprimir": "Imprimir credenciales",
+    "imprimirAhora": "Imprimir",
+    "credenciales": "Credenciales",
+    "sinCredenciales": "No hay credenciales.",
+    "sinCredencialesDetalle": "Emití las credenciales cuando las fichas estén enviadas.",
+    "tipo": "Tipo",
+    "academia": "Academia",
+    "anulada": "Anulada",
+    "acreditadaA": "Acreditada {hora}",
+    "qrDe": "Código QR de {nombre}",
+    "tipos": {
+      "BAILARIN": "Bailarín",
+      "PROFESOR": "Profesor",
+      "STAFF": "Staff",
+      "JURADO": "Jurado",
+      "ACOMPANANTE": "Acompañante"
+    },
+    "escaner": {
+      "usarCamara": "Escanear con la cámara",
+      "detenerCamara": "Detener cámara",
+      "vistaCamara": "Vista de la cámara",
+      "sinDetector": "Este navegador no lee QR con la cámara: ingresá el código impreso.",
+      "sinCamara": "No se pudo usar la cámara. Ingresá el código a mano.",
+      "token": "Código de la credencial",
+      "acreditar": "Acreditar",
+      "acreditarA": "Acreditar a {nombre}",
+      "acreditado": "{nombre}: acreditado",
+      "yaAcreditado": "{nombre} ya estaba acreditado ({hora})",
+      "guardadaLocal": "Sin conexión: la acreditación quedó en el dispositivo."
+    }
+  },
+  "caja": {
+    "titulo": "Mesa de cobros",
+    "turno": "Turno abierto desde las {desde}: {cantidad} cobros por {monto}",
+    "sinTurno": "Sin turno abierto · tus cobros: {cantidad} por {monto}",
+    "abrirTurno": "Abrir turno",
+    "aclaracion": "Registrá lo que la academia paga en la mesa. El pago nunca condiciona la acreditación ni la participación.",
+    "buscar": "Academia o número de liquidación"
   }
 }

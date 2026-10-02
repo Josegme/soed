@@ -219,7 +219,14 @@
     "LIQUIDACION_INEXISTENTE": "Não encontramos o demonstrativo.",
     "COBRO_INEXISTENTE": "Não encontramos o recebimento.",
     "CLIENT_UUID_INVALIDO": "Recarregue a página e tente de novo.",
-    "SIN_FICHAS": "Não há fichas enviadas sem atribuir."
+    "SIN_FICHAS": "Não há fichas enviadas sem atribuir.",
+    "SIN_CRITERIOS": "A organização ainda não definiu os critérios de avaliação.",
+    "CRITERIO_DESCONOCIDO": "Esse critério não pertence ao evento.",
+    "CREDENCIAL_INEXISTENTE": "Não encontramos essa credencial.",
+    "SIN_SESION": "Sua sessão expirou. Entre de novo para enviar o que está pendente.",
+    "ORIGEN_INVALIDO": "Solicitação recusada por segurança.",
+    "DATOS_INVALIDOS": "Os dados salvos não são válidos.",
+    "FORMATO_INVALIDO": "Formato de solicitação inválido."
   },
   "reglamento": {
     "infraccion": {
@@ -880,5 +887,134 @@
       "ayudaClonar": "Copia regulamento, tabela, meios de recebimento, critérios e palcos.",
       "sinClonar": "Não copiar: usar o regulamento da temporada"
     }
+  },
+  "offline": {
+    "enLinea": "Conectado",
+    "sinConexion": "Sem conexão: o que você registrar fica salvo neste dispositivo",
+    "pendientes": "{cantidad, plural, one {# operação a enviar} other {# operações a enviar}}",
+    "reintentar": "Enviar agora",
+    "rechazada": "Não foi possível registrar: {etiqueta}",
+    "descartar": "Descartar",
+    "guardadoLocal": "Salvo no dispositivo: será enviado quando a conexão voltar."
+  },
+  "vivo": {
+    "conectado": "Ao vivo",
+    "sondeo": "Atualização a cada {segundos} s",
+    "pistas": "Palcos",
+    "sinOrden": "Ainda não há ordem de apresentação para este palco.",
+    "enEscena": "No palco",
+    "llamada": "Chamada",
+    "proximas": "Próximas",
+    "nadie": "—",
+    "coordinador": {
+      "titulo": "Coordenação ao vivo",
+      "siguiente": "Próxima",
+      "pasarA": {
+        "PROGRAMADA": "Programar",
+        "LLAMADA": "Chamar",
+        "EN_ESCENA": "Ao palco",
+        "PRESENTADA": "Apresentada",
+        "AUSENTE": "Ausente"
+      }
+    },
+    "locutor": {
+      "titulo": "Locução · {evento}",
+      "finPista": "Não restam coreografias neste palco."
+    },
+    "dj": {
+      "titulo": "Músicas do evento",
+      "aclaracion": "Os links de download expiram em 3 horas; recarregue a página para renová-los.",
+      "descargar": "Baixar",
+      "noDisponible": "Música indisponível",
+      "sinMusica": "Sem música enviada",
+      "reproducir": "Tocar a música de {nombre}"
+    },
+    "directorTecnico": {
+      "titulo": "Direção técnica",
+      "sinActividad": "Ainda não há coreografias apresentadas.",
+      "coreografia": "Coreografia",
+      "jurado": "Jurado {numero}",
+      "sinPlanilla": "Pendente",
+      "desvio": "Divergência",
+      "reabrir": "Reabrir"
+    }
+  },
+  "jurado": {
+    "titulo": "Planilha do júri",
+    "avance": "{enviadas} de {total} planilhas enviadas",
+    "sinCriterios": "A organização ainda não definiu os critérios: não é possível avaliar.",
+    "sinOrden": "A ordem de apresentação ainda não foi montada",
+    "sinOrdenDetalle": "As coreografias aparecem aqui quando a organização monta a ordem.",
+    "orden": "Ordem de apresentação",
+    "enEscena": "No palco",
+    "posicion": "N.º {posicion}",
+    "planilla": {
+      "enviada": "Planilha enviada",
+      "totalEnviado": "Total enviado: {total}",
+      "reabierta": "A direção técnica reabriu a planilha: {motivo}",
+      "notas": "Notas por critério",
+      "peso": "peso {peso}",
+      "escala": "Escala de {min} a {max}, até {decimales} casa decimal.",
+      "comentario": "Devolutiva para a academia",
+      "ayudaComentario": "A academia a vê sem o seu nome quando os resultados são publicados.",
+      "total": "Total ponderado",
+      "incompleta": "Preencha todas as notas para enviar.",
+      "guardarBorrador": "Salvar rascunho",
+      "enviar": "Enviar planilha",
+      "confirmarEnvio": "Confirmar envio",
+      "cancelar": "Continuar editando",
+      "avisoEnvio": "Depois de enviada, só a direção técnica pode reabri-la.",
+      "guardadaLocal": "Sem conexão: a planilha ficou neste dispositivo e será enviada automaticamente.",
+      "enviadaOk": "Planilha enviada.",
+      "borradorOk": "Rascunho salvo."
+    }
+  },
+  "acreditacion": {
+    "titulo": "Credenciamento",
+    "irCaja": "Mesa de recebimentos",
+    "escanear": "Ler credencial",
+    "aclaracionDeuda": "O credenciamento nunca depende do pagamento: os saldos são tratados na mesa de recebimentos.",
+    "acreditadas": "Credenciadas",
+    "emitir": "Emitir credenciais faltantes",
+    "ayudaEmitir": "Cria uma credencial por bailarino de fichas enviadas, por professor e por integrante da equipe. Pode ser repetido sem duplicar.",
+    "credencialesEmitidas": "{emitidas} credenciais emitidas.",
+    "imprimir": "Imprimir credenciais",
+    "imprimirAhora": "Imprimir",
+    "credenciales": "Credenciais",
+    "sinCredenciales": "Não há credenciais.",
+    "sinCredencialesDetalle": "Emita as credenciais quando as fichas estiverem enviadas.",
+    "tipo": "Tipo",
+    "academia": "Academia",
+    "anulada": "Cancelada",
+    "acreditadaA": "Credenciada {hora}",
+    "qrDe": "Código QR de {nombre}",
+    "tipos": {
+      "BAILARIN": "Bailarino",
+      "PROFESOR": "Professor",
+      "STAFF": "Equipe",
+      "JURADO": "Jurado",
+      "ACOMPANANTE": "Acompanhante"
+    },
+    "escaner": {
+      "usarCamara": "Ler com a câmera",
+      "detenerCamara": "Parar câmera",
+      "vistaCamara": "Imagem da câmera",
+      "sinDetector": "Este navegador não lê QR com a câmera: digite o código impresso.",
+      "sinCamara": "Não foi possível usar a câmera. Digite o código manualmente.",
+      "token": "Código da credencial",
+      "acreditar": "Credenciar",
+      "acreditarA": "Credenciar {nombre}",
+      "acreditado": "{nombre}: credenciado",
+      "yaAcreditado": "{nombre} já estava credenciado ({hora})",
+      "guardadaLocal": "Sem conexão: o credenciamento ficou no dispositivo."
+    }
+  },
+  "caja": {
+    "titulo": "Mesa de recebimentos",
+    "turno": "Turno aberto desde {desde}: {cantidad} recebimentos, total {monto}",
+    "sinTurno": "Sem turno aberto · seus recebimentos: {cantidad}, total {monto}",
+    "abrirTurno": "Abrir turno",
+    "aclaracion": "Registre o que a academia paga na mesa. O pagamento nunca condiciona o credenciamento nem a participação.",
+    "buscar": "Academia ou número do demonstrativo"
   }
 }

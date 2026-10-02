@@ -84,5 +84,14 @@ export function puertosOrdenSupabase(db: ClienteSupabase, sesion: Sesion): Puert
         .neq('id', itemId);
       if (error) throw new Error(error.message);
     },
+    async itemsDePista(pistaId) {
+      const { data } = await db
+        .from('orden_item')
+        .select('id, evento_id, estado, posicion, bloque!orden_item_bloque_id_evento_id_fkey (orden)')
+        .eq('pista_id', pistaId);
+      return (data ?? [])
+        .sort((a, b) => (a.bloque?.orden ?? 0) - (b.bloque?.orden ?? 0) || a.posicion - b.posicion)
+        .map((i) => ({ id: i.id, eventoId: i.evento_id, estado: i.estado as EstadoOrden }));
+    },
   };
 }

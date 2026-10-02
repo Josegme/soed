@@ -16,7 +16,7 @@ export default async function LayoutPanel({ children, params }: { children: Reac
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-borde bg-superficie">
+      <header className="sticky top-0 z-30 border-b border-borde bg-superficie print:hidden">
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element -- SVG de la instancia */}
@@ -34,7 +34,7 @@ export default async function LayoutPanel({ children, params }: { children: Reac
         </div>
       </header>
       <div className="flex flex-1 flex-col lg:flex-row">
-        <aside className="border-b border-borde bg-superficie lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+        <aside className="border-b border-borde bg-superficie lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r print:hidden">
           <details className="lg:hidden">
             <summary className="flex min-h-11 cursor-pointer items-center px-4 font-semibold">{t('nav.titulo')}</summary>
             <div className="px-2 pb-4">

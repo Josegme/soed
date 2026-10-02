@@ -3,6 +3,7 @@ import type { Infraccion, ReglamentoEvento, Traducible } from '@soed/domain';
 import { reglamentoSchema } from '@soed/shared-types';
 import { cache } from 'react';
 import type { ClienteSupabase } from '@/lib/supabase/server';
+import { ordenEnVivo } from '@/modules/vivo/infrastructure/consultas';
 
 /**
  * Lecturas de los paneles de gestión con el cliente del usuario: RLS decide qué
@@ -156,44 +157,9 @@ export async function nombresDeUsuarios(db: ClienteSupabase, ids: readonly strin
   return new Map((data ?? []).map((p) => [p.id, p.nombre || p.email || '']));
 }
 
+/** Orden completo para la gestión: misma lectura que las vistas en vivo. */
 export async function ordenDeGestion(db: ClienteSupabase, eventoId: string) {
-  const [{ data: pistas }, { data: bloques }, { data: items }, academias] = await Promise.all([
-    db.from('pista').select('id, nombre, orden').eq('evento_id', eventoId).order('orden'),
-    db.from('bloque').select('id, pista_id, nombre, inicio_programado, orden').eq('evento_id', eventoId).order('orden'),
-    db
-      .from('orden_item')
-      .select(
-        'id, bloque_id, posicion, estado, ficha:ficha_id (id, nombre, categoria, formacion, genero, musica_duracion_seg, academia_id)',
-      )
-      .eq('evento_id', eventoId)
-      .order('posicion'),
-    nombresDeAcademias(db, eventoId),
-  ]);
-  return (pistas ?? []).map((p) => ({
-    id: p.id,
-    nombre: p.nombre as Traducible,
-    bloques: (bloques ?? [])
-      .filter((b) => b.pista_id === p.id)
-      .map((b) => ({
-        id: b.id,
-        nombre: b.nombre as Traducible,
-        inicio: b.inicio_programado,
-        items: (items ?? [])
-          .filter((i) => i.bloque_id === b.id)
-          .map((i) => ({
-            id: i.id,
-            posicion: i.posicion,
-            estado: i.estado,
-            fichaId: i.ficha?.id ?? '',
-            nombre: i.ficha?.nombre ?? '',
-            academia: academias.get(i.ficha?.academia_id ?? '') ?? '',
-            categoria: i.ficha?.categoria ?? null,
-            formacion: i.ficha?.formacion ?? '',
-            genero: i.ficha?.genero ?? '',
-            duracion: i.ficha?.musica_duracion_seg ?? null,
-          })),
-      })),
-  }));
+  return ordenEnVivo(db, eventoId);
 }
 
 export async function fichasSinOrden(db: ClienteSupabase, eventoId: string) {
