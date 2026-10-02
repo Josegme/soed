@@ -85,7 +85,12 @@ export default defineConfig([
   },
   {
     files: ['apps/web/src/**/*.{ts,tsx}'],
-    ignores: ['apps/web/src/modules/**/infrastructure/**', 'apps/web/src/lib/supabase/admin.ts', 'apps/web/src/app/api/**', 'apps/web/src/integracion/**'],
+    ignores: [
+      'apps/web/src/modules/**/infrastructure/**',
+      'apps/web/src/lib/supabase/admin.ts',
+      'apps/web/src/app/api/**',
+      'apps/web/src/integracion/**',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',
