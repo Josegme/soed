@@ -57,6 +57,11 @@ export default async function OrdenGestion({ params }: { params: Promise<{ local
           <Link href={`/gestion/${eventoId}/orden/imprimir`} className="text-sm font-medium text-marca underline-offset-4 hover:underline">
             {t('imprimirOrden')}
           </Link>
+          {puede('musica.descargar') ? (
+            <Link href={`/vivo/${eventoId}/dj`} className="text-sm font-medium text-marca underline-offset-4 hover:underline">
+              {t('musicaZip')}
+            </Link>
+          ) : null}
           {puede('resultados.publicar') ? (
             <FormularioAccion
               accion={publicarOrdenAccion}

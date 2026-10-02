@@ -258,7 +258,8 @@
     "CLASE_NO_DISPONIBLE": "A aula não está disponível.",
     "ENTRADA_NO_DISPONIBLE": "O ingresso não está disponível.",
     "DEMASIADOS_INTENTOS": "Você fez muitas reservas seguidas. Tente novamente em alguns minutos.",
-    "FIN_ANTERIOR": "O fim precisa ser posterior ao início."
+    "FIN_ANTERIOR": "O fim precisa ser posterior ao início.",
+    "MODULO_INACTIVO": "Esta função não está habilitada nesta plataforma."
   },
   "reglamento": {
     "infraccion": {
@@ -774,7 +775,8 @@
       "idiomaDocumento": "Idioma do documento",
       "generado": "Gerado em {fecha}",
       "horaEstimada": "Hora est.",
-      "duracion": "Duração"
+      "duracion": "Duração",
+      "musicaZip": "Música por bloco (ZIP)"
     },
     "puntajes": {
       "criterios": "Critérios de avaliação",
@@ -1188,7 +1190,13 @@
       "descargar": "Baixar",
       "noDisponible": "Música indisponível",
       "sinMusica": "Sem música enviada",
-      "reproducir": "Tocar a música de {nombre}"
+      "reproducir": "Tocar a música de {nombre}",
+      "zipTitulo": "Música por bloco (ZIP)",
+      "zipBloque": "{bloque}: {cantidad, plural, one {# música} other {# músicas}}",
+      "zipDescargar": "Baixar ZIP de {bloque}",
+      "zipPreparando": "Baixando {hechos} de {total}…",
+      "zipListo": "ZIP pronto. Os arquivos estão numerados conforme a ordem de apresentação.",
+      "zipError": "Não foi possível montar o ZIP: verifique a conexão e tente novamente."
     },
     "directorTecnico": {
       "titulo": "Direção técnica",

@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { expect, test } from '@playwright/test';
 import { ids, ingresarComo, sinViolacionesA11y, sql } from './utilidades';
 
@@ -117,6 +118,21 @@ test.describe('[PU-13] vistas en vivo', () => {
     await page.goto(`/es/vivo/${ids.evento_a}/dj`);
     await expect(page.getByText('Solo de Ana')).toBeVisible();
     await sinViolacionesA11y(page);
+  });
+
+  test('[OR-49] [OP-14] el DJ descarga el ZIP del bloque rotulado con el número de orden', async ({ page, context }, info) => {
+    await ingresarComo(context, 'dj_a');
+    await page.goto(`/es/vivo/${ids.evento_a}/dj`);
+    const descarga = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Descargar ZIP de Bloque 1' }).click();
+    const ruta = info.outputPath('bloque.zip');
+    await (await descarga).saveAs(ruta);
+    await expect(page.getByRole('status').filter({ hasText: 'ZIP listo' })).toBeVisible();
+    expect(execFileSync('unzip', ['-tq', ruta], { encoding: 'utf8' })).toContain('No errors');
+    expect(execFileSync('unzip', ['-Z1', ruta], { encoding: 'utf8' }).trim().split('\n')).toEqual([
+      expect.stringMatching(/^001 - Solo de (Ana|Carla) - Academia (Uno|Dos)\.mp3$/),
+      expect.stringMatching(/^002 - Solo de (Ana|Carla) - Academia (Uno|Dos)\.mp3$/),
+    ]);
   });
 
   test('[OP-01] [OP-02] el director técnico ve planillas por jurado y el desvío', async ({ page, context }, info) => {

@@ -23,3 +23,7 @@ update public.bloque set inicio_programado = (current_date + 60)::timestamptz + 
 
 insert into public.solicitud_modificacion (evento_id, academia_id, ficha_id, descripcion, creado_por)
 values (tests.id('evento_a'), tests.id('academia1'), tests.id('ficha1'), 'Cambiar la música por la versión editada de 2:50.', tests.id('prof1'));
+
+-- Música cargada en las dos fichas del Selectivo A (contenido sintético en el doble de storage).
+update public.ficha set musica_path = academia_id || '/' || coreografia_id || '/musica.mp3'
+ where id in (tests.id('ficha1'), tests.id('ficha2'));
