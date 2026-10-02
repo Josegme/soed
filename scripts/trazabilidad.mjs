@@ -50,9 +50,17 @@ function archivos(dir, filtro) {
 
 const NIVELES = [
   { clave: 'dominio', etiqueta: 'Dominio', archivos: archivos(join(raiz, 'packages'), (r) => r.endsWith('.test.ts')) },
-  { clave: 'aplicacion', etiqueta: 'Aplicación', archivos: archivos(join(raiz, 'apps/web/src'), (r) => r.endsWith('.test.ts') && !r.endsWith('.integracion.test.ts')) },
+  {
+    clave: 'aplicacion',
+    etiqueta: 'Aplicación',
+    archivos: archivos(join(raiz, 'apps/web/src'), (r) => r.endsWith('.test.ts') && !r.endsWith('.integracion.test.ts')),
+  },
   { clave: 'sql', etiqueta: 'RLS/SQL', archivos: archivos(join(raiz, 'supabase/tests/database'), (r) => r.endsWith('.sql')) },
-  { clave: 'integracion', etiqueta: 'Integración', archivos: archivos(join(raiz, 'apps/web/src'), (r) => r.endsWith('.integracion.test.ts')) },
+  {
+    clave: 'integracion',
+    etiqueta: 'Integración',
+    archivos: archivos(join(raiz, 'apps/web/src'), (r) => r.endsWith('.integracion.test.ts')),
+  },
   { clave: 'e2e', etiqueta: 'E2E', archivos: archivos(join(raiz, 'apps/web/e2e'), (r) => r.endsWith('.spec.ts')) },
 ];
 
@@ -85,7 +93,10 @@ const items = filas.map((f) => ({
   pantalla: f[col.pantalla],
 }));
 
-const escapar = (t) => String(t ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+const escapar = (t) =>
+  String(t ?? '')
+    .replace(/\|/g, '\\|')
+    .replace(/\n/g, ' ');
 const porArea = new Map();
 for (const it of items) porArea.set(it.area, [...(porArea.get(it.area) ?? []), it]);
 
@@ -108,7 +119,11 @@ for (const [area, lista] of porArea) {
   md += `\n## ${area}\n\n| ID | Funcionalidad | Módulo | Datos / RLS | Pantalla | Pruebas |\n|---|---|---|---|---|---|\n`;
   for (const it of lista) {
     const c = cobertura.get(it.id);
-    const niveles = c ? NIVELES.filter((n) => c.has(n.clave)).map((n) => n.etiqueta[0]).join(' · ') : '—';
+    const niveles = c
+      ? NIVELES.filter((n) => c.has(n.clave))
+          .map((n) => n.etiqueta[0])
+          .join(' · ')
+      : '—';
     md += `| ${it.id} | ${escapar(it.funcionalidad)}${it.confianza !== 'EXPLICITA' ? ` _(${it.confianza.toLowerCase()})_` : ''} | ${escapar(it.modulo)} | ${escapar(it.datos)} | ${escapar(it.pantalla)} | ${niveles} |\n`;
   }
 }
@@ -118,11 +133,14 @@ md += items
   .filter((it) => !cobertura.has(it.id))
   .map((it) => `- **${it.id}** (${it.area}, etapa ${it.etapa}): ${it.funcionalidad}`)
   .join('\n');
-if (sinInventario.length) md += `\n\n## Etiquetas en pruebas sin funcionalidad en el inventario\n\n${sinInventario.map((id) => `- ${id}`).join('\n')}\n`;
+if (sinInventario.length)
+  md += `\n\n## Etiquetas en pruebas sin funcionalidad en el inventario\n\n${sinInventario.map((id) => `- ${id}`).join('\n')}\n`;
 md += '\n';
 
 writeFileSync(join(raiz, 'docs/auditoria/MATRIZ_TRAZABILIDAD.md'), md);
-console.log(`✓ ${cubiertas.length}/${items.length} funcionalidades con pruebas (${pct(cubiertas.length, items.length)} %) → docs/auditoria/MATRIZ_TRAZABILIDAD.md`);
+console.log(
+  `✓ ${cubiertas.length}/${items.length} funcionalidades con pruebas (${pct(cubiertas.length, items.length)} %) → docs/auditoria/MATRIZ_TRAZABILIDAD.md`,
+);
 const minimo = Number(process.argv.find((a) => a.startsWith('--minimo='))?.split('=')[1] ?? 0);
 if (pct(cubiertas.length, items.length) < minimo) {
   console.error(`✗ cobertura por debajo del mínimo (${minimo} %)`);
