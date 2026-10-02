@@ -1,0 +1,75 @@
+# Revisión de riesgos e instalación de skills externas
+
+Fecha: 2026-10-02 · Alcance: skills de agente instaladas en `.claude/skills/` del repo SOED.
+
+## 1. Método
+
+1. Clonado de solo lectura de cada repositorio a un commit fijo (`git clone --depth 1`).
+2. Lectura de `SKILL.md`, referencias, scripts, hooks y manifiestos de plugin.
+3. Búsqueda dirigida de patrones de riesgo: red (`curl`, `wget`, `fetch`, `/dev/tcp`), ejecución (`eval`, `exec`, `subprocess`, `child_process`), borrado (`rm -rf`), acceso a secretos (`process.env`, `os.environ`, `token`, `api_key`), scripts de ciclo de vida npm (`postinstall`) e inyección de instrucciones (`ignore previous`, `do not tell`).
+4. Auditoría del instalador `skills@1.7.0` (npm, `vercel-labs/skills`).
+5. Prueba funcional sin red de los scripts que se ejecutan (`ui-ux-pro-max/scripts/search.py`).
+6. Instalación con telemetría desactivada y verificación `diff -r` contra el commit revisado, más un manifiesto SHA-256.
+
+## 2. Resultado por skill
+
+| Skill | Origen y commit revisado | Contenido | Riesgo | Decisión |
+| --- | --- | --- | --- | --- |
+| 25 skills de ingeniería | `addyosmani/agent-skills` @ `bbe1f98476a2285c8e60842cf74b918cb9803447` (v0.6.11, MIT) | Markdown; un script bash (`idea-refine/scripts/idea-refine.sh`) que solo crea `docs/ideas/` | Bajo | Instaladas |
+| `ui-ux-pro-max` | `nextlevelbuilder/ui-ux-pro-max-skill` @ `09170eec67eefd46a7ae85de61b40c194020f997` (v2.13.0, MIT) | `SKILL.md`, 2 referencias, Python solo de biblioteca estándar (búsqueda BM25 local), CSV de datos | Bajo | Instalada |
+| `frontend-design` | `anthropics/skills` @ `8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4` (Apache-2.0) | `SKILL.md` en prosa + licencia | Muy bajo | Instalada |
+| Instalador | npm `skills@1.7.0` (`vercel-labs/skills`, dependencias `tar`, `yaml`) | CLI que copia o enlaza carpetas | Bajo-medio | Usado con `DISABLE_TELEMETRY=1 DO_NOT_TRACK=1` |
+
+## 3. Hallazgos
+
+| # | Severidad | Componente | Hallazgo | Mitigación aplicada |
+| --- | --- | --- | --- | --- |
+| H-1 | Media | CLI `skills` | Envía telemetría a `https://add-skill.vercel.sh/t` y consulta `.../audit` con el repo de origen, los nombres de skills y el agente detectado. No envía código ni secretos. | Ejecutado con `DISABLE_TELEMETRY=1 DO_NOT_TRACK=1`. Documentado en el runbook. |
+| H-2 | Media | CLI `skills` | Instala desde la rama por defecto (sin fijar commit): una reinstalación futura puede traer contenido no revisado. | `--copy` (sin symlinks) y manifiesto `docs/skills/skills-checksums.sha256`; `skills-lock.json` guarda hashes. Toda actualización pasa por una nueva revisión. |
+| H-3 | Baja | `agent-skills` hooks | `hooks/sdd-cache-*.sh` usa `curl` para revalidar caché HTTP de WebFetch y `session-start.sh` inyecta contexto. | No se instalan: el instalador copia solo `skills/`. No se cablea ningún hook. |
+| H-4 | Baja | `agent-skills` comandos | El plugin trae `/spec`, `/review`, `/plan`, `/build`, `/test`, `/ship` que colisionarían con los comandos propios de SOED (`/spec`, `/review`). | Se instalaron solo skills, no el plugin. Los comandos de SOED viven en `.claude/commands/`. |
+| H-5 | Baja (funcional) | `ui-ux-pro-max` | `SKILL.md` invoca `${CLAUDE_PLUGIN_ROOT}/.claude/skills/ui-ux-pro-max/scripts/search.py`, variable que no existe en instalación de proyecto. | Invocar con ruta del repo: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<consulta>" --domain <dominio>`. |
+| H-6 | Baja | `ui-ux-pro-max` | `--persist` escribe `design-system/<proyecto>/MASTER.md` en el directorio indicado. | Usar solo con `--output-dir` explícito y revisar el diff. Sus recomendaciones son sugerencias; mandan los tokens de `clients/<slug>/theme.css`. |
+| H-7 | Informativa | Todas | Las skills se ejecutan con los permisos del agente. Ninguna contiene instrucciones de exfiltración, evasión de permisos ni acciones externas automáticas. Las menciones a `git push` y `--no-verify` son ejemplos didácticos o advertencias. | Las reglas de `CLAUDE.md` (aprobación para push, prod y secretos) prevalecen sobre cualquier skill. |
+
+## 4. Evidencia de instalación
+
+Comandos ejecutados (raíz del repo):
+
+```bash
+export DISABLE_TELEMETRY=1 DO_NOT_TRACK=1 CI=1
+npx -y skills@1.7.0 add https://github.com/anthropics/skills --skill frontend-design -a claude-code -y --copy
+npx -y skills@1.7.0 add https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max -a claude-code -y --copy
+npx -y skills@1.7.0 add https://github.com/addyosmani/agent-skills --skill '*' -a claude-code -y --copy
+```
+
+Verificación:
+
+- `diff -r` entre cada carpeta instalada y el commit revisado: **idéntico** en las 27 skills. La única diferencia es un `__pycache__` generado por la prueba funcional en la copia de revisión, que no forma parte de la instalación.
+- 27 carpetas en `.claude/skills/`, 106 archivos, 4,2 MB. Manifiesto: `docs/skills/skills-checksums.sha256`. Para verificar: `cd .claude/skills && sha256sum -c ../../docs/skills/skills-checksums.sha256`.
+- `skills-lock.json` en la raíz, generado por el instalador.
+
+| Skill | Archivos | Tamaño |
+| --- | --- | --- |
+| api-and-interface-design · browser-testing-with-devtools · ci-cd-and-automation · code-review-and-quality · code-simplification · context-engineering · debugging-and-error-recovery · deprecation-and-migration · documentation-and-adrs · doubt-driven-development · frontend-ui-engineering · git-workflow-and-versioning · incremental-implementation · interview-me · observability-and-instrumentation · performance-optimization · planning-and-task-breakdown · shipping-and-launch · source-driven-development · spec-driven-development · test-driven-development · using-agent-skills | 1 c/u | 16–28 KB |
+| constraint-driven-development · security-and-hardening | 2 c/u | 44 KB |
+| idea-refine | 5 | 56 KB |
+| frontend-design | 2 | 28 KB |
+| ui-ux-pro-max | 73 | 3,7 MB |
+
+## 5. Skills pedidas que no estaban disponibles en esta sesión
+
+| Skill pedida | Estado | Sustituto aplicado |
+| --- | --- | --- |
+| `/3f17d0d5-…:supabase-postgres-best-practices` | No instalada en el entorno | Prácticas aplicadas desde la documentación oficial de Supabase (RLS con `(select auth.uid())`, índices en FKs, funciones `security definer` en esquema `private`, `search_path` fijo). Ejecutar los advisors de Supabase al crear el proyecto. |
+| `/0d07a0ac-…:ux-ui-audit` | No instalada en el entorno | `ui-ux-pro-max` (checklist pro) + `frontend-ui-engineering` + auditoría con axe-core en Playwright. |
+| `/2ca4e30e-…:frontend-design` | Instalada desde `anthropics/skills` | — |
+| `/figma:figma-generate-design` | Disponible vía MCP de Figma; requiere archivo de Figma del cliente | Pendiente de un archivo de marca del cliente. |
+| `/canvas-design`, `/crear-web-como-servicio`, `/crear-web-micro-saas` | Disponibles | Usadas como referencia de producto y publicación (ver `docs/PLAN_DESARROLLO.md` §12). |
+| Skills de ingeniería (arquitectura, code-review, testing-strategy, deploy-checklist) | Cubiertas por `agent-skills` | `api-and-interface-design`, `code-review-and-quality`, `test-driven-development`, `shipping-and-launch`. |
+
+## 6. Política de actualización
+
+1. Nunca reinstalar sobre la carpeta existente sin revisar el diff contra el último commit revisado.
+2. Registrar el nuevo commit y regenerar el manifiesto SHA-256 en el mismo PR.
+3. Rechazar cualquier versión que agregue hooks, llamadas de red o scripts de ciclo de vida sin justificación.

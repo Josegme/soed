@@ -1,0 +1,32 @@
+# deps
+node_modules/
+.pnpm-store/
+# builds
+.next/
+out/
+dist/
+build/
+.turbo/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+# env & secrets (nunca commitear)
+.env
+.env.*
+!.env.example
+*.pem
+# supabase local
+supabase/.branches/
+supabase/.temp/
+# testing
+playwright-report/
+test-results/
+blob-report/
+# os / editors
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
+# skills CLI cache
+.claude/sdd-cache/
