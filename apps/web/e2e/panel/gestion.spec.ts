@@ -7,6 +7,7 @@ const SECCIONES = [
   '/cobros',
   '/orden',
   '/puntajes',
+  '/premios',
   '/pases',
   '/comunicados',
   '/equipo',
@@ -107,6 +108,18 @@ test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
     await page.getByRole('button', { name: 'Calcular resultados' }).click();
     await expect(page.getByRole('status').filter({ hasText: /resultados/ })).toBeVisible();
     expect(Number(sql(`select count(*) from public.resultado where evento_id = '${ids.evento_a}'`))).toBeGreaterThan(0);
+  });
+
+  test('[OR-10] [OR-43] crea un premio por ranking y lo asigna tras el cálculo', async ({ page }) => {
+    await page.goto(`/es/gestion/${ids.evento_a}/premios`);
+    await page.getByRole('textbox', { name: 'Nombre (Español)' }).fill('Mejor solista');
+    await page.getByRole('textbox', { name: /Monto/ }).fill('100');
+    await page.getByRole('combobox', { name: 'Asignación' }).selectOption('RANKING');
+    await page.getByRole('button', { name: 'Crear' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Premio creado.' })).toBeVisible();
+    await page.getByRole('button', { name: 'Asignar según el ranking' }).click();
+    await expect(page.getByRole('status').filter({ hasText: /Premio asignado a \d+/ })).toBeVisible();
+    expect(Number(sql(`select count(*) from public.premio_asignacion where evento_id = '${ids.evento_a}'`))).toBeGreaterThan(0);
   });
 
   test('[TR-20] [PU-13] el panel en portugués usa sus textos @movil', async ({ page }) => {

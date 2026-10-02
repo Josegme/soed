@@ -13,6 +13,7 @@ export const SECCIONES_GESTION = [
   { clave: 'cobros', ruta: '/cobros', permisos: ['liquidaciones.ver'] },
   { clave: 'orden', ruta: '/orden', permisos: ['orden.editar'] },
   { clave: 'puntajes', ruta: '/puntajes', permisos: ['puntajes.supervisar'] },
+  { clave: 'premios', ruta: '/premios', permisos: ['premios.asignar', 'evento.configurar'] },
   { clave: 'pases', ruta: '/pases', permisos: ['pases.registrar'] },
   { clave: 'comunicados', ruta: '/comunicados', permisos: ['comunicados.enviar'] },
   { clave: 'equipo', ruta: '/equipo', permisos: ['evento.miembros'] },

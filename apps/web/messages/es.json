@@ -220,6 +220,10 @@
     "COBRO_INEXISTENTE": "No encontramos el cobro.",
     "CLIENT_UUID_INVALIDO": "Recargá la página e intentá de nuevo.",
     "SIN_FICHAS": "No hay fichas enviadas sin asignar.",
+    "PREMIO_INEXISTENTE": "No encontramos el premio.",
+    "SIN_GANADORES": "No hay ganadoras: calculá los resultados o elegí al menos una ficha.",
+    "FICHA_AJENA": "Alguna ficha no pertenece al evento.",
+    "PREMIO_DE_TEMPORADA": "Los premios de temporada se asignan desde cada evento.",
     "SIN_CRITERIOS": "La organización todavía no definió los criterios de evaluación.",
     "CRITERIO_DESCONOCIDO": "Ese criterio no pertenece al evento.",
     "CREDENCIAL_INEXISTENTE": "No encontramos esa credencial.",
@@ -481,7 +485,45 @@
       "comunicados": "Comunicados",
       "equipo": "Equipo",
       "configuracion": "Configuración",
-      "auditoria": "Auditoría"
+      "auditoria": "Auditoría",
+      "premios": "Premios"
+    },
+    "premios": {
+      "titulo": "Premios del evento",
+      "aclaracion": "El ranking sugiere ganadores; la organización confirma o elige. Un empate divide el monto según la regla del premio.",
+      "sinPremios": "Todavía no hay premios configurados.",
+      "sinMonto": "Sin monto",
+      "tipos": {
+        "PRINCIPAL": "Principal",
+        "ESPECIAL": "Especial"
+      },
+      "reglas": {
+        "DIVIDIR_MONTO": "empate divide el monto",
+        "MONTO_COMPLETO_CADA_UNO": "monto completo a cada empatado"
+      },
+      "criterios": {
+        "MANUAL": "Manual",
+        "RANKING": "Por ranking"
+      },
+      "porRanking": "puesto {puesto} de {grupo}",
+      "todosLosGrupos": "todos los grupos",
+      "manual": "asignación manual",
+      "sinAsignar": "Sin asignar.",
+      "asignarRanking": "Asignar según el ranking",
+      "elegirGanadoras": "Elegir ganadoras",
+      "asignar": "Asignar",
+      "nuevo": "Nuevo premio",
+      "tipo": "Tipo",
+      "monto": "Monto ({moneda})",
+      "ayudaMonto": "Vacío: premio sin dinero (trofeo, beca).",
+      "criterio": "Asignación",
+      "puesto": "Puesto",
+      "grupo": "Grupo del ranking",
+      "ayudaGrupo": "Disponible después de calcular resultados.",
+      "reglaEmpate": "Si hay empate",
+      "premioCreado": "Premio creado.",
+      "premioEliminado": "Premio eliminado.",
+      "premioAsignado": "Premio asignado a {asignadas}."
     },
     "resumen": {
       "indicadores": "Indicadores del evento",

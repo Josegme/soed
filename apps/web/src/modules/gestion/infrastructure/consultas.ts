@@ -320,3 +320,35 @@ export async function inscripcionesConAjustes(db: ClienteSupabase, eventoId: str
     })
     .sort((a, b) => a.academia.localeCompare(b.academia));
 }
+
+/** Premios del evento con sus asignaciones (OR-10, OR-43). */
+export async function premiosDeGestion(db: ClienteSupabase, eventoId: string) {
+  const [{ data: premios }, { data: asignaciones }, { data: fichas }, academias] = await Promise.all([
+    db
+      .from('premio')
+      .select('id, nombre, tipo, monto_centavos, moneda, criterio, regla_empate, filtro, orden')
+      .eq('evento_id', eventoId)
+      .order('orden'),
+    db.from('premio_asignacion').select('id, premio_id, ficha_id, academia_id, monto_centavos').eq('evento_id', eventoId),
+    db.from('ficha').select('id, nombre, academia_id').eq('evento_id', eventoId).in('estado', ['ENVIADA', 'APROBADA']).order('nombre'),
+    nombresDeAcademias(db, eventoId),
+  ]);
+  const nombreFicha = new Map((fichas ?? []).map((f) => [f.id, f.nombre]));
+  return {
+    premios: (premios ?? []).map((p) => ({
+      ...p,
+      nombre: p.nombre as Traducible,
+      monto_centavos: p.monto_centavos === null ? null : Number(p.monto_centavos),
+      filtro: (p.filtro ?? {}) as { puesto?: number; grupo?: string },
+      asignaciones: (asignaciones ?? [])
+        .filter((a) => a.premio_id === p.id)
+        .map((a) => ({
+          ...a,
+          monto_centavos: a.monto_centavos === null ? null : Number(a.monto_centavos),
+          ficha: nombreFicha.get(a.ficha_id) ?? '',
+          academia: academias.get(a.academia_id) ?? '',
+        })),
+    })),
+    fichas: (fichas ?? []).map((f) => ({ id: f.id, nombre: f.nombre, academia: academias.get(f.academia_id) ?? '' })),
+  };
+}

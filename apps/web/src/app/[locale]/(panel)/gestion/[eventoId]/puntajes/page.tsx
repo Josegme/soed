@@ -6,9 +6,10 @@ import { FormularioAccion } from '@/components/formulario-accion';
 import { EnlacesExportar } from '@/components/panel/enlaces-exportar';
 import { formatearInstante, formatearPuntaje } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
-import { nombreCodigo, texto } from '@/lib/i18n/traducible';
+import { texto } from '@/lib/i18n/traducible';
 import { nombresDeUsuarios, puntajesDeGestion } from '@/modules/gestion/infrastructure/consultas';
 import { contextoGestion } from '@/modules/gestion/interface/contexto';
+import { etiquetaGrupo } from '@/modules/puntajes/interface/etiqueta-grupo';
 import {
   calcularResultadosAccion,
   eliminarCriterioAccion,
@@ -52,16 +53,7 @@ export default async function PuntajesGestion({ params }: { params: Promise<{ lo
   const conDesvio = avance.filter((a) => a.desvios.length > 0);
   const grupos = new Map<string, typeof datos.resultados>();
   for (const r of datos.resultados) grupos.set(r.grupo, [...(grupos.get(r.grupo) ?? []), r]);
-  const etiquetaGrupo = (grupo: string) =>
-    grupo
-      .split('|')
-      .map((c) => {
-        if (!reglamento) return c;
-        for (const tipo of ['categorias', 'formaciones', 'generos'] as const)
-          if (reglamento[tipo].some((x) => x.codigo === c)) return nombreCodigo(reglamento, tipo, c, idioma);
-        return c;
-      })
-      .join(' · ');
+  const grupoLegible = (grupo: string) => etiquetaGrupo(grupo, reglamento, idioma);
 
   return (
     <div className="flex flex-col gap-8">
@@ -246,7 +238,7 @@ export default async function PuntajesGestion({ params }: { params: Promise<{ lo
         {datos.resultados.length === 0 ? <EstadoVacio titulo={t('sinResultados')} /> : null}
         {[...grupos.entries()].map(([grupo, filas]) => (
           <Tarjeta key={grupo} className="flex flex-col gap-2 p-4">
-            <h3 className="font-semibold">{etiquetaGrupo(grupo)}</h3>
+            <h3 className="font-semibold">{grupoLegible(grupo)}</h3>
             <ol className="flex flex-col gap-1">
               {filas.map((r) => {
                 const nombre =
