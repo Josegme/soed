@@ -11,8 +11,9 @@ pg_esquema
 
 if [ -n "${SOED_GENERAR_TIPOS:-}" ]; then
   echo "▸ tipos TypeScript"
-  "${COMO[@]}" env PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test node "$RAIZ/scripts/gen-db-types.mjs"
-  if [ "$(id -u)" = "0" ]; then chown "$(stat -c %u "$RAIZ")":"$(stat -c %g "$RAIZ")" "$RAIZ/packages/shared-types/src/database.types.ts"; fi
+  "${COMO[@]}" env PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test \
+    SOED_TIPOS_SALIDA="$DATOS/database.types.ts" node "$RAIZ/scripts/gen-db-types.mjs"
+  cp "$DATOS/database.types.ts" "$RAIZ/packages/shared-types/src/database.types.ts"
   exit 0
 fi
 

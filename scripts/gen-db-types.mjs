@@ -155,6 +155,7 @@ export type TablaUpdate<T extends keyof Publico['Tables']> = Publico['Tables'][T
 export type Vista<T extends keyof Publico['Views']> = Publico['Views'][T]['Row'];
 `;
 
-const destino = new URL('../packages/shared-types/src/database.types.ts', import.meta.url).pathname;
+// SOED_TIPOS_SALIDA permite escribir en un directorio del usuario de Postgres y copiar después.
+const destino = process.env.SOED_TIPOS_SALIDA ?? new URL('../packages/shared-types/src/database.types.ts', import.meta.url).pathname;
 writeFileSync(destino, salida);
 console.log(`✓ ${destino}: ${porTabla.size} tablas/vistas, ${funciones.length} funciones`);

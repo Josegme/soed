@@ -1,6 +1,6 @@
 -- [OR-33] [OR-36] [PR-26] [TR-13] [TR-30] [SA-12] [OR-48] [TR-29] [PR-08] [OP-13] Pases, auditoría y storage
 begin;
-select plan(22);
+select plan(25);
 select tests.escenario();
 
 -- Pases manuales
@@ -22,6 +22,14 @@ select throws_ok(
   format($$insert into public.pase (evento_origen_id, evento_destino_id, academia_id, motivo, registrado_por)
            values (%L, %L, %L, 'Intento ajeno', auth.uid())$$, tests.id('evento_a'), tests.id('evento_final'), tests.id('academia1')),
   '42501', null, '[TR-16] el organizador de B no registra pases desde A');
+select tests.como(tests.id('org_a'));
+select is(
+  (select array_agg(slug order by slug) from public.eventos_destino_pase(tests.id('evento_a'))),
+  array['FINAL27', 'SELB'],
+  '[OR-33] el organizador ve los destinos de la temporada aunque la final no esté publicada');
+select is((select count(*)::int from public.evento where id = tests.id('evento_final')), 0, '[OR-33] sin exponer el resto de la final');
+select tests.como(tests.id('prof1'));
+select is((select count(*)::int from public.eventos_destino_pase(tests.id('evento_a'))), 0, '[OR-33] sin pases.registrar no hay destinos');
 select tests.como(tests.id('prof1'));
 select is((select count(*)::int from public.pase), 1, '[PR-26] la academia ve su pase');
 select tests.como(tests.id('prof2'));

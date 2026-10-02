@@ -2344,6 +2344,18 @@ export type Database = {
         };
         Returns: Database['public']['Tables']["liquidacion"]['Row'];
       };
+      eventos_destino_pase: {
+        Args: {
+          p_origen: string;
+        };
+        Returns: {
+            id: string;
+            slug: string;
+            nombre: Json;
+            tipo: string;
+            fecha_inicio: string;
+          }[];
+      };
       publico_orden: {
         Args: {
           p_slug: string;

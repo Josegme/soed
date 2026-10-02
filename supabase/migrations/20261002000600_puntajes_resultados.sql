@@ -387,6 +387,27 @@ create policy pase_anulacion on public.pase for update to authenticated
   using ((select private.es_super_admin()) or evento_origen_id in (select private.eventos_con_permiso('pases.registrar')))
   with check ((select private.es_super_admin()) or evento_origen_id in (select private.eventos_con_permiso('pases.registrar')));
 
+-- Destinos posibles de un pase: eventos de la misma temporada que el origen.
+-- Quien registra pases suele no ser miembro de la final (aún sin publicar), así
+-- que se exponen solo id, slug, nombre, tipo y fecha, y solo con el permiso.
+create or replace function public.eventos_destino_pase(p_origen uuid)
+returns table (id uuid, slug text, nombre jsonb, tipo text, fecha_inicio date)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select e.id, e.slug, e.nombre, e.tipo, e.fecha_inicio
+    from public.evento e
+    join public.evento o on o.id = p_origen and o.temporada_id = e.temporada_id
+   where e.id <> p_origen
+     and e.estado <> 'ARCHIVADO'
+     and private.tiene_permiso(p_origen, 'pases.registrar')
+   order by e.fecha_inicio, e.slug
+$$;
+revoke execute on function public.eventos_destino_pase(uuid) from public, anon;
+grant execute on function public.eventos_destino_pase(uuid) to authenticated;
+
 -- Devolución del jurado anonimizada para la academia (ADR-0008).
 create view public.v_devolucion_jurado with (security_invoker = true) as
 select

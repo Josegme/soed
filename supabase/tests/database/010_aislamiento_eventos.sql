@@ -1,6 +1,6 @@
 -- [TR-16] [TR-36] [SA-04] [SA-13] Aislamiento por evento y permisos por rol
 begin;
-select plan(22);
+select plan(23);
 select tests.escenario();
 
 -- Organizador A
@@ -41,6 +41,12 @@ select is((select count(*)::int from public.cobro where evento_id = tests.id('ev
 -- Super Admin
 select tests.como(tests.id('sa'));
 select is((select count(*)::int from public.ficha), 3, '[SA-02] Super Admin ve todo');
+select lives_ok(
+  format($$insert into public.evento (temporada_id, slug, tipo, nombre, moneda, fecha_inicio, fecha_fin, reglamento)
+           select temporada_id, 'NUEVO', 'UNICO', '{"es":"Nuevo"}', 'USD', fecha_inicio, fecha_fin, reglamento
+             from public.evento where id = %L
+           returning id$$, tests.id('evento_a')),
+  '[SA-02] Super Admin crea un evento sin publicar y lo lee en el RETURNING');
 select lives_ok(
   format($$insert into public.evento_miembro (evento_id, usuario_id, rol) values (%L, %L, 'ORGANIZADOR_EVENTO')$$, tests.id('evento_b'), tests.id('org_a')),
   '[SA-05] Super Admin asigna un organizador a más de un evento');

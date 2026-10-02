@@ -304,7 +304,7 @@ create policy temporada_admin on public.temporada for all to authenticated
 -- Evento: autenticados ven los publicados y los propios; anon solo publicados
 -- (y solo columnas no sensibles, ver grants en 0900).
 create policy evento_lectura on public.evento for select to authenticated
-  using (publicado or id in (select private.eventos_miembro()));
+  using (publicado or (select private.es_super_admin()) or id in (select private.eventos_miembro()));
 create policy evento_publico on public.evento for select to anon using (publicado);
 create policy evento_alta on public.evento for insert to authenticated
   with check ((select private.es_super_admin()));
