@@ -1,5 +1,5 @@
 import type { Idioma, Moneda } from '@soed/domain';
-import { CampoTexto, EstadoVacio, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
+import { CampoTexto, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { FormularioAccion } from '@/components/formulario-accion';
 import { etiquetaCodigo } from '@/lib/i18n/claves';
@@ -42,11 +42,11 @@ export default async function CobrosGestion({ params }: { params: Promise<{ loca
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <GrupoIndicadores className="sm:grid-cols-3">
         <Indicador etiqueta={t('esperado')} valor={monto(esperado)} />
         <Indicador etiqueta={t('cobrado')} valor={monto(cobrado)} detalle={t('cobros', { cantidad: caja.cantidad })} />
         <Indicador etiqueta={t('pendiente')} valor={monto(Math.max(0, esperado - cobrado))} />
-      </div>
+      </GrupoIndicadores>
       <p className="text-sm text-texto-suave">{t('aclaracionManual')}</p>
 
       {puede('cobros.registrar') ? (

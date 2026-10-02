@@ -1,5 +1,5 @@
 import { estadoVentana, type Beneficio, type Idioma } from '@soed/domain';
-import { EncabezadoPagina, EstadoVacio, Indicador, Insignia, Tarjeta } from '@soed/ui';
+import { EncabezadoPagina, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { InsigniaVentana } from '@/components/insignia-ventana';
 import { PestanasAcademia } from '@/components/panel/pestanas-academia';
@@ -52,11 +52,11 @@ export default async function PanelAcademia({
     <div className="flex flex-col gap-6">
       <EncabezadoPagina titulo={academia.nombre} />
       <PestanasAcademia activa="resumen" />
-      <dl className="grid gap-3 sm:grid-cols-3">
+      <GrupoIndicadores className="sm:grid-cols-3">
         <Indicador etiqueta={t('resumen.bailarines')} valor={String(resumen.bailarines)} />
         <Indicador etiqueta={t('resumen.coreografias')} valor={String(resumen.coreografias)} />
         <Indicador etiqueta={t('resumen.inscripciones')} valor={String(resumen.eventosInscriptos.size)} />
-      </dl>
+      </GrupoIndicadores>
 
       <section className="flex flex-col gap-3" aria-labelledby="eventos-temporada">
         <h2 id="eventos-temporada" className="font-display text-xl font-bold">

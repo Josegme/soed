@@ -9,10 +9,3 @@ export function firmarJwt(claims: Record<string, unknown>, secreto: string): str
   const firma = createHmac('sha256', secreto).update(`${cabecera}.${cuerpo}`).digest('base64url');
   return `${cabecera}.${cuerpo}.${firma}`;
 }
-
-export function verificarJwt(token: string, secreto: string): Record<string, unknown> | null {
-  const [cabecera, cuerpo, firma] = token.split('.');
-  if (!cabecera || !cuerpo || !firma) return null;
-  const esperada = createHmac('sha256', secreto).update(`${cabecera}.${cuerpo}`).digest('base64url');
-  return esperada === firma ? JSON.parse(Buffer.from(cuerpo, 'base64url').toString()) : null;
-}

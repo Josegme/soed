@@ -107,18 +107,18 @@ begin
   insert into pg_temp.escenario values ('temporada', v);
 
   insert into public.evento (temporada_id, slug, tipo, nombre, moneda, fecha_inicio, fecha_fin,
-                             inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, publicado,
+                             inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, publicado, estado,
                              tarifario, datos_pago)
   values (tests.id('temporada'), 'SELA', 'SELECTIVO', '{"es":"Selectivo A"}', 'BRL', current_date + 60, current_date + 61,
-          now() - interval '1 day', now() + interval '30 days', now() + interval '35 days', v_reg, true,
+          now() - interval '1 day', now() + interval '30 days', now() + interval '35 days', v_reg, true, 'PUBLICADO',
           '{"moneda":"BRL"}', '{"es":"PIX: clave","pt-BR":"PIX: chave"}')
   returning id into v;
   insert into pg_temp.escenario values ('evento_a', v);
 
   insert into public.evento (temporada_id, slug, tipo, nombre, moneda, fecha_inicio, fecha_fin,
-                             inscripcion_apertura, inscripcion_cierre, reglamento, publicado)
+                             inscripcion_apertura, inscripcion_cierre, reglamento, publicado, estado)
   values (tests.id('temporada'), 'SELB', 'SELECTIVO', '{"es":"Selectivo B"}', 'ARS', current_date + 90, current_date + 90,
-          now() - interval '1 day', now() + interval '30 days', v_reg, true)
+          now() - interval '1 day', now() + interval '30 days', v_reg, true, 'PUBLICADO')
   returning id into v;
   insert into pg_temp.escenario values ('evento_b', v);
 

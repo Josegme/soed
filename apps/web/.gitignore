@@ -1,3 +1,6 @@
 src/cliente/generado/
 public/cliente/
 .next/
+.next-e2e/
+test-results-panel/
+playwright-report-panel/

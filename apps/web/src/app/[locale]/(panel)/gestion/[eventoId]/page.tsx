@@ -1,5 +1,5 @@
 import { estadoVentana, type Moneda } from '@soed/domain';
-import { Aviso, Indicador, Tarjeta } from '@soed/ui';
+import { Aviso, GrupoIndicadores, Indicador, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { InsigniaVentana } from '@/components/insignia-ventana';
 import { Link } from '@/i18n/navigation';
@@ -39,7 +39,7 @@ export default async function ResumenGestion({ params }: { params: Promise<{ loc
         <h2 id="indicadores" className="sr-only">
           {t('indicadores')}
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <GrupoIndicadores className="sm:grid-cols-2 lg:grid-cols-4">
           <Indicador etiqueta={t('academias')} valor={String(r.academias)} />
           <Indicador
             etiqueta={t('fichas')}
@@ -60,7 +60,7 @@ export default async function ResumenGestion({ params }: { params: Promise<{ loc
               />
             </>
           ) : null}
-        </div>
+        </GrupoIndicadores>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">

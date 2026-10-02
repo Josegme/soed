@@ -6,3 +6,6 @@ pnpm-lock.yaml
 supabase/migrations/
 docs/historial/
 packages/shared-types/src/database.types.ts
+**/.next-e2e/
+**/test-results*/
+**/playwright-report*/

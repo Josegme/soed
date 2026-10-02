@@ -135,8 +135,17 @@ export default async function PuntajesGestion({ params }: { params: Promise<{ lo
             <ul className="list-disc pl-5">
               {conDesvio.map((a) => (
                 <li key={a.ficha.id}>
-                  {a.ficha.nombre}:{' '}
-                  {a.desvios.map((d) => `${etiquetaJurado(d.juradoId)} (${formatearPuntaje(d.diferencia, idioma)})`).join(', ')}
+                  {t('desvioDetalle', {
+                    ficha: a.ficha.nombre,
+                    detalle: a.desvios
+                      .map((d) =>
+                        t('desvioJurado', {
+                          jurado: etiquetaJurado(d.juradoId),
+                          diferencia: formatearPuntaje(d.diferencia, idioma, decimales, true),
+                        }),
+                      )
+                      .join(' · '),
+                  })}
                 </li>
               ))}
             </ul>

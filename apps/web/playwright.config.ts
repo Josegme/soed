@@ -4,6 +4,8 @@ const puerto = Number(process.env.PUERTO_E2E ?? 3100);
 
 export default defineConfig({
   testDir: './e2e',
+  // El panel autenticado tiene su propia configuración y entorno (playwright.panel.config.ts).
+  testIgnore: ['panel/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

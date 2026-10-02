@@ -297,6 +297,12 @@ export function EncabezadoPagina({ titulo, descripcion, acciones }: { titulo: st
 }
 
 /** Dato numérico destacado para tableros. */
+/** Lista de descripción que agrupa indicadores: `Indicador` emite dt/dd y debe ir dentro (WCAG 1.3.1). */
+export function GrupoIndicadores({ className, ...props }: HTMLAttributes<HTMLDListElement>) {
+  return <dl className={cn('grid gap-3', className)} {...props} />;
+}
+
+/** Usar siempre dentro de `GrupoIndicadores` (o de un `<dl>`). */
 export function Indicador({ etiqueta, valor, detalle }: { etiqueta: string; valor: string; detalle?: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-[var(--radio)] border border-borde bg-superficie p-4">

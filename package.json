@@ -24,7 +24,8 @@
     "format:check": "prettier --check .",
     "db:types:supabase": "supabase gen types typescript --local > packages/shared-types/src/database.types.ts",
     "contraste": "node scripts/contraste.mjs",
-    "test:integracion": "bash scripts/integracion.sh"
+    "test:integracion": "bash scripts/integracion.sh",
+    "test:e2e:panel": "bash scripts/e2e-panel.sh"
   },
   "devDependencies": {
     "eslint": "9.39.5",

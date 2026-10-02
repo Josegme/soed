@@ -1,5 +1,5 @@
 import { estadoVentana, type ConceptoLinea, type Idioma, type ResultadoValidacion } from '@soed/domain';
-import { Aviso, EncabezadoPagina, EstadoVacio, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
+import { Aviso, EncabezadoPagina, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { InsigniaVentana } from '@/components/insignia-ventana';
@@ -162,9 +162,9 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
               <Tarjeta className="flex flex-col gap-4">
                 {previa?.ok ? (
                   <>
-                    <dl>
+                    <GrupoIndicadores>
                       <Indicador etiqueta={t('totalEstimado')} valor={monto(previa.value.total)} detalle={t('totalEstimadoAyuda')} />
-                    </dl>
+                    </GrupoIndicadores>
                     <Tabla>
                       <tbody>
                         {previa.value.lineas.map((l, i) => (

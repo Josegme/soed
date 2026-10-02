@@ -11,13 +11,14 @@ export interface EventoDeSesion {
   nombre: Traducible;
   idiomaDefecto: string;
   fechaInicio: string;
+  estado: string;
 }
 
 /** Eventos donde el usuario tiene algún rol (todos para Super Admin), ordenados por fecha. */
 export const eventosDeSesion = cache(async (db: ClienteSupabase, sesion: Sesion): Promise<EventoDeSesion[]> => {
   const ids = [...sesion.permisos.keys()];
   if (!sesion.esSuperAdmin && ids.length === 0) return [];
-  let consulta = db.from('evento').select('id, slug, tipo, nombre, idioma_defecto, fecha_inicio').order('fecha_inicio');
+  let consulta = db.from('evento').select('id, slug, tipo, nombre, idioma_defecto, fecha_inicio, estado').order('fecha_inicio');
   if (!sesion.esSuperAdmin) consulta = consulta.in('id', ids);
   const { data } = await consulta;
   return (data ?? []).map((e) => ({
@@ -27,5 +28,6 @@ export const eventosDeSesion = cache(async (db: ClienteSupabase, sesion: Sesion)
     nombre: e.nombre as Traducible,
     idiomaDefecto: e.idioma_defecto,
     fechaInicio: e.fecha_inicio,
+    estado: e.estado,
   }));
 });

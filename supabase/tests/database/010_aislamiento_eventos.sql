@@ -1,6 +1,6 @@
 -- [TR-16] [TR-36] [SA-04] [SA-13] Aislamiento por evento y permisos por rol
 begin;
-select plan(23);
+select plan(24);
 select tests.escenario();
 
 -- Organizador A
@@ -41,6 +41,9 @@ select is((select count(*)::int from public.cobro where evento_id = tests.id('ev
 -- Super Admin
 select tests.como(tests.id('sa'));
 select is((select count(*)::int from public.ficha), 3, '[SA-02] Super Admin ve todo');
+select throws_ok(
+  format($$update public.evento set publicado = true where id = %L$$, tests.id('evento_final')),
+  '23514', null, '[OR-02] no se publica un evento en borrador sin pasar por el ciclo de vida');
 select lives_ok(
   format($$insert into public.evento (temporada_id, slug, tipo, nombre, moneda, fecha_inicio, fecha_fin, reglamento)
            select temporada_id, 'NUEVO', 'UNICO', '{"es":"Nuevo"}', 'USD', fecha_inicio, fecha_fin, reglamento

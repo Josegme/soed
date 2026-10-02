@@ -46,11 +46,16 @@ export function FormularioAccion({
   idempotente = false,
   enLinea = false,
   className,
+  botones,
+  nombreBoton = 'decision',
   children,
 }: {
   accion: AccionFormulario;
   namespace: EspacioMensajes;
-  boton: string;
+  boton?: string;
+  /** Varias decisiones sobre los mismos campos (p. ej. aprobar/rechazar): cada botón envía `nombreBoton=valor`. */
+  botones?: readonly { valor: string; etiqueta: string; variante?: 'primario' | 'secundario' | 'peligro' | 'acento' | 'fantasma' }[];
+  nombreBoton?: string;
   variante?: 'primario' | 'secundario' | 'peligro' | 'acento' | 'fantasma';
   tamano?: 'normal' | 'chico';
   idempotente?: boolean;
@@ -72,10 +77,26 @@ export function FormularioAccion({
   return (
     <form action={ejecutar} noValidate className={cn(enLinea ? 'flex flex-wrap items-end gap-2' : 'flex flex-col gap-4', className)}>
       {children}
-      <div className={enLinea ? '' : 'flex flex-wrap items-center gap-3'}>
-        <Boton type="submit" variante={variante} tamano={tamano} cargando={pendiente}>
-          {boton}
-        </Boton>
+      <div className={enLinea ? 'flex flex-wrap gap-2' : 'flex flex-wrap items-center gap-3'}>
+        {botones ? (
+          botones.map((b) => (
+            <Boton
+              key={b.valor}
+              type="submit"
+              name={nombreBoton}
+              value={b.valor}
+              variante={b.variante ?? variante}
+              tamano={tamano}
+              cargando={pendiente}
+            >
+              {b.etiqueta}
+            </Boton>
+          ))
+        ) : (
+          <Boton type="submit" variante={variante} tamano={tamano} cargando={pendiente}>
+            {boton}
+          </Boton>
+        )}
       </div>
       {mensaje ? (
         enLinea ? (

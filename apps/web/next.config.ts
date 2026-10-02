@@ -26,6 +26,8 @@ const csp = [
 ].join('; ');
 
 const config: NextConfig = {
+  // El e2e del panel compila con otra URL de Supabase: directorio propio para no pisar el build normal.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ['@soed/domain', '@soed/shared-types', '@soed/ui', '@soed/email-templates'],

@@ -536,7 +536,7 @@
       "fichaOBSERVAR": "Observação enviada à academia.",
       "fichaBLOQUEAR": "Bloqueio atualizado.",
       "fichaEXCEPCION": "Exceção registrada.",
-      "solicitudes": "Pedidos de alteração ({cantidad} pendentes)",
+      "solicitudes": "Pedidos de alteração · {cantidad, plural, =0 {nenhum pendente} one {# pendente} other {# pendentes}}",
       "sinSolicitudes": "Não há pedidos.",
       "solicitud": {
         "PENDIENTE": "Pendente",
@@ -645,6 +645,8 @@
       "enviadas": "Enviadas",
       "planillas": "Planilhas",
       "fraccion": "{enviadas}/{esperados}",
+      "desvioDetalle": "{ficha}: {detalle}",
+      "desvioJurado": "{jurado} {diferencia} em relação à média dos demais",
       "peso_valor": "×{peso}",
       "juradoNumero": "Jurado {numero}",
       "reabrir": "Reabrir",

@@ -18,7 +18,11 @@ const claseEnlace =
 export async function NavegacionPanel({ sesion, db, idioma }: { sesion: Sesion; db: ClienteSupabase; idioma: Idioma }) {
   const t = await getTranslations('panel.nav');
   const eventos = await eventosDeSesion(db, sesion);
-  const generales: Enlace[] = [{ href: '/academia', etiqueta: t('academia') }];
+  // "Mi academia" para quien tiene academia o no tiene roles de evento (punto de alta de una academia nueva).
+  const generales: Enlace[] =
+    sesion.academias.length > 0 || (sesion.permisos.size === 0 && !sesion.esSuperAdmin)
+      ? [{ href: '/academia', etiqueta: t('academia') }]
+      : [];
   if (sesion.esSuperAdmin) generales.push({ href: '/admin', etiqueta: t('admin') });
 
   const porEvento = eventos.map((e) => {
@@ -34,34 +38,42 @@ export async function NavegacionPanel({ sesion, db, idioma }: { sesion: Sesion; 
     if (puede('cobros.registrar')) enlaces.push({ href: `/acreditacion/${e.id}/caja`, etiqueta: t('caja') });
     return { evento: e, enlaces };
   });
+  // Eventos archivados fuera del menú: siguen accesibles desde Administración.
+  const visibles = porEvento.filter((p) => p.enlaces.length > 0 && p.evento.estado !== 'ARCHIVADO');
 
   return (
-    <nav aria-label={t('titulo')} className="flex flex-col gap-5">
-      <ul className="flex flex-col gap-0.5">
-        {generales.map((l) => (
-          <li key={l.href}>
-            <Link href={l.href} className={claseEnlace}>
-              {l.etiqueta}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {porEvento
-        .filter((p) => p.enlaces.length > 0)
-        .map(({ evento, enlaces }) => (
-          <div key={evento.id} className="flex flex-col gap-1">
-            <p className="px-3 text-xs font-semibold text-texto-suave">{texto(evento.nombre, idioma, evento.idiomaDefecto as Idioma)}</p>
-            <ul className="flex flex-col gap-0.5">
-              {enlaces.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className={claseEnlace}>
-                    {l.etiqueta}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+    <nav aria-label={t('titulo')} className="flex flex-col gap-4">
+      {generales.length > 0 ? (
+        <ul className="flex flex-col gap-0.5">
+          {generales.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className={claseEnlace}>
+                {l.etiqueta}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {visibles.map(({ evento, enlaces }) => (
+        // Un grupo plegable por evento: con muchos eventos (Super Admin) el menú sigue siendo navegable.
+        <details key={evento.id} open={visibles.length <= 2} className="group">
+          <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 rounded-md px-3 text-xs font-semibold text-texto-suave hover:bg-superficie-2 [&::-webkit-details-marker]:hidden">
+            {texto(evento.nombre, idioma, evento.idiomaDefecto as Idioma)}
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5 transition-transform group-open:rotate-90">
+              <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </summary>
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {enlaces.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className={claseEnlace}>
+                  {l.etiqueta}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
     </nav>
   );
 }

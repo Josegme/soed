@@ -112,7 +112,9 @@ create table public.evento (
     (inscripcion_cierre is null or inscripcion_apertura is null or inscripcion_cierre > inscripcion_apertura)
     and (modificaciones_cierre is null or inscripcion_cierre is null or modificaciones_cierre >= inscripcion_cierre)
   ),
-  constraint evento_tarifario_moneda check (tarifario ->> 'moneda' is null or tarifario ->> 'moneda' = moneda)
+  constraint evento_tarifario_moneda check (tarifario ->> 'moneda' is null or tarifario ->> 'moneda' = moneda),
+  -- Visible en el sitio exactamente mientras está publicado, en curso o finalizado (ciclo de vida del dominio).
+  constraint evento_publicacion_coherente check (publicado = (estado in ('PUBLICADO', 'EN_CURSO', 'FINALIZADO')))
 );
 create index evento_temporada_idx on public.evento (temporada_id);
 create index evento_creado_por_idx on public.evento (creado_por);

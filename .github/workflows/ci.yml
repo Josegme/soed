@@ -112,6 +112,40 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
 
+  e2e-panel:
+    name: E2E y accesibilidad (panel autenticado sobre PostgREST)
+    runs-on: ubuntu-24.04
+    env:
+      POSTGREST_VERSION: v13.0.7
+      POSTGREST_SHA256: 036738687f9814a9db5f3d78afa6e614bcf20c66add04455e34ea494784db7b3
+      SOED_CLIENT: encuentro-danzas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: PostgreSQL 16 + pgTAP
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-16 postgresql-16-pgtap
+      - name: PostgREST (versión y checksum fijos)
+        run: |
+          curl -sSL -o /tmp/pgrst.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x86-64.tar.xz"
+          tar xJf /tmp/pgrst.tar.xz -C /tmp
+          echo "${POSTGREST_SHA256}  /tmp/postgrest" | sha256sum -c -
+          sudo install -m 755 /tmp/postgrest /usr/local/bin/postgrest
+      - run: pnpm --filter @soed/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @soed/web cliente
+      - run: pnpm test:e2e:panel
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-panel
+          path: apps/web/playwright-report-panel
+
   secretos:
     name: Escaneo de secretos
     runs-on: ubuntu-24.04

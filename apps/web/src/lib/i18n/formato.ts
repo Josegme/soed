@@ -34,6 +34,10 @@ export function formatearDuracion(segundos: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function formatearPuntaje(valor: number, idioma: Idioma, decimales = 2): string {
-  return new Intl.NumberFormat(idioma, { minimumFractionDigits: decimales, maximumFractionDigits: decimales }).format(valor);
+export function formatearPuntaje(valor: number, idioma: Idioma, decimales = 2, conSigno = false): string {
+  return new Intl.NumberFormat(idioma, {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+    signDisplay: conSigno ? 'exceptZero' : 'auto',
+  }).format(valor);
 }

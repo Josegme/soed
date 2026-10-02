@@ -233,22 +233,19 @@ export default async function InscripcionesGestion({
                   <p className="text-xs text-texto-suave">{formatearInstante(s.creado_at, idioma, evento.zona_horaria)}</p>
                   {s.respuesta ? <p className="text-sm text-texto-suave">{t('respuesta', { texto: s.respuesta })}</p> : null}
                   {s.estado === 'PENDIENTE' ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {(['APROBADA', 'RECHAZADA'] as const).map((resolucion) => (
-                        <FormularioAccion
-                          key={resolucion}
-                          accion={resolverSolicitudAccion}
-                          namespace="gestion.inscripciones"
-                          boton={t(`resolver.${resolucion}`)}
-                          variante={resolucion === 'APROBADA' ? 'primario' : 'secundario'}
-                          tamano="chico"
-                        >
-                          <input type="hidden" name="solicitudId" value={s.id} />
-                          <input type="hidden" name="estado" value={resolucion} />
-                          <CampoTexto name="respuesta" etiqueta={t('respuestaOpcional')} maxLength={4000} />
-                        </FormularioAccion>
-                      ))}
-                    </div>
+                    <FormularioAccion
+                      accion={resolverSolicitudAccion}
+                      namespace="gestion.inscripciones"
+                      nombreBoton="estado"
+                      tamano="chico"
+                      botones={[
+                        { valor: 'APROBADA', etiqueta: t('resolver.APROBADA') },
+                        { valor: 'RECHAZADA', etiqueta: t('resolver.RECHAZADA'), variante: 'secundario' },
+                      ]}
+                    >
+                      <input type="hidden" name="solicitudId" value={s.id} />
+                      <CampoTexto name="respuesta" etiqueta={t('respuestaOpcional')} maxLength={4000} />
+                    </FormularioAccion>
                   ) : null}
                 </Tarjeta>
               </li>
