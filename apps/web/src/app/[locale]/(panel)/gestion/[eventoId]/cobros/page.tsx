@@ -2,6 +2,7 @@ import type { Idioma, Moneda } from '@soed/domain';
 import { CampoTexto, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { FormularioAccion } from '@/components/formulario-accion';
+import { EnlacesExportar } from '@/components/panel/enlaces-exportar';
 import { etiquetaCodigo } from '@/lib/i18n/claves';
 import { formatearInstante, formatearMonto } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
@@ -48,6 +49,7 @@ export default async function CobrosGestion({ params }: { params: Promise<{ loca
         <Indicador etiqueta={t('pendiente')} valor={monto(Math.max(0, esperado - cobrado))} />
       </GrupoIndicadores>
       <p className="text-sm text-texto-suave">{t('aclaracionManual')}</p>
+      {puede('exportar.datos') ? <EnlacesExportar eventoId={eventoId} tipos={['liquidaciones', 'cobros']} /> : null}
 
       {puede('cobros.registrar') ? (
         <Tarjeta className="flex flex-wrap items-center justify-between gap-3">

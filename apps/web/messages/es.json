@@ -835,7 +835,8 @@
         "pase": "Pase",
         "premio_asignacion": "Premio",
         "evento_miembro": "Equipo",
-        "credencial": "Credencial"
+        "credencial": "Credencial",
+        "exportacion": "Exportación de datos"
       }
     }
   },
@@ -1016,5 +1017,59 @@
     "abrirTurno": "Abrir turno",
     "aclaracion": "Registrá lo que la academia paga en la mesa. El pago nunca condiciona la acreditación ni la participación.",
     "buscar": "Academia o número de liquidación"
+  },
+  "liquidacionPdf": {
+    "titulo": "Liquidación",
+    "version": "versión {version}",
+    "emitida": "Emitida el {fecha}",
+    "concepto": "Concepto",
+    "cantidad": "Cant.",
+    "unitario": "Unitario",
+    "importe": "Importe",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "cobrado": "Cobrado",
+    "saldo": "Saldo",
+    "datosPago": "Datos para pagar",
+    "pie": "{marca} · generado el {fecha} con SOED"
+  },
+  "exportar": {
+    "si": "Sí",
+    "no": "No",
+    "titulo": "Exportar CSV",
+    "tipos": {
+      "fichas": "Fichas",
+      "liquidaciones": "Liquidaciones",
+      "cobros": "Cobros",
+      "resultados": "Resultados"
+    },
+    "columnas": {
+      "academia": "Academia",
+      "coreografia": "Coreografía",
+      "genero": "Género",
+      "formacion": "Formación",
+      "categoria": "Categoría",
+      "estado": "Estado",
+      "integrantes": "Integrantes",
+      "cumple": "Cumple reglamento",
+      "bloqueada": "Bloqueada",
+      "musica": "Música cargada",
+      "numero": "Número",
+      "version": "Versión",
+      "total": "Total",
+      "cobrado": "Cobrado",
+      "saldo": "Saldo",
+      "fecha": "Fecha (UTC)",
+      "medio": "Medio",
+      "monto": "Monto",
+      "referencia": "Referencia",
+      "registradoPor": "Registrado por",
+      "anulado": "Anulado",
+      "motivoAnulacion": "Motivo de anulación",
+      "grupo": "Grupo",
+      "puesto": "Puesto",
+      "puntaje": "Puntaje",
+      "banda": "Banda"
+    }
   }
 }

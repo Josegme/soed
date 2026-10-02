@@ -2,6 +2,7 @@ import type { Idioma } from '@soed/domain';
 import { Aviso, CampoArea, CampoSelector, CampoTexto, EstadoVacio, estilosBoton, Insignia, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { FormularioAccion } from '@/components/formulario-accion';
+import { EnlacesExportar } from '@/components/panel/enlaces-exportar';
 import { formatearDuracion, formatearInstante } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { nombreCodigo } from '@/lib/i18n/traducible';
@@ -84,6 +85,7 @@ export default async function InscripcionesGestion({
         ) : null}
       </div>
 
+      {puede('exportar.datos') ? <EnlacesExportar eventoId={eventoId} tipos={['fichas']} /> : null}
       {fichas.length === 0 ? <EstadoVacio titulo={t('sinFichas')} /> : null}
       <ul className="flex flex-col gap-3">
         {fichas.map((f) => (

@@ -3,6 +3,7 @@ import { Aviso, CampoTexto, EstadoVacio, Insignia, Tabla, Tarjeta, Td, Th } from
 import { getTranslations } from 'next-intl/server';
 import { CamposTraducibles } from '@/components/campos-traducibles';
 import { FormularioAccion } from '@/components/formulario-accion';
+import { EnlacesExportar } from '@/components/panel/enlaces-exportar';
 import { formatearInstante, formatearPuntaje } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { nombreCodigo, texto } from '@/lib/i18n/traducible';
@@ -241,6 +242,7 @@ export default async function PuntajesGestion({ params }: { params: Promise<{ lo
           ) : null}
         </div>
         <p className="text-sm text-texto-suave">{t('aclaracionPases')}</p>
+        {puede('exportar.datos') && datos.resultados.length > 0 ? <EnlacesExportar eventoId={eventoId} tipos={['resultados']} /> : null}
         {datos.resultados.length === 0 ? <EstadoVacio titulo={t('sinResultados')} /> : null}
         {[...grupos.entries()].map(([grupo, filas]) => (
           <Tarjeta key={grupo} className="flex flex-col gap-2 p-4">

@@ -835,7 +835,8 @@
         "pase": "Classificação",
         "premio_asignacion": "Prêmio",
         "evento_miembro": "Equipe",
-        "credencial": "Credencial"
+        "credencial": "Credencial",
+        "exportacion": "Exportação de dados"
       }
     }
   },
@@ -1016,5 +1017,59 @@
     "abrirTurno": "Abrir turno",
     "aclaracion": "Registre o que a academia paga na mesa. O pagamento nunca condiciona o credenciamento nem a participação.",
     "buscar": "Academia ou número do demonstrativo"
+  },
+  "liquidacionPdf": {
+    "titulo": "Demonstrativo",
+    "version": "versão {version}",
+    "emitida": "Emitido em {fecha}",
+    "concepto": "Item",
+    "cantidad": "Qtd.",
+    "unitario": "Unitário",
+    "importe": "Valor",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "cobrado": "Recebido",
+    "saldo": "Saldo",
+    "datosPago": "Dados para pagamento",
+    "pie": "{marca} · gerado em {fecha} com SOED"
+  },
+  "exportar": {
+    "si": "Sim",
+    "no": "Não",
+    "titulo": "Exportar CSV",
+    "tipos": {
+      "fichas": "Fichas",
+      "liquidaciones": "Demonstrativos",
+      "cobros": "Recebimentos",
+      "resultados": "Resultados"
+    },
+    "columnas": {
+      "academia": "Academia",
+      "coreografia": "Coreografia",
+      "genero": "Gênero",
+      "formacion": "Formação",
+      "categoria": "Categoria",
+      "estado": "Status",
+      "integrantes": "Integrantes",
+      "cumple": "Cumpre regulamento",
+      "bloqueada": "Bloqueada",
+      "musica": "Música enviada",
+      "numero": "Número",
+      "version": "Versão",
+      "total": "Total",
+      "cobrado": "Recebido",
+      "saldo": "Saldo",
+      "fecha": "Data (UTC)",
+      "medio": "Meio",
+      "monto": "Valor",
+      "referencia": "Referência",
+      "registradoPor": "Registrado por",
+      "anulado": "Cancelado",
+      "motivoAnulacion": "Motivo do cancelamento",
+      "grupo": "Grupo",
+      "puesto": "Colocação",
+      "puntaje": "Nota",
+      "banda": "Faixa"
+    }
   }
 }
