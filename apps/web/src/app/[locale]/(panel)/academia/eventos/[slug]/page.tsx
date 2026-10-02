@@ -20,6 +20,7 @@ import {
 } from '@/modules/academias/interface/inscripcion';
 import { clasesParaAcademia } from '@/modules/actividades/infrastructure/consultas';
 import { SeccionClases } from '@/modules/actividades/interface/seccion-academia';
+import { EnlacesCertificados } from '@/modules/documentos/interface/enlaces-certificados';
 import { hotelesDeAcademia } from '@/modules/hoteles/infrastructure/consultas';
 import { SeccionHoteles } from '@/modules/hoteles/interface/seccion-academia';
 import { liquidacionPrevia } from '@/modules/liquidaciones/application/liquidaciones';
@@ -286,6 +287,7 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
               {t('resultados')}
             </h2>
             {!resultadosPublicados || devoluciones.length === 0 ? <p className="text-texto-suave">{t('sinDevoluciones')}</p> : null}
+            {resultadosPublicados && devoluciones.length > 0 ? <EnlacesCertificados eventoId={evento.id} /> : null}
             {resultadosPublicados
               ? fichas
                   .filter((f) => devoluciones.some((d) => d.ficha_id === f.id))

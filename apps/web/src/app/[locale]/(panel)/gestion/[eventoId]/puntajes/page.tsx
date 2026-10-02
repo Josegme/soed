@@ -8,6 +8,7 @@ import { formatearInstante, formatearPuntaje } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { texto } from '@/lib/i18n/traducible';
 import { nombresDeUsuarios, puntajesDeGestion } from '@/modules/gestion/infrastructure/consultas';
+import { EnlacesCertificados } from '@/modules/documentos/interface/enlaces-certificados';
 import { contextoGestion } from '@/modules/gestion/interface/contexto';
 import { etiquetaGrupo } from '@/modules/puntajes/interface/etiqueta-grupo';
 import {
@@ -235,7 +236,7 @@ export default async function PuntajesGestion({ params }: { params: Promise<{ lo
         </div>
         <p className="text-sm text-texto-suave">{t('aclaracionPases')}</p>
         {puede('exportar.datos') && datos.resultados.length > 0 ? <EnlacesExportar eventoId={eventoId} tipos={['resultados']} /> : null}
-        {datos.resultados.length === 0 ? <EstadoVacio titulo={t('sinResultados')} /> : null}
+        {datos.resultados.length === 0 ? <EstadoVacio titulo={t('sinResultados')} /> : <EnlacesCertificados eventoId={eventoId} />}
         {[...grupos.entries()].map(([grupo, filas]) => (
           <Tarjeta key={grupo} className="flex flex-col gap-2 p-4">
             <h3 className="font-semibold">{grupoLegible(grupo)}</h3>
