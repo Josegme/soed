@@ -1071,5 +1071,66 @@
       "puntaje": "Nota",
       "banda": "Faixa"
     }
+  },
+  "emails": {
+    "nota": "Você recebe este email porque participa de um evento gerenciado nesta plataforma.",
+    "pie": "{marca} · {razonSocial}",
+    "detalle": {
+      "numero": "Demonstrativo",
+      "total": "Total",
+      "monto": "Valor recebido",
+      "saldo": "Saldo",
+      "ficha": "Coreografia",
+      "cierre": "Encerramento das inscrições",
+      "pendientes": "Fichas pendentes"
+    },
+    "inscripcion_confirmada": {
+      "asunto": "Inscrição confirmada em {evento}",
+      "titulo": "Sua academia já está inscrita!",
+      "cuerpo": "Você já pode cadastrar as fichas das suas coreografias para {evento}. O sistema valida cada ficha contra o regulamento enquanto você preenche.",
+      "accion": "Cadastrar fichas"
+    },
+    "liquidacion_emitida": {
+      "asunto": "Demonstrativo {numero} · {evento}",
+      "titulo": "Seu demonstrativo está pronto",
+      "cuerpo": "Emitimos o demonstrativo {numero} no valor de {total}. Os pagamentos são registrados na mesa do evento ou com os dados de pagamento que constam no documento.",
+      "accion": "Ver demonstrativo"
+    },
+    "cobro_registrado": {
+      "asunto": "Registramos seu pagamento · {numero}",
+      "titulo": "Pagamento registrado",
+      "cuerpo": "Registramos um pagamento de {monto} no demonstrativo {numero} de {evento}. Saldo atual: {saldo}.",
+      "accion": "Ver extrato"
+    },
+    "ficha_observada": {
+      "asunto": "A organização fez uma observação na ficha «{ficha}»",
+      "titulo": "Há uma observação na sua ficha",
+      "cuerpo": "A organização de {evento} deixou esta observação: {observacion}",
+      "accion": "Revisar ficha"
+    },
+    "orden_publicado": {
+      "asunto": "Ordem de apresentação publicada · {evento}",
+      "titulo": "A ordem de apresentação está disponível",
+      "cuerpo": "A organização publicou a ordem de apresentação de {evento}. Durante o evento ela é atualizada ao vivo.",
+      "accion": "Ver ordem de apresentação"
+    },
+    "resultados_publicados": {
+      "asunto": "Resultados publicados · {evento}",
+      "titulo": "Os resultados estão disponíveis",
+      "cuerpo": "Os resultados de {evento} foram publicados. No seu painel você encontra as notas e as devolutivas do júri.",
+      "accion": "Ver resultados"
+    },
+    "invitacion_academia": {
+      "asunto": "Você foi convidado para a academia {academia}",
+      "titulo": "Convite para {academia}",
+      "cuerpo": "{invitante} convidou você para gerenciar a academia {academia} em {marca}. O convite vence em {vence}.",
+      "accion": "Aceitar convite"
+    },
+    "recordatorio_cierre": {
+      "asunto": "Encerram as inscrições de {evento}",
+      "titulo": "Você tem fichas pendentes",
+      "cuerpo": "As inscrições de {evento} encerram em {cierre} e ainda há {pendientes} fichas sem enviar ou sem música.",
+      "accion": "Completar fichas"
+    }
   }
 }

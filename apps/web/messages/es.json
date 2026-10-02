@@ -1071,5 +1071,66 @@
       "puntaje": "Puntaje",
       "banda": "Banda"
     }
+  },
+  "emails": {
+    "nota": "Recibís este email porque participás en un evento gestionado con esta plataforma.",
+    "pie": "{marca} · {razonSocial}",
+    "detalle": {
+      "numero": "Liquidación",
+      "total": "Total",
+      "monto": "Monto cobrado",
+      "saldo": "Saldo",
+      "ficha": "Coreografía",
+      "cierre": "Cierre de inscripción",
+      "pendientes": "Fichas pendientes"
+    },
+    "inscripcion_confirmada": {
+      "asunto": "Inscripción confirmada en {evento}",
+      "titulo": "¡Tu academia ya está inscripta!",
+      "cuerpo": "Ya podés cargar las fichas de tus coreografías para {evento}. El sistema valida cada ficha contra el reglamento mientras la completás.",
+      "accion": "Cargar fichas"
+    },
+    "liquidacion_emitida": {
+      "asunto": "Liquidación {numero} · {evento}",
+      "titulo": "Tu liquidación está lista",
+      "cuerpo": "Emitimos la liquidación {numero} por {total}. Los cobros se registran en la mesa del evento o con los datos de pago que figuran en el documento.",
+      "accion": "Ver liquidación"
+    },
+    "cobro_registrado": {
+      "asunto": "Registramos tu pago · {numero}",
+      "titulo": "Pago registrado",
+      "cuerpo": "Registramos un pago de {monto} en la liquidación {numero} de {evento}. Saldo actual: {saldo}.",
+      "accion": "Ver estado de cuenta"
+    },
+    "ficha_observada": {
+      "asunto": "La organización observó la ficha «{ficha}»",
+      "titulo": "Hay una observación en tu ficha",
+      "cuerpo": "La organización de {evento} dejó esta observación: {observacion}",
+      "accion": "Revisar ficha"
+    },
+    "orden_publicado": {
+      "asunto": "Orden de salida publicado · {evento}",
+      "titulo": "Ya está el orden de salida",
+      "cuerpo": "La organización publicó el orden de salida de {evento}. Durante el evento se actualiza en vivo.",
+      "accion": "Ver orden de salida"
+    },
+    "resultados_publicados": {
+      "asunto": "Resultados publicados · {evento}",
+      "titulo": "Ya están los resultados",
+      "cuerpo": "Se publicaron los resultados de {evento}. En tu panel vas a encontrar las notas y las devoluciones del jurado.",
+      "accion": "Ver resultados"
+    },
+    "invitacion_academia": {
+      "asunto": "Te invitaron a la academia {academia}",
+      "titulo": "Invitación a {academia}",
+      "cuerpo": "{invitante} te invitó a gestionar la academia {academia} en {marca}. La invitación vence el {vence}.",
+      "accion": "Aceptar invitación"
+    },
+    "recordatorio_cierre": {
+      "asunto": "Cierra la inscripción de {evento}",
+      "titulo": "Tenés fichas pendientes",
+      "cuerpo": "La inscripción de {evento} cierra el {cierre} y todavía hay {pendientes} fichas sin enviar o sin música.",
+      "accion": "Completar fichas"
+    }
   }
 }

@@ -9,6 +9,7 @@ import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
 import { erroresDe, textoDe, traducibleDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import { calcularResultados } from '../application/resultados';
 import { puertosResultadosSupabase } from '../infrastructure/puertos-resultados-supabase';
+import { alPublicar } from '@/modules/notificaciones/infrastructure/efectos';
 
 /** Criterios, cálculo y publicación de resultados (OR-40 a OR-45, Art. 32). */
 
@@ -95,6 +96,7 @@ export async function publicarResultadosAccion(_previo: EstadoFormulario, datos:
   refrescar();
   revalidatePath('/[locale]/eventos/[slug]', 'layout');
   revalidatePath('/[locale]/academia', 'layout');
+  if (publicar) await alPublicar(eventoId.data, 'resultados_publicados');
   return { ok: true, mensaje: publicar ? 'resultadosPublicados' : 'resultadosRetirados' };
 }
 

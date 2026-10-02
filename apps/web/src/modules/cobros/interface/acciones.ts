@@ -7,6 +7,7 @@ import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
 import { erroresDe, parsearMonto, textoDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import { anularCobro, registrarCobro } from '../application/cobros';
 import { puertosCobroSupabase } from '../infrastructure/puertos-cobro-supabase';
+import { alRegistrarCobro } from '@/modules/notificaciones/infrastructure/efectos';
 
 /** Cobros manuales en el panel o en la mesa (OR-28, OR-30, OR-31, OP-20). Nunca hay pasarela de pago. */
 
@@ -34,6 +35,7 @@ export async function registrarCobroAccion(_previo: EstadoFormulario, datos: For
     const r = await registrarCobro(puertosCobroSupabase(db, sesion), entrada.data);
     if (!r.ok) return { ok: false, mensaje: r.error.codigo, valores };
     refrescar();
+    if (!r.value.duplicado) await alRegistrarCobro(entrada.data.liquidacionId, entrada.data.montoCentavos, r.value.saldoCentavos);
     return { ok: true, mensaje: r.value.duplicado ? 'cobroDuplicado' : 'cobroRegistrado' };
   }, valores);
 }

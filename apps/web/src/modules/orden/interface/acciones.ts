@@ -9,6 +9,7 @@ import { textoDe, traducibleDe, valoresDe, type EstadoFormulario } from '@/lib/f
 import type { Json } from '@soed/shared-types/database';
 import { asignarFichasABloque, avanzarOrden, cambiarEstadoOrden } from '../application/orden';
 import { puertosOrdenSupabase } from '../infrastructure/puertos-orden-supabase';
+import { alPublicar } from '@/modules/notificaciones/infrastructure/efectos';
 
 /** Construcción del orden de salida (OR-35 a OR-39) y operación en vivo (OP-05 a OP-08). */
 
@@ -124,6 +125,7 @@ export async function publicarOrdenAccion(_previo: EstadoFormulario, datos: Form
   if (error) return { ok: false, mensaje: codigoDeError(error) };
   refrescar();
   revalidatePath('/[locale]/eventos/[slug]', 'layout');
+  if (publicar) await alPublicar(eventoId.data, 'orden_publicado');
   return { ok: true, mensaje: publicar ? 'ordenPublicado' : 'ordenRetirado' };
 }
 

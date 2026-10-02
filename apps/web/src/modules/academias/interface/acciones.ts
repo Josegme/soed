@@ -20,6 +20,7 @@ import { enviarFicha, revalidarFicha } from '@/modules/inscripciones/application
 import { puertosFichaSupabase } from '@/modules/inscripciones/infrastructure/puertos-ficha-supabase';
 import { emitirLiquidacion } from '@/modules/liquidaciones/application/liquidaciones';
 import { puertosLiquidacionSupabase } from '@/modules/liquidaciones/infrastructure/puertos-liquidacion-supabase';
+import { alEmitirLiquidacion, alInscribirAcademia } from '@/modules/notificaciones/infrastructure/efectos';
 
 /**
  * Server actions del panel de la academia (rol Profesor). Validan con Zod en el
@@ -165,7 +166,9 @@ export async function inscribirAcademia(eventoId: string, academiaId: string): P
   if (!esMiembro(academiaId, sesion.academias)) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { error } = await db.from('inscripcion').insert({ evento_id: eventoId, academia_id: academiaId });
   refrescar();
-  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true };
+  if (error) return { ok: false, mensaje: codigoDeError(error) };
+  await alInscribirAcademia(eventoId, academiaId);
+  return { ok: true };
 }
 
 /**
@@ -275,6 +278,7 @@ export async function emitirLiquidacionAccion(
   const r = await emitirLiquidacion(puertosLiquidacionSupabase(db, sesion), inscripcionId, idioma);
   refrescar();
   if (!r.ok) return { ok: false, mensaje: r.error.codigo };
+  if (r.value.nueva) await alEmitirLiquidacion(inscripcionId, r.value.numero, r.value.totalCentavos);
   return { ok: true, mensaje: r.value.nueva ? 'emitida' : 'sinCambios', numero: r.value.numero, version: r.value.version };
 }
 

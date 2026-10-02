@@ -8,6 +8,7 @@ import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
 import { erroresDe, textoDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import { gestionarFicha } from '../application/gestion-fichas';
 import { puertosGestionFichaSupabase } from '../infrastructure/puertos-gestion-ficha-supabase';
+import { alObservarFicha } from '@/modules/notificaciones/infrastructure/efectos';
 
 /** Acciones del organizador sobre fichas y solicitudes de modificación (OR-21 a OR-25). */
 
@@ -28,6 +29,7 @@ export async function gestionarFichaAccion(_previo: EstadoFormulario, datos: For
     const r = await gestionarFicha(puertosGestionFichaSupabase(db, sesion), entrada.data, new Date());
     if (!r.ok) return { ok: false, mensaje: r.error.codigo, valores };
     refrescar();
+    if (entrada.data.accion === 'OBSERVAR') await alObservarFicha(entrada.data.fichaId, entrada.data.observacion);
     return { ok: true, mensaje: `ficha${entrada.data.accion}` };
   }, valores);
 }

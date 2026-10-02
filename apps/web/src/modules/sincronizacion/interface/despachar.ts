@@ -9,6 +9,7 @@ import { registrarCobro } from '@/modules/cobros/application/cobros';
 import { puertosCobroSupabase } from '@/modules/cobros/infrastructure/puertos-cobro-supabase';
 import { guardarPlanilla } from '@/modules/puntajes/application/planillas';
 import { puertosPlanillaSupabase } from '@/modules/puntajes/infrastructure/puertos-planilla-supabase';
+import { alRegistrarCobro } from '@/modules/notificaciones/infrastructure/efectos';
 
 /** Operaciones que la cola offline puede reenviar (ADR-0010). Todas son idempotentes por client_uuid. */
 export const operacionSchema = z.discriminatedUnion('tipo', [
@@ -37,6 +38,7 @@ export async function despachar(op: Operacion, db: ClienteSupabase, sesion: Sesi
     }
     case 'cobro': {
       const r = await registrarCobro(puertosCobroSupabase(db, sesion), op.datos);
+      if (r.ok && !r.value.duplicado) await alRegistrarCobro(op.datos.liquidacionId, op.datos.montoCentavos, r.value.saldoCentavos);
       return r.ok ? { ok: true, valor: r.value } : { ok: false, codigo: r.error.codigo };
     }
   }
