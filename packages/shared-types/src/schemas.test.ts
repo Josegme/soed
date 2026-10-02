@@ -1,7 +1,7 @@
 import { PRESET_ENCUENTRO_2026 } from '@soed/domain';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { configClienteSchema } from './cliente';
+import { configClienteSchema, habilitadoPorModulos, moduloActivo } from './cliente';
 import { crearEventoSchema, guardarPlanillaSchema, registrarCobroSchema, reservaEntradaSchema } from './entradas';
 import { reglamentoSchema } from './reglamento';
 import { ajusteSchema, tarifarioSchema } from './tarifario';
@@ -94,5 +94,13 @@ describe('[TR-37] client.config', () => {
     expect(configClienteSchema.safeParse({ ...base, idiomas: ['es'], idiomaDefecto: 'pt-BR' }).success).toBe(false);
     const { dominio: _omitido, ...sinDominio } = base;
     expect(configClienteSchema.safeParse(sinDominio).success).toBe(false);
+  });
+
+  it('[TR-39] los módulos ausentes están apagados y una función de varios módulos basta con uno', () => {
+    const config = configClienteSchema.parse({ ...base, modulos: { inscripciones: true, entradas: true } });
+    expect(moduloActivo(config, 'hoteles')).toBe(false);
+    expect(habilitadoPorModulos(config, ['clases', 'entradas'])).toBe(true);
+    expect(habilitadoPorModulos(config, ['clases', 'hoteles'])).toBe(false);
+    expect(habilitadoPorModulos(config, [])).toBe(true);
   });
 });

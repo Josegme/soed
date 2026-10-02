@@ -12,6 +12,7 @@ import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
 import { instanteDesdeLocal } from '@/lib/fechas-zona';
 import { erroresDe, parsearMonto, textoDe, traducibleDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import { formatearMonto } from '@/lib/i18n/formato';
+import { moduloOn } from '@/lib/modulos';
 import { huellaOrigen, ipDeEncabezados, secretoOrigen } from '@/lib/origen';
 import { academiaActiva } from '@/modules/academias/infrastructure/consultas';
 import { notificarEmail, sinFallar } from '@/modules/notificaciones/infrastructure/encolar';
@@ -43,6 +44,7 @@ async function zonaDelEvento(eventoId: string) {
 }
 
 export async function guardarClaseAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('clases')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const valores = valoresDe(datos);
   const entrada = claseSchema.safeParse({
     eventoId: datos.get('eventoId'),
@@ -94,6 +96,7 @@ const entradaSchema = z.object({
 });
 
 export async function guardarEntradaAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('entradas')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const valores = valoresDe(datos);
   const entrada = entradaSchema.safeParse({
     eventoId: datos.get('eventoId'),
@@ -131,6 +134,7 @@ const reservaSchema = z.object({ tipo: z.enum(['clase', 'entrada']), reservaId: 
 
 /** Cobro manual registrado por caja u organización (OR-53): marca pagada y confirmada, con autor y hora. */
 export async function cobrarReservaAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!(moduloOn('clases') || moduloOn('entradas'))) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const r = reservaSchema.safeParse({ tipo: datos.get('tipo'), reservaId: datos.get('reservaId') });
   if (!r.success) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { sesion, db } = await requerirSesion();
@@ -146,6 +150,7 @@ export async function cobrarReservaAccion(_previo: EstadoFormulario, datos: Form
 }
 
 export async function cancelarReservaAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!(moduloOn('clases') || moduloOn('entradas'))) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const r = reservaSchema.safeParse({ tipo: datos.get('tipo'), reservaId: datos.get('reservaId') });
   if (!r.success) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { db } = await requerirSesion();
@@ -161,6 +166,7 @@ export async function cancelarReservaAccion(_previo: EstadoFormulario, datos: Fo
 
 /** La academia reserva una clase para uno de sus bailarines (PR-31); el cupo lo verifica la base. */
 export async function reservarClaseAcademiaAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('clases')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const valores = valoresDe(datos);
   const entrada = z
     .object({ claseId: uuidSchema, eventoId: uuidSchema, nombre: z.string().trim().min(2).max(200) })
@@ -206,6 +212,7 @@ export async function reservarPublicaAccion(_previo: EstadoFormulario, datos: Fo
   });
   if (!entrada.success) return { ok: false, errores: erroresDe(entrada.error), valores };
   const e = entrada.data;
+  if (!moduloOn(e.tipo === 'clase' ? 'clases' : 'entradas')) return { ok: false, mensaje: 'MODULO_INACTIVO', valores };
   const origen = huellaOrigen(ipDeEncabezados(await headers()), secretoOrigen());
   const locale = await getLocale();
   const idioma: Idioma = esIdioma(locale) ? locale : 'es';

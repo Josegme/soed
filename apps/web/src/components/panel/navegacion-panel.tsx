@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { eventosDeSesion } from '@/lib/auth/eventos-de-sesion';
 import { tienePermiso, type Sesion } from '@/lib/auth/permisos';
 import { texto } from '@/lib/i18n/traducible';
+import { moduloOn } from '@/lib/modulos';
 import type { ClienteSupabase } from '@/lib/supabase/server';
 
 interface Enlace {
@@ -29,13 +30,15 @@ export async function NavegacionPanel({ sesion, db, idioma }: { sesion: Sesion; 
     const enlaces: Enlace[] = [];
     const puede = (p: string) => tienePermiso(sesion, e.id, p);
     if (puede('inscripciones.ver') || puede('evento.configurar')) enlaces.push({ href: `/gestion/${e.id}`, etiqueta: t('gestion') });
-    if (puede('puntajes.cargar')) enlaces.push({ href: `/jurado/${e.id}`, etiqueta: t('jurado') });
-    if (puede('puntajes.supervisar')) enlaces.push({ href: `/vivo/${e.id}/director-tecnico`, etiqueta: t('directorTecnico') });
-    if (puede('orden.operar')) enlaces.push({ href: `/vivo/${e.id}/coordinador`, etiqueta: t('coordinador') });
-    if (puede('orden.ver')) enlaces.push({ href: `/vivo/${e.id}/locutor`, etiqueta: t('locutor') });
-    if (puede('musica.descargar')) enlaces.push({ href: `/vivo/${e.id}/dj`, etiqueta: t('dj') });
-    if (puede('acreditacion.operar')) enlaces.push({ href: `/acreditacion/${e.id}`, etiqueta: t('acreditacion') });
-    if (puede('cobros.registrar')) enlaces.push({ href: `/acreditacion/${e.id}/caja`, etiqueta: t('caja') });
+    if (puede('puntajes.cargar') && moduloOn('puntajes')) enlaces.push({ href: `/jurado/${e.id}`, etiqueta: t('jurado') });
+    if (puede('puntajes.supervisar') && moduloOn('ordenEnVivo'))
+      enlaces.push({ href: `/vivo/${e.id}/director-tecnico`, etiqueta: t('directorTecnico') });
+    if (puede('orden.operar') && moduloOn('ordenEnVivo')) enlaces.push({ href: `/vivo/${e.id}/coordinador`, etiqueta: t('coordinador') });
+    if (puede('orden.ver') && moduloOn('ordenEnVivo')) enlaces.push({ href: `/vivo/${e.id}/locutor`, etiqueta: t('locutor') });
+    if (puede('musica.descargar') && moduloOn('ordenEnVivo')) enlaces.push({ href: `/vivo/${e.id}/dj`, etiqueta: t('dj') });
+    if (puede('acreditacion.operar') && moduloOn('acreditacion'))
+      enlaces.push({ href: `/acreditacion/${e.id}`, etiqueta: t('acreditacion') });
+    if (puede('cobros.registrar') && moduloOn('acreditacion')) enlaces.push({ href: `/acreditacion/${e.id}/caja`, etiqueta: t('caja') });
     return { evento: e, enlaces };
   });
   // Eventos archivados fuera del menú: siguen accesibles desde Administración.

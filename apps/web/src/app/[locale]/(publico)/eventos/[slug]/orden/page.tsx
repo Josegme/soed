@@ -8,10 +8,12 @@ import { nombreCodigo, texto } from '@/lib/i18n/traducible';
 import { agruparOrden, obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
 import { repositorioEventosPublicos } from '@/modules/eventos/infrastructure/repositorio-publico-supabase';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { exigirModulo } from '@/lib/modulos';
 
 export const revalidate = 15;
 
 export default async function OrdenPublico({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  exigirModulo('ordenEnVivo');
   const { slug } = await params;
   const locale = idiomaDe((await params).locale);
   setRequestLocale(locale);

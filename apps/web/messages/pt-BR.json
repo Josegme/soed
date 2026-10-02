@@ -1435,5 +1435,10 @@
     "firma": "Organização · {marca}",
     "descargar": "Certificados (PDF):",
     "enIdioma": "Em {idioma}"
+  },
+  "sinConexion": {
+    "titulo": "Sem conexão",
+    "descripcion": "Não há internet neste momento. Quando voltar, recarregue a página.",
+    "cola": "As notas do júri e os pagamentos registrados sem conexão ficam salvos neste dispositivo e são enviados automaticamente quando a conexão voltar."
   }
 }

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { formatearFecha, formatearMonto } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { exigirModulo } from '@/lib/modulos';
 import { texto } from '@/lib/i18n/traducible';
 import { FormularioReservaPublica } from '@/modules/actividades/interface/reserva-publica';
 import { obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
@@ -13,6 +14,7 @@ export const revalidate = 60;
 
 /** Tipos de entrada, precios y reserva sin cuenta (PU-10). El pago es manual en el evento. */
 export default async function EntradasPublicas({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  exigirModulo('entradas');
   const { slug } = await params;
   const locale: Idioma = idiomaDe((await params).locale);
   setRequestLocale(locale);

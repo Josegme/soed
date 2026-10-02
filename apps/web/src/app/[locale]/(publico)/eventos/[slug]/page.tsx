@@ -10,6 +10,7 @@ import { texto } from '@/lib/i18n/traducible';
 import { agruparCronogramaPorDia, obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
 import { repositorioEventosPublicos } from '@/modules/eventos/infrastructure/repositorio-publico-supabase';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { moduloOn } from '@/lib/modulos';
 
 export const revalidate = 120;
 
@@ -31,8 +32,8 @@ export default async function DetalleEvento({ params }: Props) {
   if (!evento) notFound();
   const [filasCronograma, clases, entradas] = await Promise.all([
     repo.cronogramaPublico(evento.slug),
-    repo.clasesPublicas(evento.slug),
-    repo.entradasPublicas(evento.slug),
+    moduloOn('clases') ? repo.clasesPublicas(evento.slug) : [],
+    moduloOn('entradas') ? repo.entradasPublicas(evento.slug) : [],
   ]);
   const cronograma = agruparCronogramaPorDia(filasCronograma, evento.zonaHoraria);
   const t = await getTranslations('eventos');
@@ -78,7 +79,7 @@ export default async function DetalleEvento({ params }: Props) {
               {t('inscribirme')}
             </Link>
           ) : null}
-          {evento.ordenPublicado ? (
+          {evento.ordenPublicado && moduloOn('ordenEnVivo') ? (
             <Link href={`/eventos/${evento.slug.toLowerCase()}/orden`} className={estilosBoton({ variante: 'secundario' })}>
               {t('orden')}
             </Link>
@@ -93,7 +94,7 @@ export default async function DetalleEvento({ params }: Props) {
               {t('entradas')}
             </Link>
           ) : null}
-          {evento.resultadosPublicados ? (
+          {evento.resultadosPublicados && moduloOn('puntajes') ? (
             <Link href={`/eventos/${evento.slug.toLowerCase()}/resultados`} className={estilosBoton({ variante: 'secundario' })}>
               {t('resultados')}
             </Link>

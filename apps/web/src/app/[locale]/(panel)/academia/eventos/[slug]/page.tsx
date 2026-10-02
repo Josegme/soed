@@ -6,6 +6,7 @@ import { InsigniaVentana } from '@/components/insignia-ventana';
 import { requerirSesion } from '@/lib/auth/sesion';
 import { formatearDuracion, formatearMonto, formatearPuntaje, formatearRangoFechas } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { moduloOn } from '@/lib/modulos';
 import { nombreCodigo, texto } from '@/lib/i18n/traducible';
 import { academiaActiva, inscripcionDeAcademia, listarCoreografias } from '@/modules/academias/infrastructure/consultas';
 import {
@@ -52,8 +53,8 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
     ? await Promise.all([
         listarCoreografias(db, academia.id),
         liquidacionPrevia(puertosLiquidacionSupabase(db, sesion), inscripcion.id),
-        hotelesDeAcademia(db, evento.id, academia.id),
-        clasesParaAcademia(db, evento.slug, evento.id, academia.id),
+        moduloOn('hoteles') ? hotelesDeAcademia(db, evento.id, academia.id) : [],
+        moduloOn('clases') ? clasesParaAcademia(db, evento.slug, evento.id, academia.id) : [],
       ])
     : [[], null, [], []];
   const inscriptas = new Set(fichas.map((f) => f.coreografiaId));

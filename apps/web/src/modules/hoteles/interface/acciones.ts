@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { codigoDeError } from '@/lib/acciones';
 import { requerirSesion, tienePermiso } from '@/lib/auth/sesion';
+import { moduloOn } from '@/lib/modulos';
 import { erroresDe, parsearMonto, textoDe, traducibleDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 
 /** Hoteles y paquetes (OR-09) y solicitudes de las academias (PR-30). */
@@ -26,6 +27,7 @@ const hotelSchema = z.object({
 const numero = (datos: FormData, campo: string) => (textoDe(datos, campo) === null ? Number.NaN : Number(datos.get(campo)));
 
 export async function guardarHotelAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('hoteles')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const valores = valoresDe(datos);
   const precioTexto = textoDe(datos, 'precio');
   const precio = precioTexto ? parsearMonto(precioTexto) : null;
@@ -61,6 +63,7 @@ export async function guardarHotelAccion(_previo: EstadoFormulario, datos: FormD
 }
 
 export async function eliminarHotelAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('hoteles')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const hotelId = uuidSchema.safeParse(datos.get('hotelId'));
   if (!hotelId.success) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { db } = await requerirSesion();
@@ -84,6 +87,7 @@ const solicitudSchema = z.object({
  * sea del usuario; las FK compuestas, que hotel e inscripción sean del mismo evento.
  */
 export async function solicitarHotelAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('hoteles')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const valores = valoresDe(datos);
   const entrada = solicitudSchema.safeParse({
     hotelId: datos.get('hotelId'),
@@ -114,6 +118,7 @@ export async function solicitarHotelAccion(_previo: EstadoFormulario, datos: For
 }
 
 export async function cancelarSolicitudHotelAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  if (!moduloOn('hoteles')) return { ok: false, mensaje: 'MODULO_INACTIVO' };
   const solicitudId = uuidSchema.safeParse(datos.get('solicitudId'));
   if (!solicitudId.success) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { db } = await requerirSesion();

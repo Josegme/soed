@@ -63,3 +63,7 @@ export type ConfigClienteEntrada = z.input<typeof configClienteSchema>;
 export const definirCliente = (config: ConfigClienteEntrada): ConfigClienteEntrada => config;
 
 export const moduloActivo = (config: ConfigCliente, modulo: Modulo): boolean => config.modulos[modulo] ?? false;
+
+/** Una funcionalidad ligada a varios módulos se habilita con cualquiera de ellos; sin módulos, siempre (TR-39). */
+export const habilitadoPorModulos = (config: ConfigCliente, modulos: readonly Modulo[]): boolean =>
+  modulos.length === 0 || modulos.some((m) => moduloActivo(config, m));

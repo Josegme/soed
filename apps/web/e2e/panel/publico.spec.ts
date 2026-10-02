@@ -93,3 +93,29 @@ test.describe('[PU-07] [PU-08] publicación del orden y los resultados', () => {
     await sinViolacionesA11y(page);
   });
 });
+
+test.describe('[PU-12] [PU-14] SEO y PWA', () => {
+  test('manifest, sitemap con hreflang y robots fuera de producción', async ({ request }) => {
+    const manifest = await (await request.get('/manifest.webmanifest')).json();
+    expect(manifest).toMatchObject({ display: 'standalone', start_url: '/es/panel' });
+    expect(manifest.theme_color).toMatch(/^#[0-9a-fA-F]{6}$/);
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).toContain('/es/eventos/sela</loc>');
+    expect(sitemap).toMatch(/hreflang="pt-BR"[^>]*href="[^"]*\/pt\/eventos\/sela"/);
+    expect(await (await request.get('/robots.txt')).text()).toContain('Disallow: /');
+  });
+
+  test('el service worker precachea la página sin conexión de cada idioma', async ({ page }) => {
+    await page.goto('/es/eventos');
+    const cacheadas = await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      const claves = await caches.keys();
+      const cache = await caches.open(claves.find((k) => k.startsWith('soed-shell-')) ?? '');
+      return (await cache.keys()).map((r) => new URL(r.url).pathname).sort();
+    });
+    expect(cacheadas).toEqual(['/es/sin-conexion', '/pt/sin-conexion']);
+    await page.goto('/pt/sin-conexion');
+    await expect(page.getByRole('heading', { name: 'Sem conexão' })).toBeVisible();
+    await sinViolacionesA11y(page);
+  });
+});

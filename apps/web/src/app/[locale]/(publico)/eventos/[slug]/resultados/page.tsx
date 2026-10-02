@@ -7,10 +7,12 @@ import { nombreCodigo, texto } from '@/lib/i18n/traducible';
 import { obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
 import { repositorioEventosPublicos } from '@/modules/eventos/infrastructure/repositorio-publico-supabase';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { exigirModulo } from '@/lib/modulos';
 
 export const revalidate = 60;
 
 export default async function ResultadosPublicos({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  exigirModulo('puntajes');
   const { slug } = await params;
   const locale = idiomaDe((await params).locale);
   setRequestLocale(locale);

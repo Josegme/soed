@@ -8,7 +8,7 @@ import { tienePermiso } from '@/lib/auth/sesion';
 import { formatearRangoFechas } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { texto } from '@/lib/i18n/traducible';
-import { contextoGestion, SECCIONES_GESTION } from '@/modules/gestion/interface/contexto';
+import { contextoGestion, seccionActiva, SECCIONES_GESTION } from '@/modules/gestion/interface/contexto';
 
 export default async function LayoutGestion({
   children,
@@ -22,11 +22,13 @@ export default async function LayoutGestion({
   const { sesion, evento, defecto } = await contextoGestion(eventoId, 'resumen');
   const t = await getTranslations('gestion');
   const te = await getTranslations('estados.evento');
-  const pestanas = SECCIONES_GESTION.filter((s) => s.permisos.some((p) => tienePermiso(sesion, eventoId, p))).map((s) => ({
-    href: `/gestion/${eventoId}${s.ruta}`,
-    etiqueta: t(`secciones.${s.clave}`),
-    exacta: s.ruta === '',
-  }));
+  const pestanas = SECCIONES_GESTION.filter((s) => seccionActiva(s) && s.permisos.some((p) => tienePermiso(sesion, eventoId, p))).map(
+    (s) => ({
+      href: `/gestion/${eventoId}${s.ruta}`,
+      etiqueta: t(`secciones.${s.clave}`),
+      exacta: s.ruta === '',
+    }),
+  );
   return (
     <div className="flex flex-col gap-6">
       <EncabezadoPagina

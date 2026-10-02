@@ -8,7 +8,9 @@ import type { ReactNode } from 'react';
 import { cliente } from '@/cliente';
 import { routing } from '@/i18n/routing';
 import { ETIQUETA_LANG, PREFIJO_URL } from '@/lib/i18n/locales';
+import { RegistroServiceWorker } from '@/components/registro-sw';
 import { urlSitio } from '@/lib/entorno';
+import { moduloOn } from '@/lib/modulos';
 import { fuenteDisplay, fuenteTexto } from '../fuentes';
 import '../globals.css';
 
@@ -48,6 +50,7 @@ export default async function LayoutIdioma({ children, params }: { children: Rea
           {t('saltarContenido')}
         </a>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <RegistroServiceWorker activo={moduloOn('pwa') && process.env.NODE_ENV === 'production'} />
       </body>
     </html>
   );

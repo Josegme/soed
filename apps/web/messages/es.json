@@ -1435,5 +1435,10 @@
     "firma": "Organización · {marca}",
     "descargar": "Certificados (PDF):",
     "enIdioma": "En {idioma}"
+  },
+  "sinConexion": {
+    "titulo": "Sin conexión",
+    "descripcion": "No hay internet en este momento. Cuando vuelva, recargá la página.",
+    "cola": "Las notas del jurado y los cobros que cargaste sin conexión quedan guardados en este dispositivo y se envían solos al volver la conexión."
   }
 }
