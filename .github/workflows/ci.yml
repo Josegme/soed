@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+  DO_NOT_TRACK: '1'
+
+jobs:
+  calidad:
+    name: Lint, tipos, i18n, contraste y tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm i18n:check
+      - run: pnpm contraste
+      - run: pnpm --filter @soed/web cliente
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Cobertura del dominio (mínimo 90 %)
+        run: pnpm --filter @soed/domain test:coverage
+
+  base-de-datos:
+    name: Migraciones, RLS por rol y tipos
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: PostgreSQL 16 + pgTAP
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-16 postgresql-16-pgtap libtap-parser-perl
+      - run: pnpm db:test
+      - name: Tipos generados al día con las migraciones
+        run: |
+          pnpm db:types
+          git diff --exit-code packages/shared-types/src/database.types.ts
+
+  build:
+    name: Build ${{ matrix.cliente }}
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        cliente: [_template, encuentro-danzas]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @soed/web build
+        env:
+          SOED_CLIENT: ${{ matrix.cliente }}
+
+  e2e:
+    name: E2E y accesibilidad (sitio público)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @soed/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @soed/web build
+        env:
+          SOED_CLIENT: encuentro-danzas
+      - run: pnpm test:e2e
+        env:
+          SOED_CLIENT: encuentro-danzas
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+
+  secretos:
+    name: Escaneo de secretos
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

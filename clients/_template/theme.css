@@ -1,0 +1,22 @@
+/*
+ * Tokens de marca de la instancia. Solo variables: los componentes nunca usan
+ * colores literales (ADR-0003). Contraste mínimo WCAG AA verificado en CI
+ * con scripts/contraste.mjs.
+ */
+:root {
+  --marca: #1f2a44;
+  --marca-contraste: #ffffff;
+  --acento: #e8b931;
+  --acento-contraste: #1b1b1f;
+  --fondo: #f5f7fa;
+  --superficie: #ffffff;
+  --superficie-2: #eef1f5;
+  --texto: #15181f;
+  --texto-suave: #4b5563;
+  --borde: #d6dbe3;
+  --exito: #17703f;
+  --alerta: #8a5a00;
+  --error: #b42318;
+  --info: #1d4ed8;
+  --radio: 10px;
+}

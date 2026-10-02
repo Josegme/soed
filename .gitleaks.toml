@@ -1,0 +1,9 @@
+title = "SOED"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders documentados"
+regexes = ['''sb_(publishable|secret)_xxx''', '''re_xxx''']
+paths = ['''\.claude/skills/''', '''docs/historial/''']

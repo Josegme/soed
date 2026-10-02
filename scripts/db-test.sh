@@ -43,6 +43,13 @@ done
 echo "▸ seeds"
 "${PSQL[@]}" -d soed_test -f "$RAIZ/clients/_template/seed.sql" >/dev/null
 
+if [ -n "${SOED_GENERAR_TIPOS:-}" ]; then
+  echo "▸ tipos TypeScript"
+  "${COMO[@]}" env PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test node "$RAIZ/scripts/gen-db-types.mjs"
+  if [ "$(id -u)" = "0" ]; then chown "$(stat -c %u "$RAIZ")":"$(stat -c %g "$RAIZ")" "$RAIZ/packages/shared-types/src/database.types.ts"; fi
+  exit 0
+fi
+
 echo "▸ pruebas pgTAP"
 cd "$RAIZ/supabase/tests/database"
 "${COMO[@]}" env PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test \

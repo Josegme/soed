@@ -1,0 +1,28 @@
+{
+  "name": "@soed/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Componentes de interfaz accesibles sobre los tokens de tema de cada instancia.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "tailwind-merge": "3.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "eslint": "9.39.5",
+    "react": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}

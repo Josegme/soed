@@ -1,0 +1,9 @@
+{
+  "name": "@soed/clients",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configuración por instancia (ADR-0003): client.config.ts, theme.css, assets y seed.sql por cliente.",
+  "dependencies": {
+    "@soed/shared-types": "workspace:*"
+  }
+}

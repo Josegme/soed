@@ -256,7 +256,7 @@ alter default privileges in schema public revoke all on tables from anon;
 grant select on public.idioma, public.moneda to anon;
 grant select (id, temporada_id, slug, tipo, estado, nombre, idioma_defecto, moneda, zona_horaria, sede,
               fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre,
-              bases, publicado, orden_publicado_at, resultados_publicados_at)
+              bases, reglamento, publicado, orden_publicado_at, resultados_publicados_at)
   on public.evento to anon;
 grant select (id, anio, nombre, publicada) on public.temporada to anon;
 

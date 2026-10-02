@@ -1,0 +1,95 @@
+import type { Idioma } from '@soed/domain';
+import { Aviso, estilosBoton, Insignia } from '@soed/ui';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { InsigniaVentana } from '@/components/insignia-ventana';
+import { Link } from '@/i18n/navigation';
+import { formatearInstante, formatearRangoFechas } from '@/lib/i18n/formato';
+import { texto } from '@/lib/i18n/traducible';
+import { obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
+import { repositorioEventosPublicos } from '@/modules/eventos/infrastructure/repositorio-publico-supabase';
+import { idiomaDe } from '@/lib/i18n/locales';
+
+export const revalidate = 120;
+
+type Props = { params: Promise<{ locale: string; slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const locale = idiomaDe((await params).locale);
+  const evento = await obtenerEventoPublico(repositorioEventosPublicos(), slug, new Date());
+  return evento ? { title: texto(evento.nombre, locale, evento.idiomaDefecto as Idioma) } : {};
+}
+
+export default async function DetalleEvento({ params }: Props) {
+  const { slug } = await params;
+  const locale = idiomaDe((await params).locale);
+  setRequestLocale(locale);
+  const evento = await obtenerEventoPublico(repositorioEventosPublicos(), slug, new Date());
+  if (!evento) notFound();
+  const t = await getTranslations('eventos');
+  const defecto = evento.idiomaDefecto as Idioma;
+  const lugar = [evento.sede.venue, evento.sede.ciudad, evento.sede.region, evento.sede.pais].filter(Boolean).join(', ');
+  const bases = texto(evento.bases, locale, defecto);
+  const fechaCierre = evento.inscripcionCierre ? formatearInstante(evento.inscripcionCierre, locale, evento.zonaHoraria, { dateStyle: 'long' }) : null;
+  const fechaApertura = evento.inscripcionApertura ? formatearInstante(evento.inscripcionApertura, locale, evento.zonaHoraria, { dateStyle: 'long' }) : null;
+
+  return (
+    <article className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6">
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Insignia tono="marca">{t(`tipo.${evento.tipo}`)}</Insignia>
+          <InsigniaVentana ventana={evento.ventana} />
+        </div>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">{texto(evento.nombre, locale, defecto)}</h1>
+        <dl className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
+          <div>
+            <dt className="text-sm text-texto-suave">{t('fechas')}</dt>
+            <dd className="font-semibold">{formatearRangoFechas(evento.fechaInicio, evento.fechaFin, locale)}</dd>
+          </div>
+          {lugar ? (
+            <div>
+              <dt className="text-sm text-texto-suave">{t('sede')}</dt>
+              <dd className="font-semibold">{lugar}</dd>
+            </div>
+          ) : null}
+        </dl>
+        <p className="text-sm text-texto-suave">{t('zonaHoraria', { zona: evento.zonaHoraria })}</p>
+      </header>
+
+      <section className="flex flex-col gap-3 rounded-[var(--radio)] border border-borde bg-superficie p-5">
+        {evento.ventana === 'ABIERTA' && fechaCierre ? <p>{t('inscripcionHasta', { fecha: fechaCierre })}</p> : null}
+        {evento.ventana === 'NO_ABIERTA' && fechaApertura ? <p>{t('inscripcionDesde', { fecha: fechaApertura })}</p> : null}
+        <div className="flex flex-wrap gap-3">
+          {evento.ventana === 'ABIERTA' ? (
+            <Link href={`/academia/eventos/${evento.slug.toLowerCase()}`} className={estilosBoton({ variante: 'primario' })}>
+              {t('inscribirme')}
+            </Link>
+          ) : null}
+          {evento.ordenPublicado ? (
+            <Link href={`/eventos/${evento.slug.toLowerCase()}/orden`} className={estilosBoton({ variante: 'secundario' })}>
+              {t('orden')}
+            </Link>
+          ) : null}
+          {evento.resultadosPublicados ? (
+            <Link href={`/eventos/${evento.slug.toLowerCase()}/resultados`} className={estilosBoton({ variante: 'secundario' })}>
+              {t('resultados')}
+            </Link>
+          ) : null}
+        </div>
+      </section>
+
+      <section aria-labelledby="bases" className="flex flex-col gap-3">
+        <h2 id="bases" className="font-display text-2xl font-bold">
+          {t('bases')}
+        </h2>
+        {bases ? (
+          <div className="max-w-prose whitespace-pre-line text-texto">{bases}</div>
+        ) : (
+          <Aviso tono="info">{t('basesPendientes')}</Aviso>
+        )}
+      </section>
+    </article>
+  );
+}

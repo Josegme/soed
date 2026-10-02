@@ -1,0 +1,59 @@
+name: Migraciones por instancia
+
+# Aplica supabase/migrations a cada instancia (ADR-0003, TR-41).
+# - staging: automático al fusionar en main.
+# - producción: requiere aprobación manual en el environment "produccion".
+# - Bloquea migraciones destructivas si la instancia tiene un evento en curso.
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**']
+  workflow_dispatch:
+    inputs:
+      entorno:
+        description: 'staging o produccion'
+        required: true
+        default: staging
+
+permissions:
+  contents: read
+
+jobs:
+  aplicar:
+    name: ${{ matrix.cliente }} · ${{ github.event.inputs.entorno || 'staging' }}
+    runs-on: ubuntu-24.04
+    environment: ${{ github.event.inputs.entorno || 'staging' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Una entrada por cliente con instancia creada. Secretos por cliente y
+        # entorno: SUPABASE_DB_URL_<CLIENTE> (cadena de conexión directa).
+        cliente: [ENCUENTRO_DANZAS]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Detectar migraciones destructivas
+        id: destructiva
+        run: |
+          nuevas=$(git diff --name-only HEAD~1 -- supabase/migrations || true)
+          if [ -n "$nuevas" ] && grep -Eiq '\b(drop\s+(table|column|schema|function|policy)|truncate|alter\s+table\s+\S+\s+drop)\b' $nuevas; then
+            echo "si=1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Bloquear si hay un evento en curso
+        if: steps.destructiva.outputs.si == '1'
+        env:
+          DB_URL: ${{ secrets[format('SUPABASE_DB_URL_{0}', matrix.cliente)] }}
+        run: |
+          activos=$(psql "$DB_URL" -At -c "select count(*) from public.evento where estado = 'EN_CURSO' or (current_date between fecha_inicio - 2 and fecha_fin + 1)")
+          if [ "$activos" != "0" ]; then
+            echo "::error::Migración destructiva bloqueada: hay $activos evento(s) en curso"
+            exit 1
+          fi
+      - name: Aplicar migraciones
+        env:
+          DB_URL: ${{ secrets[format('SUPABASE_DB_URL_{0}', matrix.cliente)] }}
+        run: supabase db push --db-url "$DB_URL"

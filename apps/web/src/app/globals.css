@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+@import '../cliente/generado/theme.css';
+
+@source '../../../../packages/ui/src';
+
+/*
+ * Tokens de la instancia → utilidades de Tailwind (bg-marca, text-texto…).
+ * Ningún componente usa colores literales (ADR-0003).
+ */
+@theme inline {
+  --color-marca: var(--marca);
+  --color-marca-contraste: var(--marca-contraste);
+  --color-acento: var(--acento);
+  --color-acento-contraste: var(--acento-contraste);
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-borde: var(--borde);
+  --color-exito: var(--exito);
+  --color-alerta: var(--alerta);
+  --color-error: var(--error);
+  --color-info: var(--info);
+  --font-sans: var(--fuente-texto), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--fuente-display), var(--fuente-texto), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Vistas de backstage (locutor, DJ, coordinador): tema oscuro para baja luz. */
+[data-tema='escenario'] {
+  --fondo: #0d1214;
+  --superficie: #161d20;
+  --superficie-2: #1f282c;
+  --texto: #f2f5f6;
+  --texto-suave: #b4c0c5;
+  --borde: #2e3a3f;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--marca) 70%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

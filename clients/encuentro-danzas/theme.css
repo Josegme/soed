@@ -1,0 +1,22 @@
+/*
+ * Encuentro de Danzas: azul petróleo de telón con luz de escenario ámbar.
+ * Contrastes medidos (WCAG AA, scripts/contraste.mjs): texto/fondo 16.7:1 ·
+ * marca/blanco 12.3:1 · acento/tinta 10.0:1 · texto-suave/fondo 8.1:1.
+ */
+:root {
+  --marca: #0b3a46;
+  --marca-contraste: #ffffff;
+  --acento: #f2b53a;
+  --acento-contraste: #1a1406;
+  --fondo: #f4f7f8;
+  --superficie: #ffffff;
+  --superficie-2: #e8eff1;
+  --texto: #10181b;
+  --texto-suave: #3f4d53;
+  --borde: #cfdadd;
+  --exito: #136c3d;
+  --alerta: #845400;
+  --error: #b42318;
+  --info: #1c4fd1;
+  --radio: 12px;
+}
