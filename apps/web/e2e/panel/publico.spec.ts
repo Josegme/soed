@@ -70,7 +70,7 @@ test.describe('[OR-40] orden del día imprimible', () => {
   });
 });
 
-test.describe('[PU-07] [PU-08] publicación del orden y los resultados', () => {
+test.describe('[PU-07] [PU-08] [OR-39] [OR-42] publicación del orden y los resultados', () => {
   test('el organizador publica y el público ve orden y ranking sin datos personales', async ({ page, context }) => {
     await ingresarComo(context, 'org_a');
     await page.goto(`/es/gestion/${ids.evento_a}/orden`);

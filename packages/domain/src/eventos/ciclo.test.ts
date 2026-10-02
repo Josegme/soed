@@ -9,7 +9,7 @@ describe('[OR-02] [SA-08] ciclo de vida del evento', () => {
   it('no salta etapas', () => {
     expect(transicionEvento('BORRADOR', 'FINALIZADO', true)).toMatchObject({ ok: false, error: { codigo: 'TRANSICION_INVALIDA' } });
   });
-  it('archivar y desarchivar es exclusivo del Super Admin', () => {
+  it('[SA-17] archivar y desarchivar es exclusivo del Super Admin', () => {
     expect(transicionEvento('FINALIZADO', 'ARCHIVADO', false)).toMatchObject({ ok: false, error: { codigo: 'SOLO_SUPER_ADMIN' } });
     expect(transicionEvento('FINALIZADO', 'ARCHIVADO', true)).toEqual({ ok: true, value: { estado: 'ARCHIVADO', publicado: false } });
     expect(transicionesPosibles('ARCHIVADO', false)).toEqual([]);

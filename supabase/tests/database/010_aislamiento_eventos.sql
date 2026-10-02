@@ -1,6 +1,6 @@
 -- [TR-16] [TR-36] [SA-04] [SA-13] Aislamiento por evento y permisos por rol
 begin;
-select plan(24);
+select plan(26);
 select tests.escenario();
 
 -- Organizador A
@@ -78,6 +78,15 @@ select is(
            and (i.indkey::int2[])[0:array_length(c.conkey, 1) - 1] <@ c.conkey
       )),
   '', 'toda clave foránea tiene índice');
+
+-- Archivado (SA-17): solo el Super Admin archiva; después nadie del evento escribe
+select tests.como(tests.id('sa'));
+update public.evento set estado = 'ARCHIVADO', publicado = false where id = tests.id('evento_b');
+select is((select estado from public.evento where id = tests.id('evento_b')), 'ARCHIVADO', '[SA-17] el Super Admin archiva un evento');
+select tests.como(tests.id('org_b'));
+select throws_ok(
+  format($$update public.evento set nombre = '{"es":"Cambio"}' where id = %L$$, tests.id('evento_b')),
+  'P0001', 'EVENTO_ARCHIVADO', '[SA-17] un evento archivado es de solo lectura para su organizador');
 
 select * from finish();
 rollback;

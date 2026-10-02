@@ -18,7 +18,7 @@ const SECCIONES = [
 test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
   test.beforeEach(async ({ context }) => ingresarComo(context, 'org_a'));
 
-  test('muestra el tablero del evento con las pestañas de sus permisos', async ({ page }) => {
+  test('[OR-19] [OR-27] muestra el tablero del evento con las pestañas de sus permisos', async ({ page }) => {
     await page.goto(`/es/gestion/${ids.evento_a}`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Selectivo A');
     const pestanas = page.getByRole('navigation', { name: 'Secciones del evento' });
@@ -37,7 +37,10 @@ test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
       await expect(pestanas.getByRole('link', { name: nombre })).toBeVisible();
     }
     await expect(pestanas.getByRole('link', { name: 'Resumen' })).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByText('Academias inscriptas')).toBeVisible();
+    const academias = page.locator('div', { has: page.getByText('Academias inscriptas', { exact: true }) }).last();
+    await expect(academias).toContainText(sql(`select count(*) from public.inscripcion where evento_id = '${ids.evento_a}'`));
+    // Total esperado y cobrado del evento, en su moneda (OR-27).
+    await expect(page.getByText(/^de [\d.,]+\sBRL liquidados$/)).toBeVisible();
   });
 
   for (const seccion of SECCIONES) {
@@ -164,17 +167,19 @@ test.describe('[SA-01] [SA-02] administración', () => {
     await page.screenshot({ path: info.outputPath('admin.png'), fullPage: true });
   });
 
-  test('[SA-03] crea un evento clonando otro y abre su configuración', async ({ page }) => {
+  test('[SA-03] [OR-05] crea un evento en su moneda clonando otro y abre su configuración', async ({ page }) => {
     await page.goto('/es/admin/eventos/nuevo');
     await sinViolacionesA11y(page);
     await page.getByRole('textbox', { name: /Código/ }).fill('POA27');
     await page.getByRole('textbox', { name: /Nombre \(Español\)/ }).fill('Selectivo Porto Alegre');
     await page.getByLabel(/Fecha de inicio/).fill('2027-08-10');
     await page.getByLabel(/Fecha de fin/).fill('2027-08-11');
+    await page.getByRole('combobox', { name: /Moneda/ }).selectOption('USD');
     await page.getByRole('combobox', { name: /Copiar configuración/ }).selectOption({ label: 'SELA · Selectivo A' });
     await page.getByRole('button', { name: 'Crear evento' }).click();
     await expect(page).toHaveURL(/\/gestion\/[0-9a-f-]+\/configuracion/);
     expect(sql(`select count(*) from public.criterio c join public.evento e on e.id = c.evento_id where e.slug = 'POA27'`)).toBe('2');
+    expect(sql(`select moneda from public.evento where slug = 'POA27'`)).toBe('USD');
   });
 
   test('valida el formulario y conserva lo escrito', async ({ page }) => {
