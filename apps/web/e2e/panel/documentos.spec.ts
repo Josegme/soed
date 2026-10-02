@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { ids, ingresarComo, sql } from './utilidades';
 
-test.describe('[PR-16] [OR-27] PDF de liquidación', () => {
+test.describe('[PR-15] [TR-22] PDF de liquidación', () => {
   test('la academia descarga su liquidación en PDF en su idioma', async ({ context }) => {
     await ingresarComo(context, 'prof1');
     const r = await context.request.get(`/api/liquidaciones/${ids.liq1}/pdf?idioma=pt-BR`);
@@ -20,7 +20,7 @@ test.describe('[PR-16] [OR-27] PDF de liquidación', () => {
   });
 });
 
-test.describe('[OR-49] exportaciones CSV', () => {
+test.describe('[OR-46] [TR-33] exportaciones CSV', () => {
   test('el organizador exporta fichas y queda constancia en la auditoría', async ({ context }) => {
     await ingresarComo(context, 'org_a');
     const r = await context.request.get(`/api/gestion/${ids.evento_a}/exportar/fichas?idioma=es`);

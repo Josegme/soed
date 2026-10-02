@@ -3,7 +3,7 @@ import { ids, ingresarComo, sinViolacionesA11y, sql } from './utilidades';
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('[JU-03] [JU-05] planilla del jurado', () => {
+test.describe('[JU-02] [JU-03] [JU-06] [JU-08] planilla del jurado', () => {
   test('carga notas, ve el total ponderado y envía con confirmación', async ({ page, context }, info) => {
     await ingresarComo(context, 'jur1_a');
     await page.goto(`/es/jurado/${ids.evento_a}?ficha=${ids.ficha2}`);
@@ -19,7 +19,7 @@ test.describe('[JU-03] [JU-05] planilla del jurado', () => {
     await page.screenshot({ path: info.outputPath('jurado.png'), fullPage: true });
   });
 
-  test('[ADR-0010] sin conexión guarda en el dispositivo y sincroniza al volver', async ({ page, context }) => {
+  test('[JU-05] sin conexión guarda en el dispositivo y sincroniza al volver', async ({ page, context }) => {
     await ingresarComo(context, 'jur2_a');
     await page.goto(`/es/jurado/${ids.evento_a}?ficha=${ids.ficha2}`);
     await expect(page.getByRole('heading', { name: 'Solo de Carla' })).toBeVisible();
@@ -35,7 +35,7 @@ test.describe('[JU-03] [JU-05] planilla del jurado', () => {
   });
 });
 
-test.describe('[OP-14] [OP-16] [TR-12] acreditación y caja', () => {
+test.describe('[OP-17] [OP-18] [OP-25] [TR-12] acreditación y caja', () => {
   test('emite credenciales y acredita por código; el segundo escaneo informa la hora', async ({ page, context }, info) => {
     await ingresarComo(context, 'staff_a');
     await page.goto(`/es/acreditacion/${ids.evento_a}`);
@@ -54,14 +54,14 @@ test.describe('[OP-14] [OP-16] [TR-12] acreditación y caja', () => {
     await page.screenshot({ path: info.outputPath('acreditacion.png'), fullPage: true });
   });
 
-  test('las credenciales imprimibles llevan QR y son accesibles', async ({ page, context }) => {
+  test('[OP-23] [PU-13] las credenciales imprimibles llevan QR y son accesibles', async ({ page, context }) => {
     await ingresarComo(context, 'staff_a');
     await page.goto(`/es/acreditacion/${ids.evento_a}/credenciales`);
     await expect(page.getByRole('img', { name: 'Código QR de Ana Uno' })).toBeVisible();
     await sinViolacionesA11y(page);
   });
 
-  test('[OP-20] la mesa de caja registra un cobro sin conexión y lo envía al volver', async ({ page, context }) => {
+  test('[OP-20] [OP-21] la mesa de caja registra un cobro sin conexión y lo envía al volver', async ({ page, context }) => {
     await ingresarComo(context, 'staff_a');
     const antes = Number(sql(`select count(*) from public.cobro where liquidacion_id = '${ids.liq1}'`));
     await page.goto(`/es/acreditacion/${ids.evento_a}/caja`);
@@ -79,8 +79,8 @@ test.describe('[OP-14] [OP-16] [TR-12] acreditación y caja', () => {
   });
 });
 
-test.describe('[OP-05] [OP-11] [OP-01] [OP-03] vistas en vivo', () => {
-  test('el coordinador avanza la pista con "Siguiente"', async ({ page, context }, info) => {
+test.describe('[PU-13] vistas en vivo', () => {
+  test('[OP-06] [OP-07] el coordinador avanza la pista con "Siguiente"', async ({ page, context }, info) => {
     sql(`update public.orden_item set estado = 'PROGRAMADA' where bloque_id = '${ids.bloque1}'`);
     await ingresarComo(context, 'coord_a');
     await page.goto(`/es/vivo/${ids.evento_a}/coordinador`);
@@ -94,7 +94,7 @@ test.describe('[OP-05] [OP-11] [OP-01] [OP-03] vistas en vivo', () => {
     await page.screenshot({ path: info.outputPath('coordinador.png'), fullPage: true });
   });
 
-  test('el locutor ve en escena y llamada con buen contraste', async ({ page, context }, info) => {
+  test('[OP-11] [OP-12] el locutor ve en escena y llamada con buen contraste', async ({ page, context }, info) => {
     await ingresarComo(context, 'loc_a');
     await page.goto(`/es/vivo/${ids.evento_a}/locutor`);
     await expect(page.getByRole('region', { name: 'En escena' }).getByText('Solo de Ana')).toBeVisible();
@@ -103,14 +103,14 @@ test.describe('[OP-05] [OP-11] [OP-01] [OP-03] vistas en vivo', () => {
     await page.screenshot({ path: info.outputPath('locutor.png'), fullPage: true });
   });
 
-  test('el DJ ve la secuencia y el estado de cada música', async ({ page, context }) => {
+  test('[OP-13] [OP-15] el DJ ve la secuencia y el estado de cada música', async ({ page, context }) => {
     await ingresarComo(context, 'dj_a');
     await page.goto(`/es/vivo/${ids.evento_a}/dj`);
     await expect(page.getByText('Solo de Ana')).toBeVisible();
     await sinViolacionesA11y(page);
   });
 
-  test('el director técnico ve planillas por jurado y el desvío', async ({ page, context }, info) => {
+  test('[OP-01] [OP-02] el director técnico ve planillas por jurado y el desvío', async ({ page, context }, info) => {
     sql(`update public.orden_item set estado = 'PRESENTADA' where id = '${ids.item1}'`);
     await ingresarComo(context, 'dt_a');
     await page.goto(`/es/vivo/${ids.evento_a}/director-tecnico`);
@@ -120,7 +120,7 @@ test.describe('[OP-05] [OP-11] [OP-01] [OP-03] vistas en vivo', () => {
     await page.screenshot({ path: info.outputPath('director-tecnico.png'), fullPage: true });
   });
 
-  test('un jurado no entra a la coordinación', async ({ page, context }) => {
+  test('[TR-36] un jurado no entra a la coordinación', async ({ page, context }) => {
     await ingresarComo(context, 'jur1_a');
     await page.goto(`/es/vivo/${ids.evento_a}/coordinador`);
     await expect(page).not.toHaveURL(/coordinador/);

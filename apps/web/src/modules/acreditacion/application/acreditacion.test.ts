@@ -35,7 +35,7 @@ function fakes(c: Partial<CredencialLeida> | null = {}, opciones: { permiso?: bo
 
 const ahora = new Date('2026-12-01T12:00:00Z');
 
-describe('[OP-16] [OP-17] [TR-12] acreditación', () => {
+describe('[OP-17] [OP-22] [OP-25] [TR-12] acreditación', () => {
   it('acredita y registra con el client_uuid', async () => {
     const { p, registros } = fakes();
     const r = await acreditarPorToken(p, { qrToken: 't', clientUuid: 'u1' }, ahora);
@@ -66,7 +66,7 @@ describe('[OP-16] [OP-17] [TR-12] acreditación', () => {
       error: { codigo: 'SIN_PERMISO' },
     });
   });
-  it('[OR-50] emite solo las credenciales que faltan', async () => {
+  it('[OP-23] emite solo las credenciales que faltan', async () => {
     const { p, emitidas } = fakes();
     expect(await emitirCredenciales(p, 'e1')).toEqual({ ok: true, value: { emitidas: 1 } });
     expect(emitidas).toEqual([1]);

@@ -14,7 +14,7 @@ const SECCIONES = [
   '/auditoria',
 ];
 
-test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
+test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
   test.beforeEach(async ({ context }) => ingresarComo(context, 'org_a'));
 
   test('muestra el tablero del evento con las pestañas de sus permisos', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
   });
 
   for (const seccion of SECCIONES) {
-    test(`[TR-34] accesibilidad de gestión${seccion || '/resumen'}`, async ({ page }, info) => {
+    test(`[PU-13] accesibilidad de gestión${seccion || '/resumen'}`, async ({ page }, info) => {
       await page.goto(`/es/gestion/${ids.evento_a}${seccion}`);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await sinViolacionesA11y(page);
@@ -48,7 +48,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
     });
   }
 
-  test('[OR-28] registra un cobro manual desde la tabla de liquidaciones', async ({ page }) => {
+  test('[OR-28] [OR-29] registra un cobro manual desde la tabla de liquidaciones', async ({ page }) => {
     const antes = Number(sql(`select count(*) from public.cobro where liquidacion_id = '${ids.liq1}'`));
     await page.goto(`/es/gestion/${ids.evento_a}/cobros`);
     const fila = page.getByRole('row', { name: /LIQ-SELA-0001/ });
@@ -63,7 +63,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
     ).toBe('2550EFECTIVO');
   });
 
-  test('[OR-22] observa una ficha y la academia ve la observación', async ({ page }) => {
+  test('[OR-21] observa una ficha con comentario', async ({ page }) => {
     await page.goto(`/es/gestion/${ids.evento_a}/inscripciones`);
     const ficha = page.getByRole('listitem').filter({ has: page.getByText('Solo de Carla', { exact: true }) });
     await ficha.getByText('Observar', { exact: true }).click();
@@ -75,7 +75,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
     );
   });
 
-  test('[OR-21] filtra fichas por estado sin perder el filtro en la URL', async ({ page }) => {
+  test('[OR-20] filtra fichas por estado sin perder el filtro en la URL', async ({ page }) => {
     await page.goto(`/es/gestion/${ids.evento_a}/inscripciones`);
     await page.getByRole('combobox', { name: 'Estado' }).selectOption('ENVIADA');
     await page.getByRole('button', { name: 'Filtrar' }).click();
@@ -83,7 +83,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
     await expect(page.getByRole('status').first()).toContainText('ficha');
   });
 
-  test('[OR-41] desvío entre jurados visible y cálculo de resultados', async ({ page }) => {
+  test('[OR-41] [OP-02] [OP-05] desvío entre jurados visible y cálculo del ranking', async ({ page }) => {
     await page.goto(`/es/gestion/${ids.evento_a}/puntajes`);
     await expect(page.getByText(/1 ficha con desvío entre jurados/)).toBeVisible();
     await page.getByRole('button', { name: 'Calcular resultados' }).click();
@@ -91,7 +91,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
     expect(Number(sql(`select count(*) from public.resultado where evento_id = '${ids.evento_a}'`))).toBeGreaterThan(0);
   });
 
-  test('[TR-21] el panel en portugués usa sus textos @movil', async ({ page }) => {
+  test('[TR-20] [PU-13] el panel en portugués usa sus textos @movil', async ({ page }) => {
     await page.goto(`/pt/gestion/${ids.evento_a}`);
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
     await expect(page.getByRole('navigation', { name: 'Seções do evento' }).getByRole('link', { name: 'Recebimentos' })).toBeVisible();
@@ -99,7 +99,7 @@ test.describe('[OR-14] [ADR-0007] panel del organizador', () => {
   });
 });
 
-test.describe('[TR-16] [ADR-0007] permisos por rol en la interfaz', () => {
+test.describe('[TR-16] [TR-36] permisos por rol en la interfaz', () => {
   test('el staff de acreditación solo ve resumen, inscripciones y cobros', async ({ page, context }) => {
     await ingresarComo(context, 'staff_a');
     await page.goto(`/es/gestion/${ids.evento_a}`);
@@ -133,7 +133,7 @@ test.describe('[SA-01] [SA-02] administración', () => {
     await page.screenshot({ path: info.outputPath('admin.png'), fullPage: true });
   });
 
-  test('crea un evento clonando otro y abre su configuración', async ({ page }) => {
+  test('[SA-03] crea un evento clonando otro y abre su configuración', async ({ page }) => {
     await page.goto('/es/admin/eventos/nuevo');
     await sinViolacionesA11y(page);
     await page.getByRole('textbox', { name: /Código/ }).fill('POA27');

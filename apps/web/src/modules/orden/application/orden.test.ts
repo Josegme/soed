@@ -58,7 +58,7 @@ describe('[OP-07] cambiar estado en vivo', () => {
   });
 });
 
-describe('[OP-05] [OP-06] siguiente en escena', () => {
+describe('[OP-06] [OP-07] siguiente en escena', () => {
   const item = (id: string, estado: EstadoOrden) => ({ id, eventoId: 'e1', estado });
   it('presenta la actual, sube la llamada y llama a la próxima', async () => {
     const { p, cambios } = fake(undefined, undefined, [

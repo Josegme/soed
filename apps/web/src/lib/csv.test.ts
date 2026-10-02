@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { celdaCsv, generarCsv } from './csv';
 
-describe('[OR-49] exportación CSV', () => {
+describe('[OR-46] exportación CSV', () => {
   it('escapa separador, comillas y saltos de línea', () => {
     expect(celdaCsv('Academia; Uno')).toBe('"Academia; Uno"');
     expect(celdaCsv('Dijo "hola"')).toBe('"Dijo ""hola"""');

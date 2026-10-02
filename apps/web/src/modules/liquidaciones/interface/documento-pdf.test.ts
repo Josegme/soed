@@ -30,7 +30,7 @@ const textos: TextosLiquidacionPdf = {
   pie: 'Encuentro de Danzas · generado con SOED',
 };
 
-describe('[PR-16] PDF de liquidación', () => {
+describe('[PR-15] PDF de liquidación', () => {
   it('renderiza un PDF válido con acentos y símbolos de moneda', async () => {
     const buffer = await renderToBuffer(
       createElement(DocumentoLiquidacion, { textos, color: '#0b3a46' }) as Parameters<typeof renderToBuffer>[0],

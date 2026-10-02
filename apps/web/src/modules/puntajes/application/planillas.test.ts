@@ -38,7 +38,7 @@ function fakes(opciones: { permiso?: boolean; propia?: PlanillaPropia | null; po
 
 const base = { fichaId: 'f1', clientUuid: 'u1', comentario: '  Muy buena  ' };
 
-describe('[JU-03] [JU-04] [JU-05] planilla del jurado', () => {
+describe('[JU-03] [JU-04] [JU-05] [JU-06] planilla del jurado', () => {
   it('guarda un borrador incompleto sin enviarlo', async () => {
     const { p, llamadas } = fakes();
     const r = await guardarPlanilla(p, { ...base, notas: [{ criterioId: 'c1', valor: 9 }], enviar: false });

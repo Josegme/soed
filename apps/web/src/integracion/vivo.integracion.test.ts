@@ -26,7 +26,7 @@ function fichaNueva(nombre: string, categoria = 'JUVENIL'): string {
     returning id`).split('\n')[0]!;
 }
 
-describe('[JU-03] [JU-05] [ADR-0010] planilla del jurado', () => {
+describe('[JU-03] [JU-05] [JU-06] [JU-07] planilla del jurado', () => {
   it('guarda borrador, envía con total ponderado y un reintento no duplica', async () => {
     const fichaId = fichaNueva('Solo para el jurado');
     const { db, sesion } = await contexto('jur1_a');
@@ -74,7 +74,7 @@ describe('[JU-03] [JU-05] [ADR-0010] planilla del jurado', () => {
   });
 });
 
-describe('[OR-50] [OP-16] [OP-17] [TR-12] credenciales y acreditación', () => {
+describe('[OP-17] [OP-22] [OP-23] [OP-25] [TR-12] credenciales y acreditación', () => {
   it('emite credenciales sin duplicar y acredita de forma idempotente aunque haya deuda', async () => {
     const { db, sesion } = await contexto('staff_a');
     const p = puertosAcreditacionSupabase(db, sesion);
@@ -110,7 +110,7 @@ describe('[OR-50] [OP-16] [OP-17] [TR-12] credenciales y acreditación', () => {
   });
 });
 
-describe('[OP-05] [OP-06] siguiente en escena', () => {
+describe('[OP-06] [OP-07] siguiente en escena', () => {
   it('avanza la pista: presenta, sube a escena y llama a la próxima', async () => {
     const pista = sql(
       `insert into public.pista (evento_id, nombre, orden) values ('${ids.evento_a}', '{"es":"Pista 2"}', 2) returning id`,
@@ -137,7 +137,7 @@ describe('[OP-05] [OP-06] siguiente en escena', () => {
   });
 });
 
-describe('[ADR-0010] despacho de la cola offline', () => {
+describe('[OP-20] [OP-22] despacho de la cola offline', () => {
   it('aplica un cobro encolado y lo rechaza con código si viola una regla', async () => {
     const { db, sesion } = await contexto('staff_a');
     const ok = await despachar(

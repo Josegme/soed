@@ -28,7 +28,7 @@ async function contexto(clave: string) {
   return { db, sesion: await construirSesion(db, { id: ids[clave]! }) };
 }
 
-describe('[OR-28] [OR-30] [OP-20] cobros con RLS y trigger', () => {
+describe('[OR-28] [OR-29] [OR-30] cobros con RLS y trigger', () => {
   it('el staff registra un cobro, es idempotente por client_uuid y no puede anular', async () => {
     const { db, sesion } = await contexto('staff_a');
     const p = puertosCobroSupabase(db, sesion);
@@ -140,7 +140,7 @@ describe('[OR-21] [OR-22] [OR-23] gestión de fichas por el organizador', () => 
   });
 });
 
-describe('[OR-35] [OP-07] orden de salida', () => {
+describe('[OR-37] [OP-07] orden de salida', () => {
   it('asigna al bloque las fichas sin orden en el orden que propone el dominio', async () => {
     // Evento B aislado: pista, bloque y dos fichas enviadas de la academia 2.
     const bloque = sql(`

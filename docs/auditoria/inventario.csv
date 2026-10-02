@@ -1,7 +1,7 @@
 id,area,fase,etapa,funcionalidad,fuente,confianza,modulo,datos_rls,pantalla,test
 SA-01,Super Admin,F1,3,"Crear y editar temporadas (año, nombre es/pt, reglamento por defecto)",Plan §3,EXPLICITA,eventos,"temporada · rls: escritura solo super admin; lectura pública si publicada",/admin/temporadas,rls:temporada · e2e:admin-temporada
 SA-02,Super Admin,F1,3,"Crear eventos (selectivo, final o evento único) dentro de una temporada",Plan §3,EXPLICITA,eventos,"evento · rls: insert solo super admin",/admin/eventos/nuevo,rls:evento · e2e:admin-evento
-SA-03,Super Admin,F1,3,Clonar la configuración de un evento anterior (reglamento, tarifario, criterios, pistas, premios),Plan §3,EXPLICITA,eventos,"evento, reglamento, tarifario, criterio, pista · fn clonar_evento (security definer, solo super admin)",/admin/eventos/nuevo,db:clonar_evento
+SA-03,Super Admin,F1,3,"Clonar la configuración de un evento anterior (reglamento, tarifario, criterios, pistas, premios)",Plan §3,EXPLICITA,eventos,"evento, reglamento, tarifario, criterio, pista · fn clonar_evento (security definer, solo super admin)",/admin/eventos/nuevo,db:clonar_evento
 SA-04,Super Admin,F1,3,Crear y administrar usuarios organizadores por evento (rol ORGANIZADOR_EVENTO),Plan §3,EXPLICITA,identidad,"evento_miembro · rls: escritura super admin u organizador con permiso evento.miembros",/admin/usuarios,rls:evento_miembro
 SA-05,Super Admin,F1,3,Asignar un mismo organizador a más de un evento,Plan §3 (supuesto a validar),DERIVADA,identidad,evento_miembro (PK evento_id+usuario_id+rol),/admin/usuarios,rls:organizador-multievento
 SA-06,Super Admin,F1,3,Revocar el acceso de un organizador o miembro de evento,Inferida de SA-04,INFERIDA,identidad,evento_miembro · auditoria,/admin/usuarios,rls:evento_miembro-delete

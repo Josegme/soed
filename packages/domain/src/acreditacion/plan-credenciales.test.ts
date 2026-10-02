@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { planCredenciales } from './acreditacion';
 
-describe('[OR-50] [OP-15] plan de credenciales', () => {
+describe('[OP-23] plan de credenciales', () => {
   it('emite una por bailarín y una por persona y tipo, con zonas del evento', () => {
     const nuevas = planCredenciales(
       [
