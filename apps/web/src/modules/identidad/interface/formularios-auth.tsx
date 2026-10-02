@@ -24,7 +24,7 @@ function useMensajes() {
   return { ta, tc, error, general };
 }
 
-export function FormularioIngreso() {
+export function FormularioIngreso({ siguiente }: { siguiente?: string }) {
   const { ta, tc, error, general } = useMensajes();
   const [estado, accion, pendiente] = useActionState(ingresar, ESTADO_INICIAL);
   const [estadoEnlace, accionEnlace, pendienteEnlace] = useActionState(enviarEnlace, ESTADO_INICIAL);
@@ -33,6 +33,7 @@ export function FormularioIngreso() {
   return (
     <div className="flex flex-col gap-6">
       <form action={accion} className="flex flex-col gap-4" noValidate>
+        {siguiente ? <input type="hidden" name="siguiente" value={siguiente} /> : null}
         {mensaje ? <Aviso tono="error">{mensaje}</Aviso> : null}
         <CampoTexto
           name="email"
@@ -60,6 +61,7 @@ export function FormularioIngreso() {
       <details className="rounded-[var(--radio)] border border-borde bg-superficie p-4">
         <summary className="cursor-pointer font-semibold">{ta('conEnlace')}</summary>
         <form action={accionEnlace} className="mt-4 flex flex-col gap-4" noValidate>
+          {siguiente ? <input type="hidden" name="siguiente" value={siguiente} /> : null}
           {mensajeEnlace ? <Aviso tono={estadoEnlace.ok ? 'exito' : 'error'}>{mensajeEnlace}</Aviso> : null}
           <CampoTexto
             name="email"

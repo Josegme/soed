@@ -230,7 +230,12 @@
     "SIN_SESION": "Tu sesión venció. Volvé a ingresar para enviar lo pendiente.",
     "ORIGEN_INVALIDO": "Solicitud rechazada por seguridad.",
     "DATOS_INVALIDOS": "Los datos guardados no son válidos.",
-    "FORMATO_INVALIDO": "Formato de solicitud inválido."
+    "FORMATO_INVALIDO": "Formato de solicitud inválido.",
+    "SOLO_TITULAR": "Solo la titular de la academia puede invitar.",
+    "INVITACION_INEXISTENTE": "La invitación no existe.",
+    "INVITACION_USADA": "La invitación ya fue usada.",
+    "INVITACION_VENCIDA": "La invitación venció.",
+    "EMAIL_DISTINTO": "Ingresaste con otra cuenta: usá el email al que llegó la invitación."
   },
   "reglamento": {
     "infraccion": {
@@ -463,6 +468,26 @@
         "RECARGO": "Recargo",
         "AJUSTE": "Ajuste"
       }
+    },
+    "equipo": {
+      "titulo": "Profesores de la academia",
+      "roles": {
+        "TITULAR": "Titular",
+        "PROFESOR": "Profesor"
+      },
+      "pendiente": "Invitación pendiente · vence el {vence}",
+      "revocar": "Revocar",
+      "invitar": "Invitar",
+      "email": "Email del profesor",
+      "ayuda": "Le llega un enlace para unirse; tiene que ingresar con ese mismo email.",
+      "invitacionEnviada": "Invitación enviada.",
+      "invitacionRevocada": "Invitación revocada.",
+      "aceptarTitulo": "Invitación a una academia",
+      "aceptarDescripcion": "Te invitaron a gestionar {academia}. Vas a sumarte como profesor con tu cuenta {email}.",
+      "aceptar": "Aceptar y entrar",
+      "noEncontrada": "La invitación no existe.",
+      "yaUsada": "Esta invitación ya fue usada.",
+      "vencida": "La invitación venció: pedile a la academia una nueva."
     }
   },
   "medios": {

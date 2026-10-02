@@ -532,6 +532,59 @@ create policy academia_invitacion_gestion on public.academia_invitacion for all 
   using (academia_id in (select private.academias_titular()))
   with check (academia_id in (select private.academias_titular()) and invitado_por = (select auth.uid()));
 
+-- Invitaciones (PR-04): quien recibe la invitación todavía no es miembro, así
+-- que ve y acepta por token con funciones acotadas. Aceptar exige que el email
+-- de la cuenta coincida con el invitado: reenviar el enlace no da acceso.
+create or replace function public.ver_invitacion(p_token text)
+returns table (academia text, vencida boolean, aceptada boolean)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select a.nombre, i.vence_at <= now(), i.aceptada_at is not null
+    from public.academia_invitacion i
+    join public.academia a on a.id = i.academia_id
+   where i.token = p_token and (select auth.uid()) is not null
+$$;
+
+create or replace function public.aceptar_invitacion(p_token text)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_inv public.academia_invitacion%rowtype;
+  v_email text;
+begin
+  if (select auth.uid()) is null then
+    raise exception 'SIN_SESION' using errcode = '42501';
+  end if;
+  select * into v_inv from public.academia_invitacion where token = p_token for update;
+  if not found then
+    raise exception 'INVITACION_INEXISTENTE' using errcode = 'P0002';
+  end if;
+  if v_inv.aceptada_at is not null then
+    raise exception 'INVITACION_USADA' using errcode = 'P0001';
+  end if;
+  if v_inv.vence_at <= now() then
+    raise exception 'INVITACION_VENCIDA' using errcode = 'P0001';
+  end if;
+  select email into v_email from auth.users where id = (select auth.uid());
+  if lower(coalesce(v_email, '')) <> lower(v_inv.email) then
+    raise exception 'EMAIL_DISTINTO' using errcode = '42501';
+  end if;
+  insert into public.academia_miembro (academia_id, usuario_id, rol)
+  values (v_inv.academia_id, (select auth.uid()), 'PROFESOR')
+  on conflict (academia_id, usuario_id) do update set activo = true;
+  update public.academia_invitacion set aceptada_at = now() where id = v_inv.id;
+  return v_inv.academia_id;
+end;
+$$;
+revoke execute on function public.ver_invitacion(text), public.aceptar_invitacion(text) from public, anon;
+grant execute on function public.ver_invitacion(text), public.aceptar_invitacion(text) to authenticated;
+
 -- Perfiles de los miembros de mis academias.
 create policy perfil_academia_lectura on public.perfil for select to authenticated
   using (

@@ -21,6 +21,11 @@ import { puertosFichaSupabase } from '@/modules/inscripciones/infrastructure/pue
 import { emitirLiquidacion } from '@/modules/liquidaciones/application/liquidaciones';
 import { puertosLiquidacionSupabase } from '@/modules/liquidaciones/infrastructure/puertos-liquidacion-supabase';
 import { alEmitirLiquidacion, alInscribirAcademia } from '@/modules/notificaciones/infrastructure/efectos';
+import { z } from 'zod';
+import { redirect } from '@/i18n/navigation';
+import { formatearFecha } from '@/lib/i18n/formato';
+import { idiomaDe } from '@/lib/i18n/locales';
+import { notificarEmail, sinFallar } from '@/modules/notificaciones/infrastructure/encolar';
 
 /**
  * Server actions del panel de la academia (rol Profesor). Validan con Zod en el
@@ -297,4 +302,67 @@ export async function solicitarModificacion(_previo: EstadoFormulario, datos: Fo
   });
   refrescar();
   return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true, mensaje: 'solicitudEnviada' };
+}
+
+// ---------------------------------------------------------------------------
+// Invitaciones de profesores (PR-04)
+// ---------------------------------------------------------------------------
+
+export async function invitarProfesorAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const valores = valoresDe(datos);
+  const academiaId = uuidSchema.safeParse(datos.get('academiaId'));
+  const email = z.email('EMAIL_INVALIDO').safeParse(
+    String(datos.get('email') ?? '')
+      .trim()
+      .toLowerCase(),
+  );
+  if (!email.success) return { ok: false, errores: { email: 'EMAIL_INVALIDO' }, valores };
+  if (!academiaId.success) return { ok: false, mensaje: 'SIN_PERMISO', valores };
+  const { sesion, db } = await requerirSesion();
+  const academia = sesion.academias.find((a) => a.id === academiaId.data);
+  if (academia?.rol !== 'TITULAR') return { ok: false, mensaje: 'SOLO_TITULAR', valores };
+  const { data, error } = await db
+    .from('academia_invitacion')
+    .insert({ academia_id: academiaId.data, email: email.data, invitado_por: sesion.usuarioId })
+    .select('token, vence_at')
+    .single();
+  if (error || !data) return { ok: false, mensaje: codigoDeError(error), valores };
+  const idioma = idiomaDe(await getLocale());
+  await sinFallar(() =>
+    notificarEmail({
+      email: email.data,
+      idioma,
+      tipo: 'invitacion_academia',
+      datos: {
+        academia: academia.nombre,
+        invitante: sesion.nombre || sesion.email,
+        vence: (i) => formatearFecha(data.vence_at.slice(0, 10), i),
+      },
+      ruta: `/invitacion/${data.token}`,
+    }),
+  );
+  refrescar();
+  return { ok: true, mensaje: 'invitacionEnviada' };
+}
+
+export async function revocarInvitacionAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const id = uuidSchema.safeParse(datos.get('invitacionId'));
+  if (!id.success) return { ok: false, mensaje: 'SIN_PERMISO' };
+  const { db } = await requerirSesion();
+  const { data, error } = await db.from('academia_invitacion').delete().eq('id', id.data).is('aceptada_at', null).select('id');
+  if (error) return { ok: false, mensaje: codigoDeError(error) };
+  if (!data?.length) return { ok: false, mensaje: 'SIN_PERMISO' };
+  refrescar();
+  return { ok: true, mensaje: 'invitacionRevocada' };
+}
+
+export async function aceptarInvitacionAccion(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
+  const token = String(datos.get('token') ?? '');
+  if (!/^[0-9a-z-]{8,64}$/i.test(token)) return { ok: false, mensaje: 'INVITACION_INEXISTENTE' };
+  const { db } = await requerirSesion();
+  const { data, error } = await db.rpc('aceptar_invitacion', { p_token: token });
+  if (error || !data) return { ok: false, mensaje: codigoDeError(error) };
+  refrescar();
+  redirect({ href: `/academia?a=${data}`, locale: await getLocale() });
+  return { ok: true };
 }

@@ -5,6 +5,7 @@ import { getLocale } from 'next-intl/server';
 import { redirect } from '@/i18n/navigation';
 import { urlSitio } from '@/lib/entorno';
 import { erroresDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
+import { rutaInternaSegura } from '@/lib/rutas';
 import { supabaseServidor } from '@/lib/supabase/server';
 
 export async function ingresar(_previo: EstadoFormulario, datos: FormData): Promise<EstadoFormulario> {
@@ -16,7 +17,7 @@ export async function ingresar(_previo: EstadoFormulario, datos: FormData): Prom
   const { error } = await supabase.auth.signInWithPassword(entrada.data);
   if (error) return { ok: false, mensaje: 'credencialesInvalidas', valores };
   const locale = await getLocale();
-  redirect({ href: '/panel', locale });
+  redirect({ href: rutaInternaSegura(datos.get('siguiente')) ?? '/panel', locale });
   return { ok: true };
 }
 
@@ -27,10 +28,14 @@ export async function enviarEnlace(_previo: EstadoFormulario, datos: FormData): 
   const supabase = await supabaseServidor();
   if (!supabase) return { ok: false, mensaje: 'CONFIG_PENDIENTE', valores };
   const locale = await getLocale();
+  const siguiente = rutaInternaSegura(datos.get('siguiente'));
   // No revela si el email existe: siempre responde lo mismo (JU-01).
   await supabase.auth.signInWithOtp({
     email: entrada.data.email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${urlSitio()}/auth/callback?locale=${locale}` },
+    options: {
+      shouldCreateUser: false,
+      emailRedirectTo: `${urlSitio()}/auth/callback?locale=${locale}${siguiente ? `&siguiente=${encodeURIComponent(siguiente)}` : ''}`,
+    },
   });
   return { ok: true, mensaje: 'enlaceEnviado' };
 }

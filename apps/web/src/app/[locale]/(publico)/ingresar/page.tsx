@@ -5,13 +5,20 @@ import { Link } from '@/i18n/navigation';
 import { supabaseConfigurado } from '@/lib/entorno';
 import { FormularioIngreso } from '@/modules/identidad/interface/formularios-auth';
 import { idiomaDe } from '@/lib/i18n/locales';
+import { rutaInternaSegura } from '@/lib/rutas';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const t = await getTranslations({ locale: idiomaDe((await params).locale), namespace: 'auth' });
   return { title: t('ingresarTitulo'), robots: { index: false } };
 }
 
-export default async function Ingresar({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Ingresar({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ siguiente?: string }>;
+}) {
   const locale = idiomaDe((await params).locale);
   setRequestLocale(locale);
   const t = await getTranslations('auth');
@@ -23,7 +30,7 @@ export default async function Ingresar({ params }: { params: Promise<{ locale: s
       </div>
       {!supabaseConfigurado() ? <Aviso tono="alerta">{t('sinConfiguracion')}</Aviso> : null}
       <Tarjeta>
-        <FormularioIngreso />
+        <FormularioIngreso siguiente={rutaInternaSegura((await searchParams).siguiente) ?? undefined} />
       </Tarjeta>
       <p className="text-sm text-texto-suave">
         {t('sinCuenta')}{' '}

@@ -2338,6 +2338,12 @@ export type Database = {
       };
     };
     Functions: {
+      aceptar_invitacion: {
+        Args: {
+          p_token: string;
+        };
+        Returns: string;
+      };
       crear_liquidacion: {
         Args: {
           p_inscripcion: string;
@@ -2398,6 +2404,16 @@ export type Database = {
           p_posicion: number;
         };
         Returns: undefined;
+      };
+      ver_invitacion: {
+        Args: {
+          p_token: string;
+        };
+        Returns: {
+            academia: string;
+            vencida: boolean;
+            aceptada: boolean;
+          }[];
       };
     };
     Enums: {

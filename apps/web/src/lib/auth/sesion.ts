@@ -20,11 +20,11 @@ export const obtenerSesion = cache(async (): Promise<{ sesion: Sesion; db: Clien
 });
 
 /** Exige sesión; si no hay, redirige a ingresar en el idioma actual. */
-export async function requerirSesion(): Promise<{ sesion: Sesion; db: ClienteSupabase }> {
+export async function requerirSesion(siguiente?: string): Promise<{ sesion: Sesion; db: ClienteSupabase }> {
   const actual = await obtenerSesion();
   if (!actual) {
     const locale = await getLocale();
-    redirect({ href: '/ingresar', locale });
+    redirect({ href: siguiente ? `/ingresar?siguiente=${encodeURIComponent(siguiente)}` : '/ingresar', locale });
     throw new Error('inalcanzable');
   }
   return actual;

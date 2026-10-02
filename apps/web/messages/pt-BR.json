@@ -230,7 +230,12 @@
     "SIN_SESION": "Sua sessão expirou. Entre de novo para enviar o que está pendente.",
     "ORIGEN_INVALIDO": "Solicitação recusada por segurança.",
     "DATOS_INVALIDOS": "Os dados salvos não são válidos.",
-    "FORMATO_INVALIDO": "Formato de solicitação inválido."
+    "FORMATO_INVALIDO": "Formato de solicitação inválido.",
+    "SOLO_TITULAR": "Só a titular da academia pode convidar.",
+    "INVITACION_INEXISTENTE": "O convite não existe.",
+    "INVITACION_USADA": "O convite já foi usado.",
+    "INVITACION_VENCIDA": "O convite expirou.",
+    "EMAIL_DISTINTO": "Você entrou com outra conta: use o email que recebeu o convite."
   },
   "reglamento": {
     "infraccion": {
@@ -463,6 +468,26 @@
         "RECARGO": "Acréscimo",
         "AJUSTE": "Ajuste"
       }
+    },
+    "equipo": {
+      "titulo": "Professores da academia",
+      "roles": {
+        "TITULAR": "Titular",
+        "PROFESOR": "Professor"
+      },
+      "pendiente": "Convite pendente · vence em {vence}",
+      "revocar": "Revogar",
+      "invitar": "Convidar",
+      "email": "Email do professor",
+      "ayuda": "Ele recebe um link para entrar; precisa acessar com esse mesmo email.",
+      "invitacionEnviada": "Convite enviado.",
+      "invitacionRevocada": "Convite revogado.",
+      "aceptarTitulo": "Convite para uma academia",
+      "aceptarDescripcion": "Você foi convidado para gerenciar {academia}. Você entrará como professor com sua conta {email}.",
+      "aceptar": "Aceitar e entrar",
+      "noEncontrada": "O convite não existe.",
+      "yaUsada": "Este convite já foi usado.",
+      "vencida": "O convite expirou: peça um novo à academia."
     }
   },
   "medios": {

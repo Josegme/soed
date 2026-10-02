@@ -11,8 +11,9 @@ test.describe('[PR-15] [TR-22] PDF de liquidación', () => {
     expect((await r.body()).subarray(0, 5).toString()).toBe('%PDF-');
   });
 
-  test('otra academia no puede descargarla y sin sesión se rechaza', async ({ context, playwright }) => {
-    await ingresarComo(context, 'prof2');
+  test('una cuenta ajena no puede descargarla y sin sesión se rechaza', async ({ context, playwright }) => {
+    // dj_b: sin academia ni permisos en el evento A (prof2 se suma a la academia 1 en academia.spec).
+    await ingresarComo(context, 'dj_b');
     expect((await context.request.get(`/api/liquidaciones/${ids.liq1}/pdf`)).status()).toBe(404);
     const anonimo = await playwright.request.newContext({ baseURL: test.info().project.use.baseURL });
     expect((await anonimo.get(`/api/liquidaciones/${ids.liq1}/pdf`)).status()).toBe(401);

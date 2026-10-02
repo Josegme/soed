@@ -1,6 +1,6 @@
 -- [TR-33] [PR-05] [PR-12] [PR-19] [OR-21] [OR-23] Academias, datos de menores y reglas de ficha
 begin;
-select plan(26);
+select plan(33);
 select tests.escenario();
 
 -- Datos personales de bailarines
@@ -94,6 +94,23 @@ select lives_ok(
            values (%L, %L, %L, 'Cambiar la música', auth.uid())$$,
          tests.id('evento_a'), tests.id('academia1'), tests.id('ficha1')),
   '[PR-20] después del cierre la academia pide una modificación');
+
+
+-- Invitaciones de profesores (PR-04)
+select tests.como(tests.id('prof1'));
+select lives_ok(
+  format($$insert into public.academia_invitacion (academia_id, email, invitado_por, token) values (%L, 'PROF2@test.soed', auth.uid(), 'tok-invitacion-1')$$, tests.id('academia1')),
+  '[PR-04] la titular invita por email');
+select tests.como(tests.id('prof2'));
+select is((select academia from public.ver_invitacion('tok-invitacion-1')), 'Academia Uno', '[PR-04] quien recibe ve solo el nombre de la academia');
+select tests.como(tests.id('dj_a'));
+select throws_ok($$select public.aceptar_invitacion('tok-invitacion-1')$$, '42501', 'EMAIL_DISTINTO', '[PR-04] otra cuenta no puede usar el enlace');
+select tests.como(tests.id('prof2'));
+select is(public.aceptar_invitacion('tok-invitacion-1'), tests.id('academia1'), '[PR-04] el invitado acepta y queda como profesor');
+select is((select count(*)::int from public.bailarin where academia_id = tests.id('academia1')), 2, '[PR-04] y ya ve los bailarines de la academia');
+select throws_ok($$select public.aceptar_invitacion('tok-invitacion-1')$$, 'P0001', 'INVITACION_USADA', '[PR-04] una invitación se usa una vez');
+select tests.como_anon();
+select throws_ok($$select public.ver_invitacion('tok-invitacion-1')$$, '42501', null, '[PR-04] anon no consulta invitaciones');
 
 select * from finish();
 rollback;

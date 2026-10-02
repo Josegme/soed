@@ -154,7 +154,7 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
       estado: f.estado,
       bloqueada: f.bloqueada,
       observacion: f.observacion,
-      validacion: (f.validacion as unknown as ResultadoValidacion) ?? null,
+      validacion: normalizarValidacion(f.validacion),
       musicaDuracion: f.musica_duracion_seg,
       coreografiaId: f.coreografia_id,
       elenco: f.ficha_bailarin.map((b) => ({ bailarinId: b.bailarin_id, nombre: b.nombre_mostrado, edad: b.edad, categoria: b.categoria })),
@@ -184,5 +184,48 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
     liquidacion,
     devoluciones,
     orden,
+  };
+}
+
+/** Profesores de la academia e invitaciones pendientes (estas solo las ve la titular, por RLS). */
+export async function equipoDeAcademia(db: ClienteSupabase, academiaId: string) {
+  const [{ data: miembros }, { data: invitaciones }] = await Promise.all([
+    db.from('academia_miembro').select('usuario_id, rol, activo').eq('academia_id', academiaId).eq('activo', true),
+    db
+      .from('academia_invitacion')
+      .select('id, email, vence_at, aceptada_at')
+      .eq('academia_id', academiaId)
+      .is('aceptada_at', null)
+      .order('creado_at'),
+  ]);
+  const ids = (miembros ?? []).map((m) => m.usuario_id);
+  const { data: perfiles } = ids.length ? await db.from('perfil').select('id, nombre, email').in('id', ids) : { data: [] };
+  const perfil = new Map((perfiles ?? []).map((p) => [p.id, p]));
+  return {
+    miembros: (miembros ?? []).map((m) => ({
+      ...m,
+      nombre: perfil.get(m.usuario_id)?.nombre ?? '',
+      email: perfil.get(m.usuario_id)?.email ?? '',
+    })),
+    invitaciones: invitaciones ?? [],
+  };
+}
+
+/**
+ * La validación vive en un jsonb: se normaliza su forma para que una fila
+ * antigua o parcial nunca rompa la pantalla (arrays siempre presentes).
+ */
+export function normalizarValidacion(valor: unknown): ResultadoValidacion | null {
+  if (!valor || typeof valor !== 'object') return null;
+  const v = valor as Partial<ResultadoValidacion>;
+  return {
+    categoria: v.categoria ?? null,
+    categoriasSugeridas: Array.isArray(v.categoriasSugeridas) ? v.categoriasSugeridas : [],
+    integrantes: Array.isArray(v.integrantes) ? v.integrantes : [],
+    infracciones: Array.isArray(v.infracciones) ? v.infracciones : [],
+    advertencias: Array.isArray(v.advertencias) ? v.advertencias : [],
+    tiempoMaximoSegundos: v.tiempoMaximoSegundos ?? null,
+    toleranciaSegundos: v.toleranciaSegundos ?? 0,
+    valida: v.valida === true,
   };
 }
