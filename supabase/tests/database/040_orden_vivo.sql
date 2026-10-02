@@ -1,6 +1,6 @@
 -- [OR-38] [OP-06] [OP-07] [OP-08] [OP-09] [PR-23] [PU-07] Orden de salida en vivo
 begin;
-select plan(16);
+select plan(19);
 select tests.escenario();
 
 -- Coordinador reordena y mueve entre bloques
@@ -31,8 +31,21 @@ update public.evento set orden_publicado_at = now() where id = tests.id('evento_
 select tests.como(tests.id('prof1'));
 select is((select count(*)::int from public.orden_item), 1, '[PR-23] publicado, la academia ve solo sus coreografías');
 
--- Público: orden sin datos personales
+-- Público: cronograma con el evento publicado, aunque el orden no lo esté
+select tests.como(tests.id('org_a'));
+update public.bloque set inicio_programado = now() + interval '60 days' where id = tests.id('bloque1');
+select tests.como_postgres();
+with p as (insert into public.pista (evento_id, nombre) values (tests.id('evento_final'), '{"es":"Pista F"}') returning id, evento_id)
+insert into public.bloque (evento_id, pista_id, nombre, inicio_programado) select evento_id, id, '{"es":"Bloque F"}', now() from p;
 select tests.como_anon();
+select is((select count(*)::int from public.publico_cronograma('sela')), 1, '[PU-06] el público ve el cronograma de bloques con horario');
+select is((select count(*)::int from public.publico_cronograma('final27')), 0, '[PU-06] sin cronograma de un evento no publicado');
+select is(
+  (select count(*)::int from pg_proc p, unnest(p.proargnames) as arg
+    where p.proname = 'publico_cronograma' and arg ~ '(ficha|academia|coreografia)'),
+  0, '[PU-06] el cronograma no revela qué coreografías bailan en cada bloque');
+
+-- Público: orden sin datos personales
 select is((select count(*)::int from public.publico_orden('sela')), 2, '[PU-07] el público ve el orden publicado');
 select is(
   (select count(*)::int from pg_proc p, unnest(p.proargnames) as arg

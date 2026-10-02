@@ -13,7 +13,7 @@ export interface Pestana {
 export function Pestanas({ pestanas, etiqueta }: { pestanas: readonly Pestana[]; etiqueta: string }) {
   const actual = usePathname();
   return (
-    <nav aria-label={etiqueta} className="-mx-1 flex gap-1 overflow-x-auto border-b border-borde">
+    <nav aria-label={etiqueta} className="-mx-1 flex gap-1 overflow-x-auto border-b border-borde print:hidden">
       {pestanas.map((p) => {
         const activa = p.exacta ? actual === p.href : actual === p.href || actual.startsWith(`${p.href}/`);
         return (

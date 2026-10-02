@@ -33,7 +33,7 @@ export default async function LayoutGestion({
         titulo={texto(evento.nombre, idioma, defecto as Idioma)}
         descripcion={`${evento.slug} · ${formatearRangoFechas(evento.fecha_inicio, evento.fecha_fin, idioma)}`}
         acciones={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
             <Insignia tono={evento.publicado ? 'exito' : 'neutro'}>{te(evento.estado as EstadoEvento)}</Insignia>
             {evento.publicado ? (
               <Link

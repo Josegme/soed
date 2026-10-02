@@ -2362,6 +2362,16 @@ export type Database = {
             fecha_inicio: string;
           }[];
       };
+      publico_cronograma: {
+        Args: {
+          p_slug: string;
+        };
+        Returns: {
+            pista: Json;
+            bloque: Json;
+            inicio_programado: string;
+          }[];
+      };
       publico_orden: {
         Args: {
           p_slug: string;

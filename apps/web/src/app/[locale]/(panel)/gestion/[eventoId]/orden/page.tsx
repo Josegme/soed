@@ -1,8 +1,9 @@
-import { horarioEstimado, type EstadoOrden, type Idioma } from '@soed/domain';
+import type { Idioma } from '@soed/domain';
 import { Aviso, CampoSelector, CampoTexto, EstadoVacio, Insignia, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { CamposTraducibles } from '@/components/campos-traducibles';
 import { FormularioAccion } from '@/components/formulario-accion';
+import { Link } from '@/i18n/navigation';
 import { formatearDuracion, formatearInstante } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { nombreCodigo, texto } from '@/lib/i18n/traducible';
@@ -16,6 +17,7 @@ import {
   publicarOrdenAccion,
   quitarItemAccion,
 } from '@/modules/orden/interface/acciones';
+import { horariosDeBloque, type ConfigOperacion } from '@/modules/orden/interface/horarios';
 
 const TONO: Record<string, 'neutro' | 'info' | 'alerta' | 'exito' | 'error'> = {
   PROGRAMADA: 'neutro',
@@ -34,7 +36,7 @@ export default async function OrdenGestion({ params }: { params: Promise<{ local
   const t = await getTranslations('gestion.orden');
   const te = await getTranslations('estados.orden');
   const tc = await getTranslations('comun');
-  const config = evento.config_operacion as { intervaloSegundos?: number; duracionPorDefectoSegundos?: number };
+  const config = evento.config_operacion as ConfigOperacion;
   const reglamento = evento.reglamentoTipado;
   const codigo = (tipo: 'formaciones' | 'categorias' | 'generos', c: string | null) =>
     c && reglamento ? nombreCodigo(reglamento, tipo, c, idioma) : (c ?? '');
@@ -51,19 +53,24 @@ export default async function OrdenGestion({ params }: { params: Promise<{ local
         <p className="text-sm" role="status">
           {sinOrden > 0 ? t('fichasSinOrden', { cantidad: sinOrden }) : t('todasAsignadas')}
         </p>
-        {puede('resultados.publicar') ? (
-          <FormularioAccion
-            accion={publicarOrdenAccion}
-            namespace="gestion.orden"
-            boton={evento.orden_publicado_at ? t('retirarPublicacion') : t('publicar')}
-            variante={evento.orden_publicado_at ? 'secundario' : 'primario'}
-            tamano="chico"
-            enLinea
-          >
-            <input type="hidden" name="eventoId" value={eventoId} />
-            <input type="hidden" name="publicar" value={evento.orden_publicado_at ? 'false' : 'true'} />
-          </FormularioAccion>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href={`/gestion/${eventoId}/orden/imprimir`} className="text-sm font-medium text-marca underline-offset-4 hover:underline">
+            {t('imprimirOrden')}
+          </Link>
+          {puede('resultados.publicar') ? (
+            <FormularioAccion
+              accion={publicarOrdenAccion}
+              namespace="gestion.orden"
+              boton={evento.orden_publicado_at ? t('retirarPublicacion') : t('publicar')}
+              variante={evento.orden_publicado_at ? 'secundario' : 'primario'}
+              tamano="chico"
+              enLinea
+            >
+              <input type="hidden" name="eventoId" value={eventoId} />
+              <input type="hidden" name="publicar" value={evento.orden_publicado_at ? 'false' : 'true'} />
+            </FormularioAccion>
+          ) : null}
+        </div>
       </div>
       {evento.orden_publicado_at ? (
         <Aviso tono="info">
@@ -80,25 +87,7 @@ export default async function OrdenGestion({ params }: { params: Promise<{ local
           </h2>
           {p.bloques.length === 0 ? <p className="text-sm text-texto-suave">{t('sinBloques')}</p> : null}
           {p.bloques.map((b) => {
-            const horarios = b.inicio
-              ? new Map(
-                  horarioEstimado(
-                    b.items.map((i) => ({
-                      id: i.id,
-                      fichaId: i.fichaId,
-                      bloqueId: b.id,
-                      posicion: i.posicion,
-                      estado: i.estado as EstadoOrden,
-                      duracionSegundos: i.duracion,
-                    })),
-                    new Date(b.inicio),
-                    {
-                      intervaloSegundos: config.intervaloSegundos ?? 60,
-                      duracionPorDefectoSegundos: config.duracionPorDefectoSegundos ?? 240,
-                    },
-                  ).map((h) => [h.itemId, h.inicio]),
-                )
-              : null;
+            const horarios = horariosDeBloque(b, config);
             return (
               <Tarjeta key={b.id} className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-3">

@@ -1,7 +1,13 @@
 import 'server-only';
 import type { ReglamentoEvento, Traducible } from '@soed/domain';
 import { supabasePublico } from '@/lib/supabase/publico';
-import type { EventoPublico, FilaOrdenPublica, FilaResultadoPublico, RepositorioEventosPublicos } from '../application/eventos-publicos';
+import type {
+  EventoPublico,
+  FilaCronogramaPublico,
+  FilaOrdenPublica,
+  FilaResultadoPublico,
+  RepositorioEventosPublicos,
+} from '../application/eventos-publicos';
 
 /** Columnas con grant para anon (migración 0800). Nunca usar select('*') con anon. */
 const COLUMNAS =
@@ -100,6 +106,16 @@ export function repositorioEventosPublicos(): RepositorioEventosPublicos {
         categoria: f.categoria,
         formacion: f.formacion,
         genero: f.genero,
+      }));
+    },
+    async cronogramaPublico(slug) {
+      if (!db) return [];
+      const { data, error } = await db.rpc('publico_cronograma', { p_slug: slug });
+      if (error) throw new Error(`cronograma ${slug}: ${error.message}`);
+      return (data ?? []).map((f): FilaCronogramaPublico => ({
+        pista: (f.pista ?? {}) as Traducible,
+        bloque: (f.bloque ?? {}) as Traducible,
+        inicio: f.inicio_programado,
       }));
     },
   };

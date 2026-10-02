@@ -53,12 +53,20 @@ export interface FilaResultadoPublico {
   genero: string;
 }
 
+/** Bloque del cronograma público (PU-06): sin coreografías. */
+export interface FilaCronogramaPublico {
+  pista: Traducible;
+  bloque: Traducible;
+  inicio: string;
+}
+
 /** Puerto de lectura pública. La implementación usa el rol anon (RLS + grants de columnas). */
 export interface RepositorioEventosPublicos {
   listarPublicados(): Promise<EventoPublico[]>;
   buscarPorSlug(slug: string): Promise<EventoPublico | null>;
   ordenPublico(slug: string): Promise<FilaOrdenPublica[]>;
   resultadosPublicos(slug: string): Promise<FilaResultadoPublico[]>;
+  cronogramaPublico(slug: string): Promise<FilaCronogramaPublico[]>;
 }
 
 const conVentana = (e: EventoPublico, ahora: Date): EventoPublicoConVentana => ({
@@ -106,4 +114,21 @@ export function agruparOrden(filas: readonly FilaOrdenPublica[]): GrupoOrden[] {
     grupos.set(clave, g);
   }
   return [...grupos.values()];
+}
+
+export interface DiaCronograma {
+  /** Fecha local de la sede (YYYY-MM-DD). */
+  dia: string;
+  bloques: FilaCronogramaPublico[];
+}
+
+/** Agrupa el cronograma por día en la zona horaria de la sede (PU-06). */
+export function agruparCronogramaPorDia(filas: readonly FilaCronogramaPublico[], zonaHoraria: string): DiaCronograma[] {
+  const fecha = new Intl.DateTimeFormat('en-CA', { timeZone: zonaHoraria, year: 'numeric', month: '2-digit', day: '2-digit' });
+  const dias = new Map<string, FilaCronogramaPublico[]>();
+  for (const f of [...filas].sort((a, b) => a.inicio.localeCompare(b.inicio))) {
+    const dia = fecha.format(new Date(f.inicio));
+    dias.set(dia, [...(dias.get(dia) ?? []), f]);
+  }
+  return [...dias.entries()].map(([dia, bloques]) => ({ dia, bloques }));
 }

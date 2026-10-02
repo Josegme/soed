@@ -244,8 +244,32 @@ as $$
    order by r.grupo, r.puesto, f.nombre
 $$;
 
-revoke execute on function public.publico_orden(text), public.publico_resultados(text) from public;
-grant execute on function public.publico_orden(text), public.publico_resultados(text) to anon, authenticated, service_role;
+-- Cronograma (PU-06): pistas y bloques con su horario. Se publica junto con el
+-- evento porque no revela qué coreografías bailan en cada bloque.
+create or replace function public.publico_cronograma(p_slug text)
+returns table (
+  pista jsonb,
+  bloque jsonb,
+  inicio_programado timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.nombre, b.nombre, b.inicio_programado
+    from public.evento e
+    join public.pista p on p.evento_id = e.id
+    join public.bloque b on b.pista_id = p.id
+   where e.slug = upper(p_slug)
+     and e.publicado
+     and b.inicio_programado is not null
+   order by b.inicio_programado, p.orden, b.orden
+$$;
+
+revoke execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text) from public;
+grant execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text)
+  to anon, authenticated, service_role;
 
 -- -----------------------------------------------------------------------------
 -- Privilegios: anon no ve tablas salvo columnas públicas explícitas

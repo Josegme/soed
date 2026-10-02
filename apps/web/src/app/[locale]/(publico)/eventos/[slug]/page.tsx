@@ -5,9 +5,9 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { InsigniaVentana } from '@/components/insignia-ventana';
 import { Link } from '@/i18n/navigation';
-import { formatearInstante, formatearRangoFechas } from '@/lib/i18n/formato';
+import { formatearFecha, formatearInstante, formatearRangoFechas } from '@/lib/i18n/formato';
 import { texto } from '@/lib/i18n/traducible';
-import { obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
+import { agruparCronogramaPorDia, obtenerEventoPublico } from '@/modules/eventos/application/eventos-publicos';
 import { repositorioEventosPublicos } from '@/modules/eventos/infrastructure/repositorio-publico-supabase';
 import { idiomaDe } from '@/lib/i18n/locales';
 
@@ -26,8 +26,10 @@ export default async function DetalleEvento({ params }: Props) {
   const { slug } = await params;
   const locale = idiomaDe((await params).locale);
   setRequestLocale(locale);
-  const evento = await obtenerEventoPublico(repositorioEventosPublicos(), slug, new Date());
+  const repo = repositorioEventosPublicos();
+  const evento = await obtenerEventoPublico(repo, slug, new Date());
   if (!evento) notFound();
+  const cronograma = agruparCronogramaPorDia(await repo.cronogramaPublico(evento.slug), evento.zonaHoraria);
   const t = await getTranslations('eventos');
   const defecto = evento.idiomaDefecto as Idioma;
   const lugar = [evento.sede.venue, evento.sede.ciudad, evento.sede.region, evento.sede.pais].filter(Boolean).join(', ');
@@ -83,6 +85,34 @@ export default async function DetalleEvento({ params }: Props) {
           ) : null}
         </div>
       </section>
+
+      {cronograma.length > 0 ? (
+        <section aria-labelledby="cronograma" className="flex flex-col gap-3">
+          <h2 id="cronograma" className="font-display text-2xl font-bold">
+            {t('cronograma')}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {cronograma.map((d) => (
+              <div key={d.dia} className="flex flex-col gap-3 rounded-[var(--radio)] border border-borde bg-superficie p-5">
+                <h3 className="font-semibold first-letter:uppercase">{formatearFecha(d.dia, locale, { dateStyle: 'full' })}</h3>
+                <ol className="flex flex-col gap-2">
+                  {d.bloques.map((b) => (
+                    <li key={`${b.inicio}-${JSON.stringify(b.bloque)}`} className="flex items-baseline gap-3">
+                      <time dateTime={b.inicio} className="w-14 shrink-0 font-mono text-sm tabular-nums text-texto-suave">
+                        {formatearInstante(b.inicio, locale, evento.zonaHoraria, { timeStyle: 'short' })}
+                      </time>
+                      <span className="flex flex-col">
+                        <span className="font-medium">{texto(b.bloque, locale, defecto)}</span>
+                        <span className="text-sm text-texto-suave">{texto(b.pista, locale, defecto)}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="bases" className="flex flex-col gap-3">
         <h2 id="bases" className="font-display text-2xl font-bold">

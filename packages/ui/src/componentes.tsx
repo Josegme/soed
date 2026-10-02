@@ -258,7 +258,7 @@ export function Aviso({ className, tono, titulo, children, ...props }: AvisoProp
 
 export function Tabla({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-x-auto rounded-[var(--radio)] border border-borde">
+    <div className="w-full overflow-x-auto rounded-[var(--radio)] border border-borde print:overflow-visible">
       <table className={cn('w-full border-collapse bg-superficie text-left text-sm', className)} {...props} />
     </div>
   );

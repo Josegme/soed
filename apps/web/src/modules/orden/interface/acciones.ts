@@ -16,6 +16,8 @@ import { alPublicar } from '@/modules/notificaciones/infrastructure/efectos';
 const refrescar = () => {
   revalidatePath('/[locale]/gestion/[eventoId]', 'layout');
   revalidatePath('/[locale]/vivo/[eventoId]', 'layout');
+  // Cronograma y orden públicos (PU-06, PU-07) dependen de pistas, bloques e ítems.
+  revalidatePath('/[locale]/eventos/[slug]', 'layout');
 };
 
 const nombreDe = (datos: FormData) => traducibleRequeridoSchema.safeParse(traducibleDe(datos, 'nombre'));

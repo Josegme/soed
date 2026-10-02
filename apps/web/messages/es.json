@@ -115,7 +115,8 @@
     "pista": "Pista",
     "bloque": "Bloque",
     "noEncontrado": "No encontramos ese evento.",
-    "actualizacionVivo": "Se actualiza en vivo"
+    "actualizacionVivo": "Se actualiza en vivo",
+    "cronograma": "Cronograma"
   },
   "auth": {
     "ingresarTitulo": "Ingresá a tu cuenta",
@@ -722,7 +723,14 @@
       "inicioProgramado": "Inicio programado",
       "zonaHoraria": "Hora de la sede ({zona})",
       "pistaCreada": "Pista creada.",
-      "bloqueCreado": "Bloque creado."
+      "bloqueCreado": "Bloque creado.",
+      "imprimirOrden": "Orden del día imprimible",
+      "ordenDelDia": "Orden del día",
+      "imprimir": "Imprimir o guardar PDF",
+      "idiomaDocumento": "Idioma del documento",
+      "generado": "Generado el {fecha}",
+      "horaEstimada": "Hora est.",
+      "duracion": "Duración"
     },
     "puntajes": {
       "criterios": "Criterios de evaluación",
