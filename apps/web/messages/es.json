@@ -599,7 +599,32 @@
       "anulado": "Anulado",
       "vigente": "Vigente",
       "anular": "Anular",
-      "confirmarAnulacion": "Confirmar anulación"
+      "confirmarAnulacion": "Confirmar anulación",
+      "ajustes": {
+        "titulo": "Ajustes y becas",
+        "descripcion": "Sin cargo, monto libre o descuentos con motivo. Cada cambio emite una nueva versión de la liquidación; las anteriores quedan en el historial.",
+        "sinInscripciones": "No hay academias inscriptas.",
+        "liquidacion": "{numero} · versión {version}",
+        "sinEmitir": "Liquidación sin emitir",
+        "emitir": "Emitir liquidación",
+        "recalcular": "Recalcular y emitir",
+        "agregar": "Agregar ajuste",
+        "confirmar": "Registrar ajuste",
+        "tipo": "Tipo",
+        "valor": "Monto o porcentaje",
+        "ayudaValor": "Vacío para «Sin cargo».",
+        "tipos": {
+          "SIN_CARGO": "Sin cargo (beca)",
+          "MONTO_LIBRE": "Monto libre",
+          "DESCUENTO_PORCENTAJE": "Descuento %",
+          "DESCUENTO_MONTO": "Descuento fijo"
+        }
+      },
+      "ajusteRegistrado": "Ajuste registrado: se emitió {numero} versión {version}.",
+      "ajusteSinLiquidacion": "Ajuste registrado. Se aplicará al emitir la liquidación.",
+      "ajusteAnulado": "Ajuste anulado y liquidación recalculada.",
+      "liquidacionEmitida": "Se emitió {numero} versión {version}.",
+      "liquidacionSinCambios": "{numero} ya estaba al día (versión {version})."
     },
     "orden": {
       "fichasSinOrden": "{cantidad, plural, one {# ficha enviada sin lugar en el orden} other {# fichas enviadas sin lugar en el orden}}",

@@ -1,5 +1,5 @@
 import type { Idioma, Moneda } from '@soed/domain';
-import { CampoTexto, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
+import { CampoSelector, CampoTexto, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { FormularioAccion } from '@/components/formulario-accion';
 import { EnlacesExportar } from '@/components/panel/enlaces-exportar';
@@ -9,7 +9,14 @@ import { idiomaDe } from '@/lib/i18n/locales';
 import { resumenCaja } from '@/modules/cobros/application/cobros';
 import { abrirTurnoAccion, anularCobroAccion, cerrarTurnoAccion } from '@/modules/cobros/interface/acciones';
 import { TablaLiquidaciones } from '@/modules/cobros/interface/panel-cobros';
-import { cobrosDeGestion, liquidacionesDeGestion, nombresDeUsuarios, turnosDeCaja } from '@/modules/gestion/infrastructure/consultas';
+import {
+  cobrosDeGestion,
+  inscripcionesConAjustes,
+  liquidacionesDeGestion,
+  nombresDeUsuarios,
+  turnosDeCaja,
+} from '@/modules/gestion/infrastructure/consultas';
+import { anularAjusteAccion, emitirLiquidacionGestionAccion, registrarAjusteAccion } from '@/modules/liquidaciones/interface/acciones';
 import { contextoGestion } from '@/modules/gestion/interface/contexto';
 
 /** Cobranza del evento: saldos, cobros manuales, anulaciones y cierres de caja (OR-26 a OR-32). */
@@ -17,10 +24,12 @@ export default async function CobrosGestion({ params }: { params: Promise<{ loca
   const { locale, eventoId } = await params;
   const idioma: Idioma = idiomaDe(locale);
   const { db, sesion, evento, puede } = await contextoGestion(eventoId, 'cobros');
-  const [liquidaciones, cobros, turnos] = await Promise.all([
+  const gestiona = puede('inscripciones.gestionar');
+  const [liquidaciones, cobros, turnos, inscripciones] = await Promise.all([
     liquidacionesDeGestion(db, eventoId),
     cobrosDeGestion(db, eventoId),
     turnosDeCaja(db, eventoId),
+    gestiona ? inscripcionesConAjustes(db, eventoId) : Promise.resolve([]),
   ]);
   const nombres = await nombresDeUsuarios(db, [...cobros.map((c) => c.registrado_por), ...turnos.map((x) => x.usuario_id)]);
   const t = await getTranslations('gestion.cobros');
@@ -85,6 +94,91 @@ export default async function CobrosGestion({ params }: { params: Promise<{ loca
           puedeCobrar={puede('cobros.registrar')}
         />
       </section>
+
+      {gestiona ? (
+        <section aria-labelledby="titulo-ajustes" className="flex flex-col gap-3">
+          <div>
+            <h2 id="titulo-ajustes" className="font-display text-xl font-bold">
+              {t('ajustes.titulo')}
+            </h2>
+            <p className="text-sm text-texto-suave">{t('ajustes.descripcion')}</p>
+          </div>
+          {inscripciones.length === 0 ? <EstadoVacio titulo={t('ajustes.sinInscripciones')} /> : null}
+          <ul className="flex flex-col gap-3">
+            {inscripciones.map((i) => (
+              <li key={i.id}>
+                <Tarjeta className="flex flex-col gap-3 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold">{i.academia}</p>
+                      <p className="text-sm text-texto-suave">
+                        {i.numero ? t('ajustes.liquidacion', { numero: i.numero, version: i.version ?? 0 }) : t('ajustes.sinEmitir')}
+                      </p>
+                    </div>
+                    <FormularioAccion
+                      accion={emitirLiquidacionGestionAccion}
+                      namespace="gestion.cobros"
+                      boton={i.numero ? t('ajustes.recalcular') : t('ajustes.emitir')}
+                      variante="secundario"
+                      tamano="chico"
+                      enLinea
+                    >
+                      <input type="hidden" name="inscripcionId" value={i.id} />
+                    </FormularioAccion>
+                  </div>
+                  {i.ajustes.length > 0 ? (
+                    <ul className="flex flex-col gap-2 text-sm">
+                      {i.ajustes.map((a) => (
+                        <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-superficie-2 px-3 py-2">
+                          <span>
+                            <strong>{t(`ajustes.tipos.${a.tipo as 'SIN_CARGO'}`)}</strong>
+                            {a.monto_centavos !== null ? ` · ${monto(a.monto_centavos)}` : ''}
+                            {a.porcentaje !== null ? ` · ${a.porcentaje} %` : ''} · {a.motivo}
+                          </span>
+                          <FormularioAccion
+                            accion={anularAjusteAccion}
+                            namespace="gestion.cobros"
+                            boton={t('anular')}
+                            variante="fantasma"
+                            tamano="chico"
+                            enLinea
+                          >
+                            <input type="hidden" name="ajusteId" value={a.id} />
+                          </FormularioAccion>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <details>
+                    <summary className="cursor-pointer text-sm font-medium text-marca">{t('ajustes.agregar')}</summary>
+                    <FormularioAccion
+                      accion={registrarAjusteAccion}
+                      namespace="gestion.cobros"
+                      boton={t('ajustes.confirmar')}
+                      tamano="chico"
+                      className="mt-2 max-w-xl"
+                    >
+                      <input type="hidden" name="inscripcionId" value={i.id} />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <CampoSelector
+                          name="tipo"
+                          etiqueta={t('ajustes.tipo')}
+                          opciones={(['SIN_CARGO', 'MONTO_LIBRE', 'DESCUENTO_PORCENTAJE', 'DESCUENTO_MONTO'] as const).map((x) => ({
+                            valor: x,
+                            etiqueta: t(`ajustes.tipos.${x}`),
+                          }))}
+                        />
+                        <CampoTexto name="valor" etiqueta={t('ajustes.valor')} ayuda={t('ajustes.ayudaValor')} inputMode="decimal" />
+                      </div>
+                      <CampoTexto name="motivo" etiqueta={tc('motivo')} requerido textoRequerido={tc('requerido')} maxLength={500} />
+                    </FormularioAccion>
+                  </details>
+                </Tarjeta>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section aria-labelledby="titulo-caja" className="grid gap-4 lg:grid-cols-2">
         <h2 id="titulo-caja" className="sr-only">

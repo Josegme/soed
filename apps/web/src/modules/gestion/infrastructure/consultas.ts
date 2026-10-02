@@ -287,3 +287,36 @@ export async function auditoriaDeGestion(db: ClienteSupabase, eventoId: string, 
     paginas: Math.max(1, Math.ceil((count ?? 0) / porPagina)),
   };
 }
+
+/** Inscripciones con su liquidación y ajustes vigentes (ajustes y becas, OR-25/OR-26). */
+export async function inscripcionesConAjustes(db: ClienteSupabase, eventoId: string) {
+  const [{ data: inscripciones }, { data: ajustes }, { data: liquidaciones }, academias] = await Promise.all([
+    db.from('inscripcion').select('id, academia_id').eq('evento_id', eventoId),
+    db
+      .from('ajuste_liquidacion')
+      .select('id, inscripcion_id, tipo, monto_centavos, porcentaje, motivo, creado_at')
+      .eq('evento_id', eventoId)
+      .is('anulado_at', null)
+      .order('creado_at'),
+    db.from('v_liquidacion_estado').select('inscripcion_id, numero, version').eq('evento_id', eventoId),
+    nombresDeAcademias(db, eventoId),
+  ]);
+  return (inscripciones ?? [])
+    .map((i) => {
+      const liq = (liquidaciones ?? []).find((l) => l.inscripcion_id === i.id);
+      return {
+        id: i.id,
+        academia: academias.get(i.academia_id) ?? '',
+        numero: liq?.numero ?? null,
+        version: liq?.version ?? null,
+        ajustes: (ajustes ?? [])
+          .filter((a) => a.inscripcion_id === i.id)
+          .map((a) => ({
+            ...a,
+            monto_centavos: a.monto_centavos === null ? null : Number(a.monto_centavos),
+            porcentaje: a.porcentaje === null ? null : Number(a.porcentaje),
+          })),
+      };
+    })
+    .sort((a, b) => a.academia.localeCompare(b.academia));
+}

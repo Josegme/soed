@@ -63,6 +63,24 @@ test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
     ).toBe('2550EFECTIVO');
   });
 
+  test('[OR-25] [TR-18] un descuento con motivo emite una nueva versión de la liquidación', async ({ page }) => {
+    await page.goto(`/es/gestion/${ids.evento_a}/cobros`);
+    const tarjeta = page
+      .getByRole('listitem')
+      .filter({ has: page.getByText('Academia Uno', { exact: true }) })
+      .filter({ hasText: 'Agregar ajuste' });
+    await tarjeta.getByText('Agregar ajuste').click();
+    await tarjeta.getByRole('combobox', { name: 'Tipo' }).selectOption('DESCUENTO_MONTO');
+    await tarjeta.getByRole('textbox', { name: /Monto o porcentaje/ }).fill('10');
+    await tarjeta.getByRole('textbox', { name: /Motivo/ }).fill('Academia invitada');
+    await tarjeta.getByRole('button', { name: 'Registrar ajuste' }).click();
+    await expect(page.getByRole('status').filter({ hasText: /Ajuste registrado: se emitió LIQ-SELA-0001 versión 2/ })).toBeVisible();
+    expect(sql(`select count(*) from public.liquidacion_version where liquidacion_id = '${ids.liq1}'`)).toBe('2');
+    expect(
+      sql(`select detalle::text like '%AJUSTE%' from public.liquidacion_version where liquidacion_id = '${ids.liq1}' and version = 2`),
+    ).toBe('t');
+  });
+
   test('[OR-21] observa una ficha con comentario', async ({ page }) => {
     await page.goto(`/es/gestion/${ids.evento_a}/inscripciones`);
     const ficha = page.getByRole('listitem').filter({ has: page.getByText('Solo de Carla', { exact: true }) });

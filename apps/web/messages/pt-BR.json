@@ -599,7 +599,32 @@
       "anulado": "Cancelado",
       "vigente": "Válido",
       "anular": "Cancelar",
-      "confirmarAnulacion": "Confirmar cancelamento"
+      "confirmarAnulacion": "Confirmar cancelamento",
+      "ajustes": {
+        "titulo": "Ajustes e bolsas",
+        "descripcion": "Sem custo, valor livre ou descontos com motivo. Cada mudança emite uma nova versão do demonstrativo; as anteriores ficam no histórico.",
+        "sinInscripciones": "Não há academias inscritas.",
+        "liquidacion": "{numero} · versão {version}",
+        "sinEmitir": "Demonstrativo não emitido",
+        "emitir": "Emitir demonstrativo",
+        "recalcular": "Recalcular e emitir",
+        "agregar": "Adicionar ajuste",
+        "confirmar": "Registrar ajuste",
+        "tipo": "Tipo",
+        "valor": "Valor ou porcentagem",
+        "ayudaValor": "Vazio para «Sem custo».",
+        "tipos": {
+          "SIN_CARGO": "Sem custo (bolsa)",
+          "MONTO_LIBRE": "Valor livre",
+          "DESCUENTO_PORCENTAJE": "Desconto %",
+          "DESCUENTO_MONTO": "Desconto fixo"
+        }
+      },
+      "ajusteRegistrado": "Ajuste registrado: foi emitido {numero} versão {version}.",
+      "ajusteSinLiquidacion": "Ajuste registrado. Será aplicado ao emitir o demonstrativo.",
+      "ajusteAnulado": "Ajuste cancelado e demonstrativo recalculado.",
+      "liquidacionEmitida": "Foi emitido {numero} versão {version}.",
+      "liquidacionSinCambios": "{numero} já estava atualizado (versão {version})."
     },
     "orden": {
       "fichasSinOrden": "{cantidad, plural, one {# ficha enviada sem lugar na ordem} other {# fichas enviadas sem lugar na ordem}}",
