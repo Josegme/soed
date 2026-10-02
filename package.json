@@ -1,0 +1,31 @@
+{
+  "name": "soed-core",
+  "private": true,
+  "description": "SOED — plataforma para eventos competitivos de danza (single-tenant multi-instancia)",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=@soed/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "pnpm --filter @soed/web test:e2e",
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "trace": "node scripts/trazabilidad.mjs",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset",
+    "db:test": "bash scripts/db-test.sh",
+    "db:types": "supabase gen types typescript --local > packages/shared-types/src/database.types.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "turbo": "2.11.6",
+    "typescript": "6.0.3"
+  }
+}

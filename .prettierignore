@@ -1,0 +1,8 @@
+.claude/
+pnpm-lock.yaml
+**/.next/
+**/dist/
+**/coverage/
+supabase/migrations/
+docs/historial/
+packages/shared-types/src/database.types.ts
