@@ -1083,7 +1083,11 @@
     "sinTurno": "Sem turno aberto · seus recebimentos: {cantidad}, total {monto}",
     "abrirTurno": "Abrir turno",
     "aclaracion": "Registre o que a academia paga na mesa. O pagamento nunca condiciona o credenciamento nem a participação.",
-    "buscar": "Academia ou número do demonstrativo"
+    "buscar": "Academia, número ou código QR do demonstrativo",
+    "escanearQr": "Ler QR do demonstrativo",
+    "detenerQr": "Parar câmera",
+    "vistaCamara": "Imagem da câmera",
+    "sinCamara": "Não foi possível usar a câmera."
   },
   "liquidacionPdf": {
     "titulo": "Demonstrativo",
@@ -1098,7 +1102,8 @@
     "cobrado": "Recebido",
     "saldo": "Saldo",
     "datosPago": "Dados para pagamento",
-    "pie": "{marca} · gerado em {fecha} com SOED"
+    "pie": "{marca} · gerado em {fecha} com SOED",
+    "qr": "Apresente este código na mesa de recebimentos do evento para localizar seu demonstrativo."
   },
   "exportar": {
     "si": "Sim",

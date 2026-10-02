@@ -2,6 +2,7 @@ import { renderToBuffer } from '@react-pdf/renderer';
 import type { ConceptoLinea, Idioma } from '@soed/domain';
 import { uuidSchema } from '@soed/shared-types';
 import { NextResponse, type NextRequest } from 'next/server';
+import QRCode from 'qrcode';
 import { createElement } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { cliente } from '@/cliente';
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     unitario: monto(l.precioUnitario),
     importe: monto(l.importe),
   }));
+  const qr = await QRCode.toDataURL(datos.qrToken, { margin: 1, width: 240, errorCorrectionLevel: 'M' });
   const buffer = await renderToBuffer(
     createElement(DocumentoLiquidacion, {
       color: cliente.marca.colorTema,
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ],
         datosPagoTitulo: t('datosPago'),
         datosPago: texto(datos.evento.datosPago, idioma, defecto),
+        qr: { imagen: qr, leyenda: t('qr') },
         leyenda: tc('noEsFactura'),
         pie: t('pie', { marca: cliente.nombre, fecha: formatearInstante(new Date(), idioma, datos.evento.zona) }),
       },

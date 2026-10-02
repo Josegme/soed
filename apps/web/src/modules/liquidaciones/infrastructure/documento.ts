@@ -13,7 +13,7 @@ export async function datosDocumentoLiquidacion(db: ClienteSupabase, liquidacion
   const [{ data: version }, { data: evento }, { data: academia }] = await Promise.all([
     db
       .from('liquidacion_version')
-      .select('version, detalle, idioma, emitida_at')
+      .select('version, detalle, idioma, emitida_at, qr_token')
       .eq('liquidacion_id', liquidacionId)
       .eq('version', estado.version)
       .single(),
@@ -29,6 +29,7 @@ export async function datosDocumentoLiquidacion(db: ClienteSupabase, liquidacion
     version: version.version,
     idiomaEmision: version.idioma,
     emitidaAt: version.emitida_at,
+    qrToken: version.qr_token,
     moneda: estado.moneda ?? detalle.moneda,
     detalle,
     total: Number(estado.total_centavos ?? 0),

@@ -3,20 +3,17 @@
 import { Boton } from '@soed/ui';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useEffect, useId, useRef, useState, useTransition } from 'react';
+import { useId, useRef, useState, useTransition } from 'react';
 import { libre } from '@/lib/i18n/claves';
 import { formatearInstante } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { encolar, sincronizar } from '@/lib/offline/outbox';
+import { useLectorQr, useSoporteLectorQr } from '@/lib/qr/use-lector-qr';
 
 interface Lectura {
   tono: 'exito' | 'alerta' | 'error' | 'info';
   titulo: string;
   detalle?: string;
-}
-
-interface DetectorCodigos {
-  detect(fuente: CanvasImageSource): Promise<{ rawValue: string }[]>;
 }
 
 const TOKEN = /^[0-9a-f]{32}$/;
@@ -46,9 +43,8 @@ export function EscanerAcreditacion({
   const idioma = idiomaDe(useLocale());
   const router = useRouter();
   const id = useId();
-  const video = useRef<HTMLVideoElement>(null);
   const [camara, setCamara] = useState(false);
-  const [soportada] = useState(() => typeof window !== 'undefined' && 'BarcodeDetector' in window);
+  const soportada = useSoporteLectorQr();
   const [lectura, setLectura] = useState<Lectura | null>(null);
   const [token, setToken] = useState(tokenInicial ?? '');
   const [pendiente, iniciar] = useTransition();
@@ -106,37 +102,10 @@ export function EscanerAcreditacion({
     });
   };
 
-  useEffect(() => {
-    if (!camara || !soportada) return;
-    let activo = true;
-    let flujo: MediaStream | null = null;
-    const Detector = (window as unknown as { BarcodeDetector: new (o: { formats: string[] }) => DetectorCodigos }).BarcodeDetector;
-    const detector = new Detector({ formats: ['qr_code'] });
-    void (async () => {
-      try {
-        flujo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        if (!video.current || !activo) return;
-        video.current.srcObject = flujo;
-        await video.current.play();
-        const leer = async () => {
-          if (!activo || !video.current) return;
-          const codigos = await detector.detect(video.current).catch(() => []);
-          if (codigos[0]?.rawValue) acreditar(codigos[0].rawValue);
-          window.setTimeout(() => void leer(), 400);
-        };
-        void leer();
-      } catch {
-        setLectura({ tono: 'error', titulo: t('sinCamara') });
-        setCamara(false);
-      }
-    })();
-    return () => {
-      activo = false;
-      flujo?.getTracks().forEach((pista) => pista.stop());
-    };
-    // acreditar es estable a efectos del escaneo: solo depende de props del usuario.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camara, soportada]);
+  const video = useLectorQr(camara, acreditar, () => {
+    setLectura({ tono: 'error', titulo: t('sinCamara') });
+    setCamara(false);
+  });
 
   const colores: Record<Lectura['tono'], string> = {
     exito: 'border-exito bg-exito/10',

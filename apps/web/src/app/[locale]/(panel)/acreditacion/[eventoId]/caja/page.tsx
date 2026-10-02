@@ -2,6 +2,7 @@ import type { Idioma, Moneda, Traducible } from '@soed/domain';
 import { CampoTexto, EncabezadoPagina, estilosBoton, Tarjeta } from '@soed/ui';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { BuscadorQr } from '@/components/buscador-qr';
 import { EstadoCola } from '@/components/estado-cola';
 import { FormularioAccion } from '@/components/formulario-accion';
 import { requerirPermiso } from '@/lib/auth/sesion';
@@ -10,7 +11,7 @@ import { idiomaDe } from '@/lib/i18n/locales';
 import { texto } from '@/lib/i18n/traducible';
 import { abrirTurnoAccion } from '@/modules/cobros/interface/acciones';
 import { TablaLiquidaciones } from '@/modules/cobros/interface/panel-cobros';
-import { cobrosDeGestion, liquidacionesDeGestion, turnosDeCaja } from '@/modules/gestion/infrastructure/consultas';
+import { cobrosDeGestion, liquidacionesDeGestion, liquidacionPorQr, turnosDeCaja } from '@/modules/gestion/infrastructure/consultas';
 
 /** Mesa de cobros del staff (OP-20, OP-21): búsqueda por academia y cobro con cola offline. */
 export default async function Caja({
@@ -36,8 +37,9 @@ export default async function Caja({
     turnosDeCaja(db, eventoId),
   ]);
   const filtro = (q ?? '').trim().toLowerCase();
+  const porQr = filtro ? await liquidacionPorQr(db, filtro) : null;
   const liquidaciones = filtro
-    ? todas.filter((l) => l.academia.toLowerCase().includes(filtro) || l.numero.toLowerCase().includes(filtro))
+    ? todas.filter((l) => l.id === porQr || l.academia.toLowerCase().includes(filtro) || l.numero.toLowerCase().includes(filtro))
     : todas;
   const t = await getTranslations('caja');
   const tc = await getTranslations('comun');
@@ -74,6 +76,7 @@ export default async function Caja({
         ) : null}
       </Tarjeta>
       <p className="text-sm text-texto-suave">{t('aclaracion')}</p>
+      <BuscadorQr />
       <form method="get" className="flex flex-wrap items-end gap-2">
         <CampoTexto name="q" etiqueta={t('buscar')} defaultValue={q ?? ''} />
         <button type="submit" className={estilosBoton({ variante: 'secundario' })}>

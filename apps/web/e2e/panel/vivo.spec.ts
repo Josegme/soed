@@ -61,6 +61,15 @@ test.describe('[OP-17] [OP-18] [OP-25] [TR-12] acreditación y caja', () => {
     await sinViolacionesA11y(page);
   });
 
+  test('[OR-32] [OP-19] el código QR de cualquier versión ubica la liquidación con total, cobrado y saldo', async ({ page, context }) => {
+    await ingresarComo(context, 'staff_a');
+    const token = sql(`select qr_token from public.liquidacion_version where liquidacion_id = '${ids.liq1}' order by version limit 1`);
+    await page.goto(`/es/acreditacion/${ids.evento_a}/caja?q=${token}`);
+    const filas = page.getByRole('row').filter({ hasText: /LIQ-SELA-/ });
+    await expect(filas).toHaveCount(1);
+    await expect(filas.first()).toContainText('LIQ-SELA-0001');
+  });
+
   test('[OP-20] [OP-21] la mesa de caja registra un cobro sin conexión y lo envía al volver', async ({ page, context }) => {
     await ingresarComo(context, 'staff_a');
     const antes = Number(sql(`select count(*) from public.cobro where liquidacion_id = '${ids.liq1}'`));

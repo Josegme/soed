@@ -1,5 +1,5 @@
 import 'server-only';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 export interface TextosLiquidacionPdf {
   titulo: string;
@@ -14,6 +14,8 @@ export interface TextosLiquidacionPdf {
   totales: { etiqueta: string; valor: string; destacado?: boolean }[];
   datosPagoTitulo: string;
   datosPago: string;
+  /** QR (data URL PNG) con el token de la versión, para buscarla en la mesa de cobros. */
+  qr?: { imagen: string; leyenda: string };
   leyenda: string;
   pie: string;
 }
@@ -49,6 +51,8 @@ const estilos = (color: string) =>
     destacado: { borderTopWidth: 1, borderTopColor: color, marginTop: 4, paddingTop: 6, fontFamily: 'Helvetica-Bold', fontSize: 12 },
     pago: { marginTop: 20, padding: 10, backgroundColor: '#f7f8fa', borderRadius: 4 },
     leyenda: { marginTop: 16, fontSize: 8, color: '#5b6470' },
+    qr: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16 },
+    qrImagen: { width: 72, height: 72 },
     pie: { position: 'absolute', bottom: 24, left: 40, right: 40, fontSize: 8, color: '#8a929c', textAlign: 'center' },
   });
 
@@ -105,6 +109,13 @@ export function DocumentoLiquidacion({ textos, color }: { textos: TextosLiquidac
           <View style={e.pago}>
             <Text style={[e.etiqueta]}>{textos.datosPagoTitulo}</Text>
             <Text>{textos.datosPago}</Text>
+          </View>
+        ) : null}
+        {textos.qr ? (
+          <View style={e.qr} wrap={false}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- Image de react-pdf no admite alt; el texto contiguo lo describe */}
+            <Image src={textos.qr.imagen} style={e.qrImagen} />
+            <Text style={e.detalle}>{textos.qr.leyenda}</Text>
           </View>
         ) : null}
         <Text style={e.leyenda}>{textos.leyenda}</Text>

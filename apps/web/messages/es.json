@@ -1083,7 +1083,11 @@
     "sinTurno": "Sin turno abierto · tus cobros: {cantidad} por {monto}",
     "abrirTurno": "Abrir turno",
     "aclaracion": "Registrá lo que la academia paga en la mesa. El pago nunca condiciona la acreditación ni la participación.",
-    "buscar": "Academia o número de liquidación"
+    "buscar": "Academia, número o código QR de la liquidación",
+    "escanearQr": "Escanear QR de la liquidación",
+    "detenerQr": "Detener cámara",
+    "vistaCamara": "Vista de la cámara",
+    "sinCamara": "No se pudo usar la cámara."
   },
   "liquidacionPdf": {
     "titulo": "Liquidación",
@@ -1098,7 +1102,8 @@
     "cobrado": "Cobrado",
     "saldo": "Saldo",
     "datosPago": "Datos para pagar",
-    "pie": "{marca} · generado el {fecha} con SOED"
+    "pie": "{marca} · generado el {fecha} con SOED",
+    "qr": "Presentá este código en la mesa de cobros del evento para ubicar tu liquidación."
   },
   "exportar": {
     "si": "Sí",

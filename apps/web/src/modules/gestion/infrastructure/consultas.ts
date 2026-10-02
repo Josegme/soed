@@ -124,7 +124,15 @@ export async function liquidacionesDeGestion(db: ClienteSupabase, eventoId: stri
     cobrado: Number(l.cobrado_centavos ?? 0),
     saldo: Number(l.saldo_centavos ?? 0),
     estado: l.estado ?? 'PENDIENTE',
+    qrToken: l.qr_token,
   }));
+}
+
+/** Liquidación a la que pertenece un QR, de cualquier versión emitida (OR-32, OP-19). */
+export async function liquidacionPorQr(db: ClienteSupabase, token: string): Promise<string | null> {
+  if (!/^[0-9a-f]{32}$/.test(token)) return null;
+  const { data } = await db.from('liquidacion_version').select('liquidacion_id').eq('qr_token', token).maybeSingle();
+  return data?.liquidacion_id ?? null;
 }
 
 export async function cobrosDeGestion(db: ClienteSupabase, eventoId: string, limite = 200) {
