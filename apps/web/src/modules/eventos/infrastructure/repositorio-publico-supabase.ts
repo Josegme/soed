@@ -2,6 +2,8 @@ import 'server-only';
 import type { ReglamentoEvento, Traducible } from '@soed/domain';
 import { supabasePublico } from '@/lib/supabase/publico';
 import type {
+  ClasePublica,
+  EntradaPublica,
   EventoPublico,
   FilaCronogramaPublico,
   FilaOrdenPublica,
@@ -116,6 +118,35 @@ export function repositorioEventosPublicos(): RepositorioEventosPublicos {
         pista: (f.pista ?? {}) as Traducible,
         bloque: (f.bloque ?? {}) as Traducible,
         inicio: f.inicio_programado,
+      }));
+    },
+    async clasesPublicas(slug) {
+      if (!db) return [];
+      const { data, error } = await db.rpc('publico_clases', { p_slug: slug });
+      if (error) throw new Error(`clases ${slug}: ${error.message}`);
+      return (data ?? []).map((c): ClasePublica => ({
+        id: c.id,
+        nombre: (c.nombre ?? {}) as Traducible,
+        docente: c.docente,
+        sala: c.sala,
+        inicio: c.inicio,
+        fin: c.fin,
+        precio: Number(c.precio_centavos),
+        moneda: c.moneda,
+        disponibles: c.disponibles,
+      }));
+    },
+    async entradasPublicas(slug) {
+      if (!db) return [];
+      const { data, error } = await db.rpc('publico_entradas', { p_slug: slug });
+      if (error) throw new Error(`entradas ${slug}: ${error.message}`);
+      return (data ?? []).map((e): EntradaPublica => ({
+        id: e.id,
+        nombre: (e.nombre ?? {}) as Traducible,
+        fecha: e.fecha,
+        precio: Number(e.precio_centavos),
+        moneda: e.moneda,
+        disponibles: e.disponibles,
       }));
     },
   };

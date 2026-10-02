@@ -89,7 +89,7 @@ begin
   foreach t in array array[
     'rol_global', 'evento_miembro', 'evento', 'ficha', 'ajuste_liquidacion', 'liquidacion_version',
     'cobro', 'turno_caja', 'planilla', 'resultado', 'pase', 'premio_asignacion', 'orden_item',
-    'solicitud_modificacion', 'credencial'
+    'solicitud_modificacion', 'credencial', 'reserva_clase', 'reserva_entrada'
   ] loop
     execute format(
       'create trigger %I after insert or update or delete on public.%I for each row execute function private.auditar()',
@@ -267,8 +267,43 @@ as $$
    order by b.inicio_programado, p.orden, b.orden
 $$;
 
-revoke execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text) from public;
-grant execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text)
+-- Clases y entradas publicadas con su disponibilidad (PU-09, PU-10): sin reservas.
+create or replace function public.publico_clases(p_slug text)
+returns table (id uuid, nombre jsonb, docente text, sala text, inicio timestamptz, fin timestamptz,
+               precio_centavos bigint, moneda text, disponibles integer)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select c.id, c.nombre, c.docente, c.sala, c.inicio, c.fin, c.precio_centavos, e.moneda,
+         greatest(c.cupo - (select count(*) from public.reserva_clase r where r.clase_id = c.id and r.estado <> 'CANCELADA'), 0)::integer
+    from public.evento e
+    join public.clase c on c.evento_id = e.id
+   where e.slug = upper(p_slug) and e.publicado and c.publicada
+   order by c.inicio, c.id
+$$;
+
+create or replace function public.publico_entradas(p_slug text)
+returns table (id uuid, nombre jsonb, fecha date, precio_centavos bigint, moneda text, disponibles integer)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select t.id, t.nombre, t.fecha, t.precio_centavos, e.moneda,
+         greatest(t.cupo - (select coalesce(sum(r.cantidad), 0) from public.reserva_entrada r
+                             where r.entrada_tipo_id = t.id and r.estado <> 'CANCELADA'), 0)::integer
+    from public.evento e
+    join public.entrada_tipo t on t.evento_id = e.id
+   where e.slug = upper(p_slug) and e.publicado and t.publicada
+   order by t.fecha nulls first, t.id
+$$;
+
+revoke execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text),
+  public.publico_clases(text), public.publico_entradas(text) from public;
+grant execute on function public.publico_orden(text), public.publico_resultados(text), public.publico_cronograma(text),
+  public.publico_clases(text), public.publico_entradas(text)
   to anon, authenticated, service_role;
 
 -- -----------------------------------------------------------------------------

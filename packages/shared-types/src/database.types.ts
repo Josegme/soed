@@ -2362,6 +2362,22 @@ export type Database = {
             fecha_inicio: string;
           }[];
       };
+      publico_clases: {
+        Args: {
+          p_slug: string;
+        };
+        Returns: {
+            id: string;
+            nombre: Json;
+            docente: string;
+            sala: string;
+            inicio: string;
+            fin: string;
+            precio_centavos: number;
+            moneda: string;
+            disponibles: number;
+          }[];
+      };
       publico_cronograma: {
         Args: {
           p_slug: string;
@@ -2370,6 +2386,19 @@ export type Database = {
             pista: Json;
             bloque: Json;
             inicio_programado: string;
+          }[];
+      };
+      publico_entradas: {
+        Args: {
+          p_slug: string;
+        };
+        Returns: {
+            id: string;
+            nombre: Json;
+            fecha: string;
+            precio_centavos: number;
+            moneda: string;
+            disponibles: number;
           }[];
       };
       publico_orden: {
@@ -2414,6 +2443,28 @@ export type Database = {
           p_posicion: number;
         };
         Returns: undefined;
+      };
+      reservar_clase: {
+        Args: {
+          p_clase_id: string;
+          p_nombre: string;
+          p_email: string;
+          p_origen: string;
+        };
+        Returns: string;
+      };
+      reservar_entrada: {
+        Args: {
+          p_entrada_tipo_id: string;
+          p_nombre: string;
+          p_email: string;
+          p_cantidad: number;
+          p_origen: string;
+        };
+        Returns: {
+            id: string;
+            codigo: string;
+          }[];
       };
       ver_invitacion: {
         Args: {

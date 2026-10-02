@@ -116,7 +116,23 @@
     "bloque": "Bloque",
     "noEncontrado": "No encontramos ese evento.",
     "actualizacionVivo": "Se actualiza en vivo",
-    "cronograma": "Cronograma"
+    "cronograma": "Cronograma",
+    "clases": "Clases",
+    "entradas": "Entradas",
+    "sinClases": "No hay clases abiertas por ahora.",
+    "sinEntradas": "No hay entradas a la venta por ahora.",
+    "gratis": "Sin cargo",
+    "agotada": "Agotada",
+    "disponibles": "{cantidad, plural, one {# lugar} other {# lugares}}",
+    "reservas": {
+      "reservar": "Reservar",
+      "nombre": "Nombre y apellido",
+      "email": "Email",
+      "cantidad": "Cantidad",
+      "trampa": "No completar",
+      "aclaracion": "Reservás «{item}». El pago se hace en el evento; te enviamos el código por email.",
+      "reservaRecibida": "¡Listo! Tu código de reserva es {codigo}. Presentalo al pagar en el evento."
+    }
   },
   "auth": {
     "ingresarTitulo": "Ingresá a tu cuenta",
@@ -237,7 +253,12 @@
     "INVITACION_USADA": "La invitación ya fue usada.",
     "INVITACION_VENCIDA": "La invitación venció.",
     "EMAIL_DISTINTO": "Ingresaste con otra cuenta: usá el email al que llegó la invitación.",
-    "HOTEL_CON_SOLICITUDES": "No se puede eliminar: hay academias que lo pidieron."
+    "HOTEL_CON_SOLICITUDES": "No se puede eliminar: hay academias que lo pidieron.",
+    "SIN_CUPO": "No quedan lugares suficientes.",
+    "CLASE_NO_DISPONIBLE": "La clase no está disponible.",
+    "ENTRADA_NO_DISPONIBLE": "La entrada no está disponible.",
+    "DEMASIADOS_INTENTOS": "Hiciste demasiadas reservas seguidas. Probá de nuevo en unos minutos.",
+    "FIN_ANTERIOR": "El fin tiene que ser posterior al inicio."
   },
   "reglamento": {
     "infraccion": {
@@ -481,6 +502,14 @@
         "precio": "{precio} por plaza",
         "solicitudHotelGuardada": "Pedido de hotel guardado.",
         "solicitudHotelCancelada": "Pedido cancelado."
+      },
+      "clases": {
+        "titulo": "Clases del evento",
+        "bailarin": "Nombre del bailarín",
+        "reservar": "Reservar lugar",
+        "pagada": "Pagada",
+        "pendientePago": "Pago en el evento",
+        "claseReservada": "Lugar reservado."
       }
     },
     "equipo": {
@@ -526,7 +555,8 @@
       "configuracion": "Configuración",
       "auditoria": "Auditoría",
       "premios": "Premios",
-      "hoteles": "Hoteles"
+      "hoteles": "Hoteles",
+      "actividades": "Clases y entradas"
     },
     "premios": {
       "titulo": "Premios del evento",
@@ -982,6 +1012,50 @@
       "hotelCreado": "Hotel creado.",
       "hotelActualizado": "Hotel actualizado.",
       "hotelEliminado": "Hotel eliminado."
+    },
+    "actividades": {
+      "aclaracion": "Las reservas no cobran en línea: el pago se registra a mano en la mesa del evento. El cupo lo controla la base aunque reserven varios a la vez.",
+      "clases": "Clases",
+      "entradas": "Entradas",
+      "sinClases": "Todavía no hay clases.",
+      "sinEntradas": "Todavía no hay entradas.",
+      "nuevaClase": "Agregar clase",
+      "nuevaEntrada": "Agregar tipo de entrada",
+      "docente": "Docente",
+      "sala": "Sala",
+      "inicio": "Inicio",
+      "fin": "Fin",
+      "zonaHoraria": "Hora de la sede ({zona})",
+      "cupo": "Cupo",
+      "precio": "Precio ({moneda})",
+      "fecha": "Fecha",
+      "fechaAyuda": "Vacía si vale para todo el evento.",
+      "publicar": "Publicar en el sitio",
+      "publicada": "Publicada",
+      "borrador": "Sin publicar",
+      "ocupacion": "{ocupadas} de {cupo} reservadas",
+      "gratis": "Sin cargo",
+      "editar": "Editar",
+      "sinReservas": "Sin reservas.",
+      "reservasDe": "Reservas de {titulo}",
+      "persona": "Persona",
+      "cantidad": "Cant.",
+      "fechaReserva": "Reservó",
+      "estado": "Estado",
+      "acciones": "Acciones",
+      "pagada": "Pagada",
+      "pendientePago": "Pago pendiente",
+      "estados": {
+        "CANCELADA": "Cancelada"
+      },
+      "cobrar": "Registrar pago",
+      "cancelar": "Cancelar",
+      "claseCreada": "Clase creada.",
+      "claseActualizada": "Clase actualizada.",
+      "entradaCreada": "Entrada creada.",
+      "entradaActualizada": "Entrada actualizada.",
+      "reservaCobrada": "Pago registrado.",
+      "reservaCancelada": "Reserva cancelada."
     }
   },
   "admin": {
@@ -1283,7 +1357,10 @@
       "saldo": "Saldo",
       "ficha": "Coreografía",
       "cierre": "Cierre de inscripción",
-      "pendientes": "Fichas pendientes"
+      "pendientes": "Fichas pendientes",
+      "codigo": "Código",
+      "detalle": "Reserva",
+      "cantidad": "Cantidad"
     },
     "inscripcion_confirmada": {
       "asunto": "Inscripción confirmada en {evento}",
@@ -1332,6 +1409,23 @@
       "titulo": "Tenés fichas pendientes",
       "cuerpo": "La inscripción de {evento} cierra el {cierre} y todavía hay {pendientes} fichas sin enviar o sin música.",
       "accion": "Completar fichas"
+    },
+    "reserva_recibida": {
+      "asunto": "Reserva recibida · {evento}",
+      "titulo": "Tu reserva está registrada",
+      "cuerpo": "Reservaste «{detalle}» en {evento}. El pago se hace en el evento: presentá el código {codigo}.",
+      "accion": "Ver el evento"
     }
+  },
+  "certificado": {
+    "titulo": "Certificado",
+    "cuerpo": "Se certifica que la coreografía «{coreografia}», de {academia}, participó en {evento}.",
+    "distincionBanda": "{banda} · {puesto}.º puesto",
+    "distincionPuesto": "{puesto}.º puesto",
+    "puntaje": "Puntaje {puntaje}",
+    "elenco": "Elenco",
+    "firma": "Organización · {marca}",
+    "descargar": "Certificados (PDF):",
+    "enIdioma": "En {idioma}"
   }
 }

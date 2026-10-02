@@ -131,11 +131,11 @@ test.describe('[OR-45] [ADR-0007] panel del organizador', () => {
 });
 
 test.describe('[TR-16] [TR-36] permisos por rol en la interfaz', () => {
-  test('el staff de acreditación solo ve resumen, inscripciones y cobros', async ({ page, context }) => {
+  test('el staff de acreditación solo ve resumen, inscripciones, cobros y reservas', async ({ page, context }) => {
     await ingresarComo(context, 'staff_a');
     await page.goto(`/es/gestion/${ids.evento_a}`);
     const pestanas = page.getByRole('navigation', { name: 'Secciones del evento' });
-    await expect(pestanas.getByRole('link')).toHaveText(['Resumen', 'Inscripciones', 'Cobros']);
+    await expect(pestanas.getByRole('link')).toHaveText(['Resumen', 'Inscripciones', 'Cobros', 'Clases y entradas']);
     await page.goto(`/es/gestion/${ids.evento_a}/configuracion`);
     await expect(page).not.toHaveURL(/configuracion/);
   });

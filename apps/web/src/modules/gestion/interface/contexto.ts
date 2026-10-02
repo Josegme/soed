@@ -15,6 +15,7 @@ export const SECCIONES_GESTION = [
   { clave: 'puntajes', ruta: '/puntajes', permisos: ['puntajes.supervisar'] },
   { clave: 'premios', ruta: '/premios', permisos: ['premios.asignar', 'evento.configurar'] },
   { clave: 'hoteles', ruta: '/hoteles', permisos: ['evento.configurar', 'inscripciones.gestionar'] },
+  { clave: 'actividades', ruta: '/actividades', permisos: ['evento.configurar', 'cobros.registrar'] },
   { clave: 'pases', ruta: '/pases', permisos: ['pases.registrar'] },
   { clave: 'comunicados', ruta: '/comunicados', permisos: ['comunicados.enviar'] },
   { clave: 'equipo', ruta: '/equipo', permisos: ['evento.miembros'] },

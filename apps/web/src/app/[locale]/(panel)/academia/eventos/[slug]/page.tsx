@@ -18,6 +18,8 @@ import {
   InsigniaEstadoFicha,
   ListaInfracciones,
 } from '@/modules/academias/interface/inscripcion';
+import { clasesParaAcademia } from '@/modules/actividades/infrastructure/consultas';
+import { SeccionClases } from '@/modules/actividades/interface/seccion-academia';
 import { hotelesDeAcademia } from '@/modules/hoteles/infrastructure/consultas';
 import { SeccionHoteles } from '@/modules/hoteles/interface/seccion-academia';
 import { liquidacionPrevia } from '@/modules/liquidaciones/application/liquidaciones';
@@ -45,13 +47,14 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
   const modificable = ventana === 'ABIERTA' || ventana === 'SOLO_MODIFICACIONES';
   const monto = (centavos: number | null | undefined) => formatearMonto(Number(centavos ?? 0), evento.moneda, locale);
 
-  const [coreografias, previa, hoteles] = inscripcion
+  const [coreografias, previa, hoteles, clases] = inscripcion
     ? await Promise.all([
         listarCoreografias(db, academia.id),
         liquidacionPrevia(puertosLiquidacionSupabase(db, sesion), inscripcion.id),
         hotelesDeAcademia(db, evento.id, academia.id),
+        clasesParaAcademia(db, evento.slug, evento.id, academia.id),
       ])
-    : [[], null, []];
+    : [[], null, [], []];
   const inscriptas = new Set(fichas.map((f) => f.coreografiaId));
   const disponibles = coreografias
     .filter((c) => !inscriptas.has(c.id))
@@ -246,6 +249,8 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
           </section>
 
           <SeccionHoteles hoteles={hoteles} inscripcionId={inscripcion.id} moneda={evento.moneda} idioma={locale} defecto={defecto} />
+
+          <SeccionClases clases={clases} eventoId={evento.id} zona={evento.zona_horaria} idioma={locale} defecto={defecto} />
 
           {orden.length > 0 ? (
             <section className="flex flex-col gap-3" aria-labelledby="orden">

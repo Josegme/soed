@@ -288,3 +288,172 @@ create policy reserva_entrada_gestion on public.reserva_entrada for select to au
 create policy reserva_entrada_cobro on public.reserva_entrada for update to authenticated
   using (evento_id in (select private.eventos_con_permiso('cobros.registrar')))
   with check (evento_id in (select private.eventos_con_permiso('cobros.registrar')));
+
+-- -----------------------------------------------------------------------------
+-- Cupos de clases y entradas: se verifican con bloqueo de la fila padre, así
+-- dos reservas simultáneas no superan el cupo (OR-51, OR-52).
+-- -----------------------------------------------------------------------------
+create or replace function private.verificar_cupo_clase()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_clase public.clase;
+  v_ocupadas integer;
+begin
+  if new.estado = 'CANCELADA' then
+    return new;
+  end if;
+  select * into v_clase from public.clase where id = new.clase_id for update;
+  if not v_clase.publicada then
+    raise exception 'CLASE_NO_DISPONIBLE';
+  end if;
+  select count(*) into v_ocupadas
+    from public.reserva_clase
+   where clase_id = new.clase_id and estado <> 'CANCELADA' and id <> new.id;
+  if v_ocupadas + 1 > v_clase.cupo then
+    raise exception 'SIN_CUPO';
+  end if;
+  return new;
+end;
+$$;
+create trigger reserva_clase_cupo before insert or update of estado on public.reserva_clase
+  for each row execute function private.verificar_cupo_clase();
+
+create or replace function private.verificar_cupo_entrada()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tipo public.entrada_tipo;
+  v_ocupadas integer;
+begin
+  if new.estado = 'CANCELADA' then
+    return new;
+  end if;
+  select * into v_tipo from public.entrada_tipo where id = new.entrada_tipo_id for update;
+  if not v_tipo.publicada then
+    raise exception 'ENTRADA_NO_DISPONIBLE';
+  end if;
+  select coalesce(sum(cantidad), 0) into v_ocupadas
+    from public.reserva_entrada
+   where entrada_tipo_id = new.entrada_tipo_id and estado <> 'CANCELADA' and id <> new.id;
+  if v_ocupadas + new.cantidad > v_tipo.cupo then
+    raise exception 'SIN_CUPO';
+  end if;
+  return new;
+end;
+$$;
+create trigger reserva_entrada_cupo before insert or update of estado, cantidad on public.reserva_entrada
+  for each row execute function private.verificar_cupo_entrada();
+
+-- -----------------------------------------------------------------------------
+-- Límite de frecuencia en Postgres (TR-34, sin Redis): ventana fija por clave.
+-- La clave la arma el servidor (hash de IP o email); nunca el cliente.
+-- -----------------------------------------------------------------------------
+create table private.limite_frecuencia (
+  clave text not null,
+  ventana timestamptz not null,
+  conteo integer not null default 0,
+  primary key (clave, ventana)
+);
+alter table private.limite_frecuencia enable row level security;
+create index limite_frecuencia_ventana_idx on private.limite_frecuencia (ventana);
+
+create or replace function private.consumir_limite(p_clave text, p_maximo integer, p_ventana interval)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_inicio timestamptz := to_timestamp(floor(extract(epoch from now()) / extract(epoch from p_ventana)) * extract(epoch from p_ventana));
+  v_conteo integer;
+begin
+  -- Limpieza oportunista de ventanas viejas (una por cada consumo, acotada).
+  delete from private.limite_frecuencia where ventana < now() - interval '1 day';
+  insert into private.limite_frecuencia as l (clave, ventana, conteo) values (p_clave, v_inicio, 1)
+  on conflict (clave, ventana) do update set conteo = l.conteo + 1
+  returning conteo into v_conteo;
+  return v_conteo <= p_maximo;
+end;
+$$;
+revoke execute on function private.consumir_limite(text, integer, interval) from public;
+
+-- -----------------------------------------------------------------------------
+-- Reservas públicas (PU-09, PU-10): solo el servidor (service_role) las crea,
+-- después de validar el formulario y el anti-spam; aquí se aplican el límite
+-- de frecuencia por origen y por email, la publicación y el cupo.
+-- -----------------------------------------------------------------------------
+create or replace function public.reservar_entrada(
+  p_entrada_tipo_id uuid,
+  p_nombre text,
+  p_email text,
+  p_cantidad integer,
+  p_origen text
+)
+returns table (id uuid, codigo text)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tipo public.entrada_tipo;
+begin
+  select t.* into v_tipo
+    from public.entrada_tipo t join public.evento e on e.id = t.evento_id
+   where t.id = p_entrada_tipo_id and t.publicada and e.publicado;
+  if v_tipo.id is null then
+    raise exception 'ENTRADA_NO_DISPONIBLE';
+  end if;
+  if not private.consumir_limite('reserva:origen:' || p_origen, 5, interval '10 minutes')
+     or not private.consumir_limite('reserva:email:' || lower(p_email), 3, interval '1 hour') then
+    raise exception 'DEMASIADOS_INTENTOS';
+  end if;
+  return query
+    insert into public.reserva_entrada as r (entrada_tipo_id, evento_id, nombre, email, cantidad)
+    values (v_tipo.id, v_tipo.evento_id, btrim(p_nombre), lower(btrim(p_email)), p_cantidad)
+    returning r.id, r.codigo;
+end;
+$$;
+
+create or replace function public.reservar_clase(
+  p_clase_id uuid,
+  p_nombre text,
+  p_email text,
+  p_origen text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_clase public.clase;
+  v_id uuid;
+begin
+  select c.* into v_clase
+    from public.clase c join public.evento e on e.id = c.evento_id
+   where c.id = p_clase_id and c.publicada and e.publicado;
+  if v_clase.id is null then
+    raise exception 'CLASE_NO_DISPONIBLE';
+  end if;
+  if not private.consumir_limite('reserva:origen:' || p_origen, 5, interval '10 minutes')
+     or not private.consumir_limite('reserva:email:' || lower(p_email), 3, interval '1 hour') then
+    raise exception 'DEMASIADOS_INTENTOS';
+  end if;
+  insert into public.reserva_clase (clase_id, evento_id, nombre, email)
+  values (v_clase.id, v_clase.evento_id, btrim(p_nombre), lower(btrim(p_email)))
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
+revoke execute on function public.reservar_entrada(uuid, text, text, integer, text), public.reservar_clase(uuid, text, text, text)
+  from public, anon, authenticated;
+grant execute on function public.reservar_entrada(uuid, text, text, integer, text), public.reservar_clase(uuid, text, text, text)
+  to service_role;

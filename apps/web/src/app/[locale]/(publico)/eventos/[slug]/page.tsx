@@ -29,7 +29,12 @@ export default async function DetalleEvento({ params }: Props) {
   const repo = repositorioEventosPublicos();
   const evento = await obtenerEventoPublico(repo, slug, new Date());
   if (!evento) notFound();
-  const cronograma = agruparCronogramaPorDia(await repo.cronogramaPublico(evento.slug), evento.zonaHoraria);
+  const [filasCronograma, clases, entradas] = await Promise.all([
+    repo.cronogramaPublico(evento.slug),
+    repo.clasesPublicas(evento.slug),
+    repo.entradasPublicas(evento.slug),
+  ]);
+  const cronograma = agruparCronogramaPorDia(filasCronograma, evento.zonaHoraria);
   const t = await getTranslations('eventos');
   const defecto = evento.idiomaDefecto as Idioma;
   const lugar = [evento.sede.venue, evento.sede.ciudad, evento.sede.region, evento.sede.pais].filter(Boolean).join(', ');
@@ -76,6 +81,16 @@ export default async function DetalleEvento({ params }: Props) {
           {evento.ordenPublicado ? (
             <Link href={`/eventos/${evento.slug.toLowerCase()}/orden`} className={estilosBoton({ variante: 'secundario' })}>
               {t('orden')}
+            </Link>
+          ) : null}
+          {clases.length > 0 ? (
+            <Link href={`/eventos/${evento.slug.toLowerCase()}/clases`} className={estilosBoton({ variante: 'secundario' })}>
+              {t('clases')}
+            </Link>
+          ) : null}
+          {entradas.length > 0 ? (
+            <Link href={`/eventos/${evento.slug.toLowerCase()}/entradas`} className={estilosBoton({ variante: 'secundario' })}>
+              {t('entradas')}
             </Link>
           ) : null}
           {evento.resultadosPublicados ? (

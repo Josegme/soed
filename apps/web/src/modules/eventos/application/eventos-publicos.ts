@@ -60,6 +60,29 @@ export interface FilaCronogramaPublico {
   inicio: string;
 }
 
+/** Clase publicada con su disponibilidad (PU-09). */
+export interface ClasePublica {
+  id: string;
+  nombre: Traducible;
+  docente: string | null;
+  sala: string | null;
+  inicio: string;
+  fin: string;
+  precio: number;
+  moneda: string;
+  disponibles: number;
+}
+
+/** Tipo de entrada publicado con su disponibilidad (PU-10). */
+export interface EntradaPublica {
+  id: string;
+  nombre: Traducible;
+  fecha: string | null;
+  precio: number;
+  moneda: string;
+  disponibles: number;
+}
+
 /** Puerto de lectura pública. La implementación usa el rol anon (RLS + grants de columnas). */
 export interface RepositorioEventosPublicos {
   listarPublicados(): Promise<EventoPublico[]>;
@@ -67,6 +90,8 @@ export interface RepositorioEventosPublicos {
   ordenPublico(slug: string): Promise<FilaOrdenPublica[]>;
   resultadosPublicos(slug: string): Promise<FilaResultadoPublico[]>;
   cronogramaPublico(slug: string): Promise<FilaCronogramaPublico[]>;
+  clasesPublicas(slug: string): Promise<ClasePublica[]>;
+  entradasPublicas(slug: string): Promise<EntradaPublica[]>;
 }
 
 const conVentana = (e: EventoPublico, ahora: Date): EventoPublicoConVentana => ({

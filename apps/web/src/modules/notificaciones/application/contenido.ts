@@ -12,6 +12,7 @@ export const TIPOS_NOTIFICACION = [
   'resultados_publicados',
   'invitacion_academia',
   'recordatorio_cierre',
+  'reserva_recibida',
 ] as const;
 export type TipoNotificacion = (typeof TIPOS_NOTIFICACION)[number];
 
@@ -33,6 +34,7 @@ const DETALLE: Partial<Record<TipoNotificacion, readonly string[]>> = {
   cobro_registrado: ['numero', 'monto', 'saldo'],
   ficha_observada: ['ficha'],
   recordatorio_cierre: ['cierre', 'pendientes'],
+  reserva_recibida: ['codigo', 'detalle', 'cantidad', 'total'],
 };
 
 export function contenidoEmail(tipo: TipoNotificacion, datos: Record<string, string>, t: Traductor, url: string): ContenidoEmail {
