@@ -9,7 +9,7 @@ import { idiomaDe } from '@/lib/i18n/locales';
 export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const t = await getTranslations({ locale: (await params).locale, namespace: 'eventos' });
+  const t = await getTranslations({ locale: idiomaDe((await params).locale), namespace: 'eventos' });
   return { title: t('titulo'), description: t('descripcion') };
 }
 

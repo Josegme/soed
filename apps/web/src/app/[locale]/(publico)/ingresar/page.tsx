@@ -7,7 +7,7 @@ import { FormularioIngreso } from '@/modules/identidad/interface/formularios-aut
 import { idiomaDe } from '@/lib/i18n/locales';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const t = await getTranslations({ locale: (await params).locale, namespace: 'auth' });
+  const t = await getTranslations({ locale: idiomaDe((await params).locale), namespace: 'auth' });
   return { title: t('ingresarTitulo'), robots: { index: false } };
 }
 

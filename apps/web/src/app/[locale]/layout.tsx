@@ -1,3 +1,4 @@
+import { idiomaDe } from '@/lib/i18n/locales';
 import type { Idioma } from '@soed/domain';
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
@@ -17,7 +18,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'metadatos' });
+  const t = await getTranslations({ locale: idiomaDe(locale), namespace: 'metadatos' });
   const idiomas = Object.fromEntries(routing.locales.map((l) => [ETIQUETA_LANG[l], `${PREFIJO_URL[l]}`]));
   return {
     metadataBase: new URL(urlSitio()),

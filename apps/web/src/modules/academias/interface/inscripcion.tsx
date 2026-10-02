@@ -17,13 +17,15 @@ import {
   solicitarModificacion,
 } from './acciones';
 import { useMensaje } from './formularios';
+import type { EspacioMensajes } from '@/components/formulario-accion';
+import { libre } from '@/lib/i18n/claves';
 
 type Respuesta = { ok: boolean; mensaje?: string; numero?: string; version?: number };
 
 /** Botón que llama a una server action y anuncia el resultado (role=status/alert). */
-function useAccion(namespace: string) {
-  const t = useTranslations(namespace);
-  const te = useTranslations('errores');
+function useAccion(namespace: EspacioMensajes) {
+  const t = libre(useTranslations(namespace));
+  const te = libre(useTranslations('errores'));
   const [pendiente, iniciar] = useTransition();
   const [resultado, setResultado] = useState<{ ok: boolean; texto: string } | null>(null);
   const ejecutar = (fn: () => Promise<Respuesta>, valores?: Record<string, string | number>) =>

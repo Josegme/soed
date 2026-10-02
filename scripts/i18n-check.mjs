@@ -11,7 +11,7 @@ const catalogos = Object.fromEntries(archivos.map((f) => [f.replace('.json', '')
 const aplanar = (obj, prefijo = '') =>
   Object.entries(obj).flatMap(([k, v]) => (typeof v === 'object' && v !== null ? aplanar(v, `${prefijo}${k}.`) : [[`${prefijo}${k}`, v]]));
 const parametros = (texto) =>
-  [...String(texto).matchAll(/\{(\w+)/g)]
+  [...String(texto).matchAll(/\{\s*(\w+)\s*[,}]/g)]
     .map((m) => m[1])
     .sort()
     .join(',');

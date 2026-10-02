@@ -4,29 +4,12 @@ import type { Idioma, ReglamentoEvento } from '@soed/domain';
 import { Aviso, Boton, CampoSelector, CampoTexto, Tarjeta } from '@soed/ui';
 import { useLocale, useTranslations } from 'next-intl';
 import { useActionState, useTransition, useState } from 'react';
-import { ESTADO_INICIAL, type EstadoFormulario } from '@/lib/formularios';
+import { useMensaje } from '@/components/formulario-accion';
+import { ESTADO_INICIAL } from '@/lib/formularios';
 import { texto } from '@/lib/i18n/traducible';
 import { cambiarActivoBailarin, guardarAcademia, guardarBailarin, guardarCoreografia } from './acciones';
 
-/** Mensaje de un estado de formulario: primero el namespace propio, luego errores comunes. */
-export function useMensaje(namespace: string) {
-  const t = useTranslations(namespace);
-  const te = useTranslations('errores');
-  const tc = useTranslations('comun');
-  return {
-    general(estado: EstadoFormulario) {
-      if (!estado.mensaje) return null;
-      if (t.has(estado.mensaje)) return t(estado.mensaje);
-      if (tc.has(estado.mensaje)) return tc(estado.mensaje);
-      return te.has(estado.mensaje) ? te(estado.mensaje) : te('INESPERADO');
-    },
-    campo(estado: EstadoFormulario, nombre: string) {
-      const codigo = estado.errores?.[nombre];
-      if (!codigo) return undefined;
-      return te.has(codigo) ? te(codigo) : te('REQUERIDO');
-    },
-  };
-}
+export { useMensaje } from '@/components/formulario-accion';
 
 interface DatosAcademia {
   id?: string;

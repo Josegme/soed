@@ -1,4 +1,4 @@
-import type { Idioma } from '@soed/domain';
+import type { EstadoOrden, Idioma } from '@soed/domain';
 import { Aviso, EncabezadoPagina, Insignia, Tabla, Td, Th } from '@soed/ui';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -65,7 +65,7 @@ export default async function OrdenPublico({ params }: { params: Promise<{ local
                     <span className="font-semibold">{f.coreografia}</span>
                     {f.estado !== 'PROGRAMADA' ? (
                       <span className="ml-2">
-                        <Insignia tono={f.estado === 'EN_ESCENA' ? 'marca' : 'neutro'}>{te(f.estado)}</Insignia>
+                        <Insignia tono={f.estado === 'EN_ESCENA' ? 'marca' : 'neutro'}>{te(f.estado as EstadoOrden)}</Insignia>
                       </span>
                     ) : null}
                   </Td>

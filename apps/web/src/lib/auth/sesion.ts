@@ -1,4 +1,5 @@
 import 'server-only';
+import { connection } from 'next/server';
 import { getLocale } from 'next-intl/server';
 import { cache } from 'react';
 import { redirect } from '@/i18n/navigation';
@@ -9,6 +10,8 @@ export * from './permisos';
 
 /** Sesión del request (cookies de Supabase), cacheada por request. */
 export const obtenerSesion = cache(async (): Promise<{ sesion: Sesion; db: ClienteSupabase } | null> => {
+  // Siempre por request: sin esto, un build sin credenciales prerenderiza la redirección.
+  await connection();
   const db = await supabaseServidor();
   if (!db) return null;
   const { data } = await db.auth.getUser();

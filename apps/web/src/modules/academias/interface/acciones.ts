@@ -13,6 +13,7 @@ import {
 } from '@soed/shared-types';
 import { revalidatePath } from 'next/cache';
 import { getLocale } from 'next-intl/server';
+import { codigoDeError } from '@/lib/acciones';
 import { requerirSesion } from '@/lib/auth/sesion';
 import { erroresDe, valoresDe, type EstadoFormulario } from '@/lib/formularios';
 import { enviarFicha, revalidarFicha } from '@/modules/inscripciones/application/fichas';
@@ -28,14 +29,6 @@ import { puertosLiquidacionSupabase } from '@/modules/liquidaciones/infrastructu
 
 const RUTA = '/[locale]/academia';
 const refrescar = () => revalidatePath(RUTA, 'layout');
-
-/** Traduce errores de Postgres (códigos de nuestros triggers) a códigos de interfaz. */
-function codigoDe(error: { message?: string; code?: string } | null): string {
-  if (!error) return 'INESPERADO';
-  if (/^[A-Z_]+$/.test(error.message ?? '')) return error.message!;
-  if (error.code === '42501') return 'SIN_PERMISO';
-  return 'INESPERADO';
-}
 
 function esMiembro(academiaId: string, academias: readonly { id: string }[]): boolean {
   return academias.some((a) => a.id === academiaId);
@@ -58,7 +51,7 @@ export async function guardarAcademia(_previo: EstadoFormulario, datos: FormData
   const { error } = id.success
     ? await db.from('academia').update(fila).eq('id', id.data)
     : await db.from('academia').insert({ ...fila, creado_por: sesion.usuarioId });
-  if (error) return { ok: false, mensaje: codigoDe(error), valores };
+  if (error) return { ok: false, mensaje: codigoDeError(error), valores };
   refrescar();
   return { ok: true, mensaje: 'guardado' };
 }
@@ -79,7 +72,7 @@ export async function guardarBailarin(_previo: EstadoFormulario, datos: FormData
     documento_tipo: entrada.data.documentoTipo ?? null,
     documento_numero: entrada.data.documentoNumero ?? null,
   });
-  if (error) return { ok: false, mensaje: codigoDe(error), valores };
+  if (error) return { ok: false, mensaje: codigoDeError(error), valores };
   refrescar();
   return { ok: true, mensaje: 'agregado' };
 }
@@ -118,7 +111,7 @@ export async function guardarCoreografia(_previo: EstadoFormulario, datos: FormD
   let coreografiaId: string;
   if (idExistente.success) {
     const { error } = await db.from('coreografia').update(fila).eq('id', idExistente.data);
-    if (error) return { ok: false, mensaje: codigoDe(error), valores };
+    if (error) return { ok: false, mensaje: codigoDeError(error), valores };
     coreografiaId = idExistente.data;
     await db.from('coreografia_bailarin').delete().eq('coreografia_id', coreografiaId);
   } else {
@@ -127,7 +120,7 @@ export async function guardarCoreografia(_previo: EstadoFormulario, datos: FormD
       .insert({ ...fila, academia_id: academiaId.data })
       .select('id')
       .single();
-    if (error || !data) return { ok: false, mensaje: codigoDe(error), valores };
+    if (error || !data) return { ok: false, mensaje: codigoDeError(error), valores };
     coreografiaId = data.id;
   }
   if (entrada.data.elenco.length > 0) {
@@ -139,7 +132,7 @@ export async function guardarCoreografia(_previo: EstadoFormulario, datos: FormD
         es_coreografo: e.esCoreografo,
       })),
     );
-    if (error) return { ok: false, mensaje: codigoDe(error), valores };
+    if (error) return { ok: false, mensaje: codigoDeError(error), valores };
   }
   refrescar();
   return { ok: true, mensaje: 'creada' };
@@ -163,7 +156,7 @@ export async function registrarMusica(entrada: unknown): Promise<{ ok: boolean; 
     .eq('id', datos.data.coreografiaId)
     .eq('academia_id', academiaDeRuta);
   refrescar();
-  return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true };
+  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true };
 }
 
 export async function inscribirAcademia(eventoId: string, academiaId: string): Promise<{ ok: boolean; mensaje?: string }> {
@@ -172,7 +165,7 @@ export async function inscribirAcademia(eventoId: string, academiaId: string): P
   if (!esMiembro(academiaId, sesion.academias)) return { ok: false, mensaje: 'SIN_PERMISO' };
   const { error } = await db.from('inscripcion').insert({ evento_id: eventoId, academia_id: academiaId });
   refrescar();
-  return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true };
+  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true };
 }
 
 /**
@@ -220,7 +213,7 @@ export async function inscribirFicha(_previo: EstadoFormulario, datos: FormData)
     })
     .select('id')
     .single();
-  if (error || !ficha) return { ok: false, mensaje: codigoDe(error) };
+  if (error || !ficha) return { ok: false, mensaje: codigoDeError(error) };
 
   if (coreo.coreografia_bailarin.length > 0) {
     const { error: errorElenco } = await db.from('ficha_bailarin').insert(
@@ -233,7 +226,7 @@ export async function inscribirFicha(_previo: EstadoFormulario, datos: FormData)
         nombre_mostrado: [cb.bailarin?.nombre, cb.bailarin?.apellido].filter(Boolean).join(' '),
       })),
     );
-    if (errorElenco) return { ok: false, mensaje: codigoDe(errorElenco) };
+    if (errorElenco) return { ok: false, mensaje: codigoDeError(errorElenco) };
   }
   await revalidarFicha(puertosFichaSupabase(db, sesion), ficha.id);
   refrescar();
@@ -261,7 +254,7 @@ export async function retirarFicha(fichaId: string): Promise<{ ok: boolean; mens
   const { db } = await requerirSesion();
   const { error } = await db.from('ficha').update({ estado: 'RETIRADA' }).eq('id', fichaId);
   refrescar();
-  return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true, mensaje: 'retirada' };
+  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true, mensaje: 'retirada' };
 }
 
 export async function guardarRubros(entrada: unknown): Promise<{ ok: boolean; mensaje?: string }> {
@@ -270,7 +263,7 @@ export async function guardarRubros(entrada: unknown): Promise<{ ok: boolean; me
   const { db } = await requerirSesion();
   const { error } = await db.from('inscripcion').update({ rubros: datos.data.rubros }).eq('id', datos.data.inscripcionId);
   refrescar();
-  return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true, mensaje: 'guardado' };
+  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true, mensaje: 'guardado' };
 }
 
 export async function emitirLiquidacionAccion(
@@ -299,5 +292,5 @@ export async function solicitarModificacion(_previo: EstadoFormulario, datos: Fo
     creado_por: sesion.usuarioId,
   });
   refrescar();
-  return error ? { ok: false, mensaje: codigoDe(error) } : { ok: true, mensaje: 'solicitudEnviada' };
+  return error ? { ok: false, mensaje: codigoDeError(error) } : { ok: true, mensaje: 'solicitudEnviada' };
 }

@@ -22,3 +22,4 @@ export * from './premios/premios';
 export * from './pases/pases';
 export * from './hoteles/hoteles';
 export * from './acreditacion/acreditacion';
+export * from './eventos/ciclo';
