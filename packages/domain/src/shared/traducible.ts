@@ -37,3 +37,22 @@ export function traducir(valor: Traducible, idioma: Idioma, idiomaDefecto: Idiom
 export function idiomasPendientes(valor: Traducible, idiomas: readonly Idioma[] = IDIOMAS): Idioma[] {
   return idiomas.filter((i) => !valor[i]?.trim());
 }
+
+export interface ContenidoTraducible<C extends string = string> {
+  readonly clave: C;
+  readonly valor: Traducible;
+}
+
+/**
+ * Contenido con traducción pendiente (OR-18): tiene texto en algún idioma de
+ * la instancia pero le falta en otro. Lo vacío en todos no es «pendiente»: es
+ * contenido sin cargar, y lo valida cada formulario.
+ */
+export function traduccionesPendientes<C extends string>(
+  contenidos: readonly ContenidoTraducible<C>[],
+  idiomas: readonly Idioma[],
+): { clave: C; faltan: Idioma[] }[] {
+  return contenidos
+    .map((c) => ({ clave: c.clave, faltan: idiomasPendientes(c.valor, idiomas) }))
+    .filter((c) => c.faltan.length > 0 && c.faltan.length < idiomas.length);
+}

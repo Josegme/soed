@@ -11,6 +11,7 @@ export * from './reglamento/tolerancia-grupo';
 export * from './reglamento/validar-ficha';
 export * from './reglamento/validar-reglamento';
 export * from './reglamento/presets/encuentro-2026';
+export * from './reglamento/presets';
 
 export * from './inscripciones/inscripciones';
 export * from './liquidacion/tipos';

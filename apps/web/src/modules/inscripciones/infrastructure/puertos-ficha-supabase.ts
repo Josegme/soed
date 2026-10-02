@@ -1,5 +1,6 @@
 import 'server-only';
 import type { FechaISO, ReglamentoEvento } from '@soed/domain';
+import { leerCamposAdicionales } from '@soed/shared-types';
 import type { Json } from '@soed/shared-types/database';
 import { tienePermiso, type Sesion } from '@/lib/auth/permisos';
 import { supabaseAdmin } from '@/lib/supabase/admin';
@@ -17,7 +18,7 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
       const { data } = await db
         .from('ficha')
         .select(
-          'id, evento_id, academia_id, estado, bloqueada, genero, formacion, categoria_declarada, musica_duracion_seg, excepcion, ficha_bailarin (bailarin_id)',
+          'id, evento_id, academia_id, estado, bloqueada, genero, formacion, categoria_declarada, musica_duracion_seg, excepcion, datos_adicionales, ficha_bailarin (bailarin_id)',
         )
         .eq('id', id)
         .maybeSingle();
@@ -38,13 +39,14 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
         duracionMusicaSegundos: data.musica_duracion_seg,
         tieneExcepcion: data.excepcion !== null,
         integrantes: (bailarines ?? []).map((b) => ({ bailarinId: b.id, fechaNacimiento: b.fecha_nacimiento as FechaISO })),
+        datosAdicionales: (data.datos_adicionales ?? {}) as Record<string, unknown>,
       };
     },
     async leerEvento(id) {
       const { data } = await db
         .from('evento')
         .select(
-          'id, reglamento, reglamento_version, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre',
+          'id, reglamento, reglamento_version, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, campos_adicionales',
         )
         .eq('id', id)
         .maybeSingle();
@@ -58,6 +60,7 @@ export function puertosFichaSupabase(db: ClienteSupabase, sesion: Sesion): Puert
         inscripcionApertura: data.inscripcion_apertura,
         inscripcionCierre: data.inscripcion_cierre,
         modificacionesCierre: data.modificaciones_cierre,
+        camposFicha: leerCamposAdicionales(data.campos_adicionales).ficha,
       };
     },
     async puedeEditar(ficha) {

@@ -178,7 +178,7 @@
     "DECIMALES_EXCEDIDOS": "La nota tiene demasiados decimales.",
     "POSICION_INVALIDA": "Posición fuera de rango.",
     "TRANSICION_INVALIDA": "Ese cambio de estado no está permitido.",
-    "CODIGO_INVALIDO": "Código inválido.",
+    "CODIGO_INVALIDO": "Usá minúsculas, números y guion bajo (2 a 30).",
     "SLUG_INVALIDO": "Usá de 2 a 16 letras o números sin espacios.",
     "TRADUCCION_REQUERIDA": "Completá al menos un idioma.",
     "FECHAS_INVALIDAS": "La fecha de fin no puede ser anterior al inicio.",
@@ -259,7 +259,16 @@
     "ENTRADA_NO_DISPONIBLE": "La entrada no está disponible.",
     "DEMASIADOS_INTENTOS": "Hiciste demasiadas reservas seguidas. Probá de nuevo en unos minutos.",
     "FIN_ANTERIOR": "El fin tiene que ser posterior al inicio.",
-    "MODULO_INACTIVO": "Esta función no está habilitada en esta plataforma."
+    "MODULO_INACTIVO": "Esta función no está habilitada en esta plataforma.",
+    "ZONAS_INVALIDAS": "Hasta 12 zonas por tipo, de 40 caracteres cada una.",
+    "REGLAMENTO_INEXISTENTE": "La temporada no tiene reglamento.",
+    "PRESET_INEXISTENTE": "El preset ya no está disponible.",
+    "CAMPO_OBLIGATORIO": "Este dato es obligatorio.",
+    "TIPO_INVALIDO": "El valor no tiene el formato esperado.",
+    "OPCION_INVALIDA": "Elegí una de las opciones.",
+    "OPCIONES_REQUERIDAS": "Indicá al menos dos opciones.",
+    "DEMASIADOS_CAMPOS": "Hasta 20 campos por tipo.",
+    "CAMPOS_ADICIONALES_PENDIENTES": "Completá los datos adicionales obligatorios de la ficha antes de enviarla."
   },
   "reglamento": {
     "infraccion": {
@@ -382,7 +391,13 @@
       "comunicados": "Comunicados",
       "sinEventos": "No hay eventos publicados por ahora.",
       "beneficio": "Beneficio: {detalle}",
-      "beca": "beca completa"
+      "beca": "beca completa",
+      "historial": "Resultados de la temporada",
+      "evento": "Evento",
+      "coreografia": "Coreografía",
+      "puesto": "Puesto",
+      "puntaje": "Puntaje",
+      "banda": "Clasificación"
     },
     "bailarines": {
       "titulo": "Bailarines",
@@ -511,7 +526,10 @@
         "pagada": "Pagada",
         "pendientePago": "Pago en el evento",
         "claseReservada": "Lugar reservado."
-      }
+      },
+      "datosInscripcion": "Datos que pide el evento",
+      "datosAdicionales": "Datos adicionales",
+      "datosAdicionalesGuardados": "Datos guardados."
     },
     "equipo": {
       "titulo": "Profesores de la academia",
@@ -948,7 +966,67 @@
         "ayuda": "Al guardar se valida completo y sube la versión. Después revalidá las fichas desde Inscripciones.",
         "guardar": "Guardar reglamento"
       },
-      "reglamentoGuardado": "Reglamento guardado. Revalidá las fichas para aplicarlo."
+      "reglamentoGuardado": "Reglamento guardado. Revalidá las fichas para aplicarlo.",
+      "acreditacion": {
+        "titulo": "Acreditación",
+        "descripcion": "Horario de la mesa y zonas a las que da acceso cada tipo de credencial. Las credenciales ya emitidas conservan sus zonas.",
+        "apertura": "Apertura de la mesa",
+        "cierre": "Cierre de la mesa",
+        "ayudaHorario": "Hora de la sede ({zona}).",
+        "zonas": "Zonas · {tipo}",
+        "zonasAyuda": "Separadas por coma, por ejemplo: Camarines, Escenario.",
+        "acreditacionGuardada": "Acreditación guardada."
+      },
+      "traducciones": {
+        "titulo": "Traducciones pendientes",
+        "descripcion": "Contenido del evento escrito en un idioma y no en otro. Mientras tanto se muestra en el idioma por defecto del evento.",
+        "completas": "Todo el contenido está en todos los idiomas.",
+        "falta": "Falta {idioma}",
+        "editar": "Editar",
+        "tipos": {
+          "nombreEvento": "Nombre del evento",
+          "bases": "Bases y condiciones",
+          "datosPago": "Datos de pago",
+          "rubro": "Rubro",
+          "criterio": "Criterio",
+          "premio": "Premio",
+          "pista": "Pista",
+          "bloque": "Bloque",
+          "clase": "Clase",
+          "entrada": "Entrada",
+          "hotel": "Hotel",
+          "asunto": "Asunto del comunicado",
+          "cuerpo": "Texto del comunicado"
+        }
+      },
+      "campos": {
+        "titulo": "Campos adicionales",
+        "descripcion": "Datos extra que el evento pide a cada academia o por coreografía. Quitar un campo no borra lo ya cargado.",
+        "ambitos": {
+          "inscripcion": "Por academia (inscripción)",
+          "ficha": "Por coreografía (ficha)"
+        },
+        "sinCampos": "Sin campos.",
+        "nuevo": "Agregar campo",
+        "quitar": "Quitar",
+        "ambito": "Se pide",
+        "codigo": "Código",
+        "codigoAyuda": "Minúsculas y guion bajo, por ejemplo: talle_remera.",
+        "tipo": "Tipo",
+        "etiqueta": "Pregunta",
+        "opciones": "Opciones",
+        "opcionesAyuda": "Solo para el tipo Opción: separadas por coma, al menos dos.",
+        "obligatorio": "Obligatorio",
+        "tipos": {
+          "TEXTO": "Texto",
+          "NUMERO": "Número",
+          "BOOLEANO": "Sí o no",
+          "FECHA": "Fecha",
+          "OPCION": "Opción"
+        },
+        "campoAgregado": "Campo agregado.",
+        "campoQuitado": "Campo quitado."
+      }
     },
     "auditoria": {
       "titulo": "Registro de auditoría",
@@ -1148,7 +1226,26 @@
       "grupo": "Grupo",
       "puesto": "Puesto",
       "puntaje": "Puntaje",
-      "pases": "Pases"
+      "pases": "Pases",
+      "reglamento": "Reglamento"
+    },
+    "reglamentoTemporada": {
+      "titulo": "Reglamento · {temporada}",
+      "descripcion": "Versión vigente para los eventos nuevos de la temporada.",
+      "sinReglamento": "La temporada no tiene reglamento asignado.",
+      "version": "Versión {version}",
+      "preset": "Preset {preset}",
+      "aclaracion": "Guardar crea una versión nueva y la temporada pasa a usarla. Los eventos ya creados conservan su copia del reglamento; cada organizador decide si la ajusta y revalida sus fichas.",
+      "historial": "Versiones del reglamento",
+      "columnaVersion": "Versión",
+      "creada": "Creada (UTC)",
+      "estado": "Estado",
+      "vigente": "Vigente",
+      "desdePreset": "Nueva versión desde el preset original",
+      "guardarVersion": "Guardar como nueva versión",
+      "json": "Configuración (JSON)",
+      "jsonAyuda": "Se valida completa antes de guardar: categorías, tolerancias, tiempos, géneros y bandas.",
+      "reglamentoVersionado": "Se creó la versión {version} y es la vigente."
     }
   },
   "offline": {
@@ -1276,7 +1373,8 @@
       "acreditado": "{nombre}: acreditado",
       "yaAcreditado": "{nombre} ya estaba acreditado ({hora})",
       "guardadaLocal": "Sin conexión: la acreditación quedó en el dispositivo."
-    }
+    },
+    "horario": "Mesa abierta de {apertura} a {cierre}"
   },
   "caja": {
     "titulo": "Mesa de cobros",

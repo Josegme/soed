@@ -98,6 +98,8 @@ create table public.evento (
   tarifario jsonb not null default '{}'::jsonb check (jsonb_typeof(tarifario) = 'object'),
   medios_cobro text[] not null default array['EFECTIVO', 'MERCADO_PAGO', 'TRANSFERENCIA', 'PIX', 'OTRO'],
   datos_pago jsonb not null default '{}'::jsonb check (private.es_traducible(datos_pago)),
+  -- Campos adicionales que define el organizador (OR-16): {"inscripcion": [...], "ficha": [...]}.
+  campos_adicionales jsonb not null default '{}'::jsonb check (jsonb_typeof(campos_adicionales) = 'object'),
   bases jsonb not null default '{}'::jsonb check (private.es_traducible(bases)),
   acreditacion jsonb not null default '{}'::jsonb check (jsonb_typeof(acreditacion) = 'object'),
   config_operacion jsonb not null default '{}'::jsonb check (jsonb_typeof(config_operacion) = 'object'),

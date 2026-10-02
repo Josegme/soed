@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { planCredenciales } from './acreditacion';
+import { parsearZonas, planCredenciales } from './acreditacion';
 
 describe('[OP-23] plan de credenciales', () => {
   it('emite una por bailarín y una por persona y tipo, con zonas del evento', () => {
@@ -34,5 +34,12 @@ describe('[OP-23] plan de credenciales', () => {
         {},
       ),
     ).toEqual([]);
+  });
+});
+
+describe('[OR-15] zonas de acreditación', () => {
+  it('parte la lista, limpia espacios y descarta vacías y repetidas sin distinguir mayúsculas', () => {
+    expect(parsearZonas(' Camarines,  Escenario ,, camarines, Backstage   VIP ')).toEqual(['Camarines', 'Escenario', 'Backstage VIP']);
+    expect(parsearZonas('')).toEqual([]);
   });
 });

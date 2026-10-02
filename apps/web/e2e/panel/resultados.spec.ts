@@ -40,6 +40,14 @@ test.describe('[OR-44] [PR-32] certificados bilingües', () => {
     expect((await context.request.get(`/api/certificados/${ids.evento_a}?ficha=${ids.ficha2}`)).status()).toBe(404);
   });
 
+  test('[PR-29] la academia ve sus resultados de la temporada en su panel', async ({ page, context }) => {
+    await ingresarComo(context, 'prof1');
+    await page.goto('/es/academia');
+    const historial = page.getByRole('region', { name: 'Resultados de la temporada' });
+    await expect(historial.getByRole('cell', { name: 'Solo de Ana' })).toBeVisible();
+    await expect(historial.getByRole('cell', { name: 'Solo de Carla' })).toHaveCount(0);
+  });
+
   test('sin sesión no hay certificados', async ({ context }) => {
     await context.clearCookies();
     expect((await context.request.get(`/api/certificados/${ids.evento_a}`)).status()).toBe(401);

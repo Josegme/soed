@@ -1,4 +1,5 @@
 import type { Idioma } from '@soed/domain';
+import { leerCamposAdicionales } from '@soed/shared-types';
 import { Aviso, CampoArea, CampoSelector, CampoTexto, EstadoVacio, estilosBoton, Insignia, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { FormularioAccion } from '@/components/formulario-accion';
@@ -11,6 +12,7 @@ import { academiasDelEvento, fichasDeGestion, solicitudesDeGestion } from '@/mod
 import { contextoGestion } from '@/modules/gestion/interface/contexto';
 import { revalidarFichasEventoAccion } from '@/modules/eventos/interface/acciones';
 import { gestionarFichaAccion, resolverSolicitudAccion } from '@/modules/inscripciones/interface/acciones-gestion';
+import { ResumenCamposAdicionales } from '@/modules/inscripciones/interface/campos-adicionales';
 
 const ESTADOS = ['BORRADOR', 'ENVIADA', 'OBSERVADA', 'APROBADA', 'RETIRADA'] as const;
 
@@ -40,6 +42,7 @@ export default async function InscripcionesGestion({
   const codigo = (tipo: 'generos' | 'formaciones' | 'categorias', c: string | null) =>
     c && reglamento ? nombreCodigo(reglamento, tipo, c, idioma) : (c ?? t('sinCategoria'));
   const pendientes = solicitudes.filter((s) => s.estado === 'PENDIENTE');
+  const campos = leerCamposAdicionales(evento.campos_adicionales);
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,6 +111,12 @@ export default async function InscripcionesGestion({
                   {!f.tieneMusica ? <Insignia tono="alerta">{t('sinMusica')}</Insignia> : null}
                 </div>
               </div>
+              <ResumenCamposAdicionales
+                definiciones={campos.ficha}
+                valores={f.datosAdicionales}
+                idioma={idioma}
+                defecto={evento.idioma_defecto as Idioma}
+              />
               {f.observacion ? <Aviso tono="alerta">{t('observacion', { texto: f.observacion })}</Aviso> : null}
               <ListaInfracciones infracciones={f.infracciones} tono="error" />
               <ListaInfracciones infracciones={f.advertencias} tono="alerta" />

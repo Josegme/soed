@@ -1,17 +1,19 @@
 import { estadoVentana, type Beneficio, type Idioma } from '@soed/domain';
-import { EncabezadoPagina, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tarjeta } from '@soed/ui';
+import { EncabezadoPagina, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import { InsigniaVentana } from '@/components/insignia-ventana';
 import { PestanasAcademia } from '@/components/panel/pestanas-academia';
 import { Link } from '@/i18n/navigation';
 import { requerirSesion } from '@/lib/auth/sesion';
-import { formatearRangoFechas } from '@/lib/i18n/formato';
+import { formatearPuntaje, formatearRangoFechas } from '@/lib/i18n/formato';
 import { idiomaDe } from '@/lib/i18n/locales';
 import { texto } from '@/lib/i18n/traducible';
+import { moduloOn } from '@/lib/modulos';
 import {
   academiaActiva,
   comunicadosDeAcademia,
   eventosPublicadosParaAcademia,
+  historialDeAcademia,
   pasesDeAcademia,
   resumenAcademia,
 } from '@/modules/academias/infrastructure/consultas';
@@ -38,11 +40,12 @@ export default async function PanelAcademia({
     );
   }
 
-  const [resumen, eventos, pases, comunicados] = await Promise.all([
+  const [resumen, eventos, pases, comunicados, historial] = await Promise.all([
     resumenAcademia(db, academia.id),
     eventosPublicadosParaAcademia(db),
     pasesDeAcademia(db, academia.id),
     comunicadosDeAcademia(db),
+    moduloOn('puntajes') ? historialDeAcademia(db, academia.id) : [],
   ]);
   const ahora = new Date();
   const detalleBeneficio = (b: Beneficio | null) =>
@@ -91,6 +94,37 @@ export default async function PanelAcademia({
           })}
         </ul>
       </section>
+
+      {historial.length > 0 ? (
+        <section className="flex flex-col gap-3" aria-labelledby="historial">
+          <h2 id="historial" className="font-display text-xl font-bold">
+            {t('resumen.historial')}
+          </h2>
+          <Tabla>
+            <caption className="sr-only">{t('resumen.historial')}</caption>
+            <thead>
+              <tr>
+                <Th>{t('resumen.evento')}</Th>
+                <Th>{t('resumen.coreografia')}</Th>
+                <Th className="text-right">{t('resumen.puesto')}</Th>
+                <Th className="text-right">{t('resumen.puntaje')}</Th>
+                <Th>{t('resumen.banda')}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {historial.map((h) => (
+                <tr key={h.fichaId}>
+                  <Td>{texto(h.evento.nombre, locale, h.evento.defecto as Idioma)}</Td>
+                  <Td className="font-medium">{h.coreografia}</Td>
+                  <Td className="text-right tabular-nums">{h.puesto}</Td>
+                  <Td className="text-right tabular-nums">{formatearPuntaje(h.puntaje, locale)}</Td>
+                  <Td>{h.banda ? texto(h.banda, locale) : '—'}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </Tabla>
+        </section>
+      ) : null}
 
       {pases.length > 0 ? (
         <section className="flex flex-col gap-3" aria-labelledby="pases">

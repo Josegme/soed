@@ -111,3 +111,28 @@ describe('[PR-12] [PR-19] enviar ficha', () => {
     });
   });
 });
+
+describe('[OR-16] [PR-18] campos adicionales al enviar', () => {
+  const conCampos = {
+    ...evento,
+    camposFicha: [{ codigo: 'talle', etiqueta: { es: 'Talle' }, tipo: 'OPCION' as const, obligatorio: true, opciones: ['S', 'M'] }],
+  };
+  const puertosCon = (f: FichaParaValidar, permisos = { academia: true, gestor: false }) => {
+    const base = fake(f, permisos);
+    return { ...base, puertos: { ...base.puertos, leerEvento: async () => conCampos } };
+  };
+
+  it('la academia no envía sin completar los obligatorios', async () => {
+    const { puertos, registro } = puertosCon(ficha());
+    const r = await enviarFicha(puertos, 'f1', enVentana);
+    expect(r.ok ? null : r.error.codigo).toBe('CAMPOS_ADICIONALES_PENDIENTES');
+    expect(registro.enviadas).toEqual([]);
+  });
+
+  it('completos, envía; el organizador puede enviar igual', async () => {
+    const completa = puertosCon(ficha({ datosAdicionales: { talle: 'M' } }));
+    expect((await enviarFicha(completa.puertos, 'f1', enVentana)).ok).toBe(true);
+    const gestor = puertosCon(ficha(), { academia: false, gestor: true });
+    expect((await enviarFicha(gestor.puertos, 'f1', enVentana)).ok).toBe(true);
+  });
+});

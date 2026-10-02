@@ -2,6 +2,7 @@ import { estadoVentana, type ConceptoLinea, type Idioma, type ResultadoValidacio
 import { Aviso, EncabezadoPagina, EstadoVacio, GrupoIndicadores, Indicador, Insignia, Tabla, Tarjeta, Td, Th } from '@soed/ui';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { FormularioAccion } from '@/components/formulario-accion';
 import { InsigniaVentana } from '@/components/insignia-ventana';
 import { requerirSesion } from '@/lib/auth/sesion';
 import { formatearDuracion, formatearMonto, formatearPuntaje, formatearRangoFechas } from '@/lib/i18n/formato';
@@ -24,6 +25,8 @@ import { SeccionClases } from '@/modules/actividades/interface/seccion-academia'
 import { EnlacesCertificados } from '@/modules/documentos/interface/enlaces-certificados';
 import { hotelesDeAcademia } from '@/modules/hoteles/infrastructure/consultas';
 import { SeccionHoteles } from '@/modules/hoteles/interface/seccion-academia';
+import { guardarDatosAdicionalesAccion } from '@/modules/inscripciones/interface/acciones-datos';
+import { EntradasCamposAdicionales } from '@/modules/inscripciones/interface/campos-adicionales';
 import { liquidacionPrevia } from '@/modules/liquidaciones/application/liquidaciones';
 import { puertosLiquidacionSupabase } from '@/modules/liquidaciones/infrastructure/puertos-liquidacion-supabase';
 
@@ -82,6 +85,31 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
         </Tarjeta>
       ) : (
         <>
+          {evento.campos.inscripcion.length > 0 ? (
+            <section className="flex flex-col gap-3" aria-labelledby="datos-inscripcion">
+              <h2 id="datos-inscripcion" className="font-display text-xl font-bold">
+                {t('datosInscripcion')}
+              </h2>
+              <Tarjeta>
+                <FormularioAccion
+                  accion={guardarDatosAdicionalesAccion}
+                  namespace="academia.inscripcion"
+                  boton={tc('guardar')}
+                  variante="secundario"
+                >
+                  <input type="hidden" name="ambito" value="inscripcion" />
+                  <input type="hidden" name="id" value={inscripcion.id} />
+                  <EntradasCamposAdicionales
+                    definiciones={evento.campos.inscripcion}
+                    valores={(inscripcion.datos_adicionales ?? {}) as Record<string, unknown>}
+                    idioma={locale}
+                    defecto={defecto}
+                  />
+                </FormularioAccion>
+              </Tarjeta>
+            </section>
+          ) : null}
+
           <section className="flex flex-col gap-4" aria-labelledby="fichas">
             <h2 id="fichas" className="font-display text-xl font-bold">
               {t('fichas')}
@@ -155,6 +183,28 @@ export default async function InscripcionEvento({ params }: { params: Promise<{ 
                           </p>
                         ) : null}
                       </details>
+                      {evento.campos.ficha.length > 0 ? (
+                        <details className="text-sm">
+                          <summary className="cursor-pointer font-medium">{t('datosAdicionales')}</summary>
+                          <FormularioAccion
+                            accion={guardarDatosAdicionalesAccion}
+                            namespace="academia.inscripcion"
+                            boton={tc('guardar')}
+                            variante="secundario"
+                            tamano="chico"
+                            className="mt-2"
+                          >
+                            <input type="hidden" name="ambito" value="ficha" />
+                            <input type="hidden" name="id" value={f.id} />
+                            <EntradasCamposAdicionales
+                              definiciones={evento.campos.ficha}
+                              valores={f.datosAdicionales}
+                              idioma={locale}
+                              defecto={defecto}
+                            />
+                          </FormularioAccion>
+                        </details>
+                      ) : null}
                       <AccionesFicha fichaId={f.id} estado={f.estado} modificable={modificable && !f.bloqueada} />
                       {!modificable || f.bloqueada ? <FormularioSolicitud fichaId={f.id} /> : null}
                     </Tarjeta>

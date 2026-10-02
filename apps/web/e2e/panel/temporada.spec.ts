@@ -45,6 +45,19 @@ test.describe('[SA-10] [SA-11] [SA-15] [SA-18] tablero de temporada', () => {
     ).toBeGreaterThan(0);
   });
 
+  test('[SA-07] [TR-11] crea una versión nueva del reglamento desde el preset', async ({ page }) => {
+    const antes = Number(sql(`select max(version) from public.reglamento where preset = 'encuentro-2026'`));
+    const versionEvento = sql(`select reglamento_version from public.evento where id = '${ids.evento_a}'`);
+    await page.goto(`/es/admin/temporadas/${ids.temporada}`);
+    await page.getByRole('link', { name: 'Reglamento', exact: true }).click();
+    await page.getByRole('button', { name: 'Nueva versión desde el preset original' }).click();
+    await expect(page.getByRole('status').filter({ hasText: `Se creó la versión ${antes + 1} y es la vigente.` })).toBeVisible();
+    await expect(page.getByRole('row', { name: new RegExp(`^${antes + 1} .*Vigente`) })).toBeVisible();
+    // Los eventos ya creados conservan su copia del reglamento.
+    expect(sql(`select reglamento_version from public.evento where id = '${ids.evento_a}'`)).toBe(versionEvento);
+    await sinViolacionesA11y(page);
+  });
+
   test('un organizador no accede al tablero ni a la exportación', async ({ page, context }) => {
     await ingresarComo(context, 'org_a');
     expect((await context.request.get(`/api/admin/temporadas/${ids.temporada}/exportar/historial`)).status()).toBe(403);

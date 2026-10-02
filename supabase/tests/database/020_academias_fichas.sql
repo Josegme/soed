@@ -1,6 +1,6 @@
 -- [TR-33] [PR-05] [PR-12] [PR-19] [OR-21] [OR-23] Academias, datos de menores y reglas de ficha
 begin;
-select plan(33);
+select plan(36);
 select tests.escenario();
 
 -- Datos personales de bailarines
@@ -61,6 +61,19 @@ select tests.como_servidor();
 select throws_ok(
   format($$update public.ficha set estado = 'ENVIADA' where id = %L$$, tests.id('ficha1')),
   '23514', null, '[PR-12] ninguna ficha queda enviada sin validación aprobada');
+
+-- Campos adicionales (OR-16, PR-18): editarlos no reinicia la validación ni el estado
+select tests.como(tests.id('org_a'));
+select lives_ok(
+  format($$update public.evento set campos_adicionales = '{"ficha":[{"codigo":"talle","etiqueta":{"es":"Talle"},"tipo":"TEXTO","obligatorio":true}]}' where id = %L$$, tests.id('evento_a')),
+  '[OR-16] el organizador define campos adicionales');
+select tests.como(tests.id('prof2'));
+update public.ficha set datos_adicionales = '{"talle":"M"}' where id = tests.id('ficha2');
+select is((select estado || '/' || (validacion is not null)::text from public.ficha where id = tests.id('ficha2')), 'ENVIADA/true',
+  '[PR-18] completar datos adicionales no devuelve la ficha a borrador ni borra su validación');
+select tests.como(tests.id('prof1'));
+select is(tests.filas(format($$update public.ficha set datos_adicionales = '{"talle":"S"}' where id = %L$$, tests.id('ficha2'))), 0,
+  'otra academia no toca los datos adicionales ajenos');
 
 -- Organizador: observa, bloquea y registra excepción
 select tests.como(tests.id('org_a'));

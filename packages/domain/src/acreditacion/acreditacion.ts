@@ -30,6 +30,22 @@ export type TipoCredencial = (typeof TIPOS_CREDENCIAL)[number];
 /** Configuración de acreditación del evento (jsonb `evento.acreditacion`). */
 export interface ConfigAcreditacion {
   readonly zonasPorTipo?: Partial<Readonly<Record<TipoCredencial, readonly string[]>>>;
+  /** Horario de atención de la mesa de acreditación (instantes ISO), informativo (OR-15). */
+  readonly horario?: { readonly apertura?: string | null; readonly cierre?: string | null };
+}
+
+/** Zonas escritas como lista separada por comas: sin vacías ni repetidas, conservando el orden (OR-15). */
+export function parsearZonas(texto: string): string[] {
+  const vistas = new Set<string>();
+  return texto
+    .split(',')
+    .map((z) => z.trim().replace(/\s+/g, ' '))
+    .filter((z) => {
+      const clave = z.toLocaleLowerCase();
+      if (!z || vistas.has(clave)) return false;
+      vistas.add(clave);
+      return true;
+    });
 }
 
 export interface CandidatoCredencial {

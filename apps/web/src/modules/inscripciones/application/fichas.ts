@@ -3,7 +3,9 @@ import {
   errorDominio,
   estadoVentana,
   ok,
+  validarCamposAdicionales,
   validarFicha,
+  type CampoAdicional,
   type ErrorDominio,
   type FechaISO,
   type ReglamentoEvento,
@@ -24,6 +26,8 @@ export interface FichaParaValidar {
   duracionMusicaSegundos: number | null;
   tieneExcepcion: boolean;
   integrantes: { bailarinId: string; fechaNacimiento: FechaISO }[];
+  /** Valores de los campos adicionales de la ficha (OR-16). */
+  datosAdicionales?: Readonly<Record<string, unknown>>;
 }
 
 export interface EventoParaValidar {
@@ -35,6 +39,8 @@ export interface EventoParaValidar {
   inscripcionApertura: string | null;
   inscripcionCierre: string | null;
   modificacionesCierre: string | null;
+  /** Campos adicionales que el organizador pide por ficha (OR-16). */
+  camposFicha?: readonly CampoAdicional[];
 }
 
 export interface PuertosFicha {
@@ -51,7 +57,13 @@ export interface PuertosFicha {
 }
 
 export type CodigoErrorFicha =
-  'FICHA_INEXISTENTE' | 'EVENTO_INEXISTENTE' | 'SIN_PERMISO' | 'FICHA_NO_MODIFICABLE' | 'FICHA_INVALIDA' | 'FICHA_RETIRADA';
+  | 'FICHA_INEXISTENTE'
+  | 'EVENTO_INEXISTENTE'
+  | 'SIN_PERMISO'
+  | 'FICHA_NO_MODIFICABLE'
+  | 'FICHA_INVALIDA'
+  | 'FICHA_RETIRADA'
+  | 'CAMPOS_ADICIONALES_PENDIENTES';
 
 type Salida = Result<ResultadoValidacion, ErrorDominio<CodigoErrorFicha>>;
 
@@ -118,6 +130,11 @@ export async function enviarFicha(p: PuertosFicha, fichaId: string, ahora: Date)
   await p.guardarValidacion(ficha.id, resultado, evento.reglamentoVersion);
   if (!resultado.valida && !ficha.tieneExcepcion) {
     return err(errorDominio('FICHA_INVALIDA', { infracciones: resultado.infracciones.length }));
+  }
+  // Los datos que pide el organizador se completan antes de enviar; él puede enviar igual.
+  const faltantes = validarCamposAdicionales(evento.camposFicha ?? [], ficha.datosAdicionales ?? {});
+  if (faltantes.length > 0 && !permisos.gestor) {
+    return err(errorDominio('CAMPOS_ADICIONALES_PENDIENTES', { campos: faltantes.length }));
   }
   await p.marcarEnviada(ficha.id);
   return ok(resultado);

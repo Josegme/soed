@@ -55,7 +55,7 @@ export async function fichasDeGestion(db: ClienteSupabase, eventoId: string, fil
   let consulta = db
     .from('ficha')
     .select(
-      'id, nombre, estado, genero, formacion, categoria, categoria_declarada, bloqueada, observacion, excepcion, validacion, musica_path, musica_duracion_seg, academia_id, ficha_bailarin (nombre_mostrado, edad, categoria)',
+      'id, nombre, estado, genero, formacion, categoria, categoria_declarada, bloqueada, observacion, excepcion, validacion, musica_path, musica_duracion_seg, academia_id, datos_adicionales, ficha_bailarin (nombre_mostrado, edad, categoria)',
     )
     .eq('evento_id', eventoId)
     .order('creado_at');
@@ -82,6 +82,7 @@ export async function fichasDeGestion(db: ClienteSupabase, eventoId: string, fil
       duracion: f.musica_duracion_seg,
       academiaId: f.academia_id,
       academia: academias.get(f.academia_id) ?? '',
+      datosAdicionales: (f.datos_adicionales ?? {}) as Record<string, unknown>,
       elenco: f.ficha_bailarin.map((b) => ({ nombre: b.nombre_mostrado, edad: b.edad, categoria: b.categoria })),
     };
   });

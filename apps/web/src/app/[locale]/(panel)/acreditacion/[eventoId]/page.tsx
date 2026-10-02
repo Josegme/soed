@@ -1,4 +1,4 @@
-import type { Idioma, Traducible } from '@soed/domain';
+import type { ConfigAcreditacion, Idioma, Traducible } from '@soed/domain';
 import {
   CampoTexto,
   EncabezadoPagina,
@@ -38,12 +38,17 @@ export default async function Acreditacion({
   const { q } = await searchParams;
   const idioma: Idioma = idiomaDe(locale);
   const { db, sesion } = await requerirPermiso(eventoId, 'acreditacion.operar');
-  const { data: evento } = await db.from('evento').select('nombre, idioma_defecto, zona_horaria').eq('id', eventoId).maybeSingle();
+  const { data: evento } = await db
+    .from('evento')
+    .select('nombre, idioma_defecto, zona_horaria, acreditacion')
+    .eq('id', eventoId)
+    .maybeSingle();
   if (!evento) notFound();
   const [resumen, credenciales] = await Promise.all([resumenAcreditacion(db, eventoId), credencialesDelEvento(db, eventoId, { q })]);
   const t = await getTranslations('acreditacion');
   const tt = libre(await getTranslations('acreditacion.tipos'));
   const tc = await getTranslations('comun');
+  const horario = ((evento.acreditacion ?? {}) as ConfigAcreditacion).horario;
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,6 +63,14 @@ export default async function Acreditacion({
           ) : null
         }
       />
+      {horario?.apertura && horario.cierre ? (
+        <p className="text-sm text-texto-suave">
+          {t('horario', {
+            apertura: formatearInstante(horario.apertura, idioma, evento.zona_horaria),
+            cierre: formatearInstante(horario.cierre, idioma, evento.zona_horaria),
+          })}
+        </p>
+      ) : null}
       <EstadoCola usuarioId={sesion.usuarioId} />
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <Tarjeta className="flex flex-col gap-4">

@@ -1,9 +1,20 @@
-import { MEDIOS_COBRO_DEFECTO, transicionesPosibles, type EstadoEvento, type Idioma, type Traducible } from '@soed/domain';
+import {
+  MEDIOS_COBRO_DEFECTO,
+  TIPOS_CREDENCIAL,
+  transicionesPosibles,
+  type ConfigAcreditacion,
+  type EstadoEvento,
+  type Idioma,
+  type Traducible,
+} from '@soed/domain';
 import { Aviso, CampoArea, CampoSelector, CampoTexto, Insignia, Tarjeta } from '@soed/ui';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { AMBITOS_CAMPO, leerCamposAdicionales } from '@soed/shared-types';
+import { cliente } from '@/cliente';
 import { CamposTraducibles } from '@/components/campos-traducibles';
 import { FormularioAccion } from '@/components/formulario-accion';
+import { Link } from '@/i18n/navigation';
 import { etiquetaCodigo } from '@/lib/i18n/claves';
 import { localDesdeInstante } from '@/lib/fechas-zona';
 import { IDIOMAS_SOPORTADOS, idiomaDe, NOMBRE_IDIOMA } from '@/lib/i18n/locales';
@@ -16,6 +27,9 @@ import {
   guardarTarifarioAccion,
   guardarVentanaAccion,
 } from '@/modules/eventos/interface/acciones';
+import { guardarAcreditacionAccion } from '@/modules/eventos/interface/acciones-acreditacion';
+import { agregarCampoAdicionalAccion, quitarCampoAdicionalAccion } from '@/modules/eventos/interface/acciones-campos';
+import { pendientesDeTraduccion } from '@/modules/gestion/infrastructure/traducciones';
 import { contextoGestion } from '@/modules/gestion/interface/contexto';
 
 interface TarifarioGuardado {
@@ -47,7 +61,7 @@ function Seccion({ id, titulo, descripcion, children }: { id: string; titulo: st
 export default async function ConfiguracionGestion({ params }: { params: Promise<{ locale: string; eventoId: string }> }) {
   const { locale, eventoId } = await params;
   const idioma: Idioma = idiomaDe(locale);
-  const { evento, sesion, defecto } = await contextoGestion(eventoId, 'configuracion');
+  const { db, evento, sesion, defecto } = await contextoGestion(eventoId, 'configuracion');
   const t = await getTranslations('gestion.configuracion');
   const te = await getTranslations('estados.evento');
   const tm = await getTranslations('medios');
@@ -58,6 +72,11 @@ export default async function ConfiguracionGestion({ params }: { params: Promise
   const sede = evento.sede as Record<string, string | null>;
   const tarifario = evento.tarifario as TarifarioGuardado;
   const zona = evento.zona_horaria;
+  const acreditacion = (evento.acreditacion ?? {}) as ConfigAcreditacion;
+  const campos = leerCamposAdicionales(evento.campos_adicionales);
+  const pendientes = await pendientesDeTraduccion(db, eventoId, cliente.idiomas);
+  const tt = await getTranslations('acreditacion.tipos');
+  const tp = await getTranslations('gestion.configuracion.traducciones.tipos');
   const zonas = Intl.supportedValuesOf('timeZone').filter((z) => /^(America|Europe|Atlantic)\//.test(z) || z === 'UTC');
   const medios = [...new Set([...MEDIOS_COBRO_DEFECTO, ...evento.medios_cobro])];
   const formaciones = evento.reglamentoTipado?.formaciones ?? [];
@@ -267,6 +286,148 @@ export default async function ConfiguracionGestion({ params }: { params: Promise
             />
           </details>
         </FormularioAccion>
+      </Seccion>
+
+      <Seccion id="acreditacion" titulo={t('acreditacion.titulo')} descripcion={t('acreditacion.descripcion')}>
+        <FormularioAccion accion={guardarAcreditacionAccion} namespace="gestion.configuracion.acreditacion" boton={tc('guardar')} variante="secundario">
+          {campoEvento}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <CampoTexto
+              name="apertura"
+              type="datetime-local"
+              etiqueta={t('acreditacion.apertura')}
+              ayuda={t('acreditacion.ayudaHorario', { zona })}
+              defaultValue={localDesdeInstante(acreditacion.horario?.apertura, zona)}
+            />
+            <CampoTexto
+              name="cierre"
+              type="datetime-local"
+              etiqueta={t('acreditacion.cierre')}
+              defaultValue={localDesdeInstante(acreditacion.horario?.cierre, zona)}
+            />
+            {TIPOS_CREDENCIAL.map((tipo) => (
+              <CampoTexto
+                key={tipo}
+                name={`zonas.${tipo}`}
+                etiqueta={t('acreditacion.zonas', { tipo: tt(tipo) })}
+                ayuda={t('acreditacion.zonasAyuda')}
+                defaultValue={(acreditacion.zonasPorTipo?.[tipo] ?? []).join(', ')}
+                maxLength={500}
+              />
+            ))}
+          </div>
+        </FormularioAccion>
+      </Seccion>
+
+      <Seccion id="campos" titulo={t('campos.titulo')} descripcion={t('campos.descripcion')}>
+        <div className="flex flex-col gap-4">
+          {AMBITOS_CAMPO.map((ambito) => (
+            <div key={ambito} className="flex flex-col gap-2">
+              <h3 className="font-semibold">{t(`campos.ambitos.${ambito}`)}</h3>
+              {campos[ambito].length === 0 ? <p className="text-sm text-texto-suave">{t('campos.sinCampos')}</p> : null}
+              <ul className="flex flex-col divide-y divide-borde">
+                {campos[ambito].map((c) => (
+                  <li key={c.codigo} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                    <span>
+                      <span className="font-medium">{texto(c.etiqueta, idioma, defecto)}</span>
+                      <span className="text-texto-suave">
+                        {' '}
+                        · {t(`campos.tipos.${c.tipo}`)}
+                        {c.obligatorio ? ` · ${t('campos.obligatorio')}` : ''}
+                        {c.opciones ? ` · ${c.opciones.join(', ')}` : ''}
+                      </span>
+                    </span>
+                    <FormularioAccion
+                      accion={quitarCampoAdicionalAccion}
+                      namespace="gestion.configuracion.campos"
+                      boton={t('campos.quitar')}
+                      variante="fantasma"
+                      tamano="chico"
+                      enLinea
+                    >
+                      {campoEvento}
+                      <input type="hidden" name="ambito" value={ambito} />
+                      <input type="hidden" name="codigo" value={c.codigo} />
+                    </FormularioAccion>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <details className="rounded-[var(--radio)] border border-dashed border-borde p-4">
+            <summary className="cursor-pointer font-medium">{t('campos.nuevo')}</summary>
+            <FormularioAccion accion={agregarCampoAdicionalAccion} namespace="gestion.configuracion.campos" boton={tc('agregar')} className="mt-3">
+              {campoEvento}
+              <div className="grid gap-4 sm:grid-cols-3">
+                <CampoSelector
+                  name="ambito"
+                  etiqueta={t('campos.ambito')}
+                  opciones={AMBITOS_CAMPO.map((a) => ({ valor: a, etiqueta: t(`campos.ambitos.${a}`) }))}
+                />
+                <CampoTexto
+                  name="codigo"
+                  etiqueta={t('campos.codigo')}
+                  ayuda={t('campos.codigoAyuda')}
+                  requerido
+                  textoRequerido={tc('requerido')}
+                  maxLength={30}
+                />
+                <CampoSelector
+                  name="tipo"
+                  etiqueta={t('campos.tipo')}
+                  opciones={(['TEXTO', 'NUMERO', 'BOOLEANO', 'FECHA', 'OPCION'] as const).map((tipo) => ({
+                    valor: tipo,
+                    etiqueta: t(`campos.tipos.${tipo}`),
+                  }))}
+                />
+              </div>
+              <CamposTraducibles
+                nombre="etiqueta"
+                etiqueta={t('campos.etiqueta')}
+                requerido
+                textoRequerido={tc('requerido')}
+                maxLength={120}
+              />
+              <CampoTexto name="opciones" etiqueta={t('campos.opciones')} ayuda={t('campos.opcionesAyuda')} maxLength={1000} />
+              <label className="flex min-h-11 items-center gap-3 text-sm">
+                <input type="checkbox" name="obligatorio" className="size-5 accent-marca" />
+                {t('campos.obligatorio')}
+              </label>
+            </FormularioAccion>
+          </details>
+        </div>
+      </Seccion>
+
+      <Seccion id="traducciones" titulo={t('traducciones.titulo')} descripcion={t('traducciones.descripcion')}>
+        {pendientes.length === 0 ? (
+          <p className="text-sm" role="status">
+            {t('traducciones.completas')}
+          </p>
+        ) : (
+          <ul className="flex flex-col divide-y divide-borde">
+            {pendientes.map((p) => (
+              <li key={p.clave} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                <span>
+                  <span className="font-medium">{tp(p.tipo as 'criterio')}</span>
+                  {p.referencia ? <span className="text-texto-suave"> · {p.referencia}</span> : null}
+                </span>
+                <span className="flex flex-wrap items-center gap-2">
+                  {p.faltan.map((i) => (
+                    <Insignia key={i} tono="alerta">
+                      {t('traducciones.falta', { idioma: NOMBRE_IDIOMA[i] })}
+                    </Insignia>
+                  ))}
+                  <Link
+                    href={`/gestion/${eventoId}${p.seccion === 'configuracion' ? '/configuracion' : `/${p.seccion}`}`}
+                    className="font-medium text-marca underline-offset-4 hover:underline"
+                  >
+                    {t('traducciones.editar')}
+                  </Link>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Seccion>
 
       <Seccion

@@ -7,7 +7,7 @@ import { fichasEnPuesto, repartirPremio } from './premios/premios';
 import { cero, dinero, esMoneda, maximo, multiplicar, repartir, restar, sumar, sumarTodos } from './shared/dinero';
 import { compararFechas, edadCumplida, esFechaISO, fechaEnZona, fechaISO, partesFecha } from './shared/fecha';
 import { errorDominio, err, ok } from './shared/result';
-import { esIdioma, idiomasPendientes, traducir } from './shared/traducible';
+import { esIdioma, idiomasPendientes, traduccionesPendientes, traducir } from './shared/traducible';
 
 describe('fechas', () => {
   it('valida fechas de calendario', () => {
@@ -64,6 +64,28 @@ describe('[TR-21] contenido traducible', () => {
     expect(idiomasPendientes({ es: 'x', 'pt-BR': ' ' })).toEqual(['pt-BR']);
     expect(esIdioma('pt-BR')).toBe(true);
     expect(esIdioma('en')).toBe(false);
+  });
+});
+
+describe('[OR-18] traducciones pendientes', () => {
+  it('lista solo lo que tiene texto en un idioma y le falta en otro', () => {
+    const pendientes = traduccionesPendientes(
+      [
+        { clave: 'nombre', valor: { es: 'Selectivo', 'pt-BR': 'Seletiva' } },
+        { clave: 'bases', valor: { es: 'Reglas' } },
+        { clave: 'datosPago', valor: {} },
+        { clave: 'premio', valor: { 'pt-BR': 'Melhor solo', es: '  ' } },
+      ],
+      ['es', 'pt-BR'],
+    );
+    expect(pendientes).toEqual([
+      { clave: 'bases', faltan: ['pt-BR'] },
+      { clave: 'premio', faltan: ['es'] },
+    ]);
+  });
+
+  it('con un solo idioma habilitado no hay pendientes', () => {
+    expect(traduccionesPendientes([{ clave: 'x', valor: { es: 'Hola' } }], ['es'])).toEqual([]);
   });
 });
 

@@ -422,10 +422,11 @@ begin
   if new.estado is distinct from old.estado and new.estado not in ('BORRADOR', 'RETIRADA') then
     raise exception 'TRANSICION_RESERVADA' using errcode = '42501';
   end if;
-  -- Cambios de entrada invalidan la validación y vuelven a borrador.
-  if (new.nombre, new.genero, new.formacion, new.categoria_declarada, new.musica_path, new.musica_duracion_seg, new.datos_adicionales)
+  -- Cambios de entrada invalidan la validación y vuelven a borrador. Los datos
+  -- adicionales (OR-16) no intervienen en el reglamento: se editan sin reenviar.
+  if (new.nombre, new.genero, new.formacion, new.categoria_declarada, new.musica_path, new.musica_duracion_seg)
      is distinct from
-     (old.nombre, old.genero, old.formacion, old.categoria_declarada, old.musica_path, old.musica_duracion_seg, old.datos_adicionales) then
+     (old.nombre, old.genero, old.formacion, old.categoria_declarada, old.musica_path, old.musica_duracion_seg) then
     new.validacion := null;
     new.validacion_reglamento_version := null;
     new.categoria := null;

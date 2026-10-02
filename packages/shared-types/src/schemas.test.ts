@@ -104,3 +104,14 @@ describe('[TR-37] client.config', () => {
     expect(habilitadoPorModulos(config, [])).toBe(true);
   });
 });
+
+describe('[OR-16] campos adicionales', () => {
+  it('exige opciones en los campos de opción y un código estable', async () => {
+    const { campoAdicionalSchema, leerCamposAdicionales } = await import('./campos');
+    const base = { etiqueta: { es: 'Talle de remera' }, obligatorio: true };
+    expect(campoAdicionalSchema.safeParse({ ...base, codigo: 'talle', tipo: 'OPCION', opciones: ['S'] }).success).toBe(false);
+    expect(campoAdicionalSchema.safeParse({ ...base, codigo: 'Talle!', tipo: 'TEXTO' }).success).toBe(false);
+    expect(campoAdicionalSchema.parse({ ...base, codigo: 'talle', tipo: 'TEXTO', opciones: ['x'] }).opciones).toBeUndefined();
+    expect(leerCamposAdicionales({ ficha: 'roto' })).toEqual({ inscripcion: [], ficha: [] });
+  });
+});

@@ -1,5 +1,6 @@
 import 'server-only';
 import type { ReglamentoEvento, ResultadoValidacion, Traducible } from '@soed/domain';
+import { leerCamposAdicionales } from '@soed/shared-types';
 import type { Sesion } from '@/lib/auth/permisos';
 import type { ClienteSupabase } from '@/lib/supabase/server';
 
@@ -102,6 +103,7 @@ export interface FichaDeAcademia {
   validacion: ResultadoValidacion | null;
   musicaDuracion: number | null;
   coreografiaId: string;
+  datosAdicionales: Record<string, unknown>;
   elenco: { bailarinId: string; nombre: string; edad: number | null; categoria: string | null }[];
 }
 
@@ -110,14 +112,14 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
   const { data: evento } = await db
     .from('evento')
     .select(
-      'id, slug, tipo, nombre, idioma_defecto, moneda, zona_horaria, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, tarifario, datos_pago, orden_publicado_at, resultados_publicados_at, publicado',
+      'id, slug, tipo, nombre, idioma_defecto, moneda, zona_horaria, fecha_inicio, fecha_fin, inscripcion_apertura, inscripcion_cierre, modificaciones_cierre, reglamento, tarifario, datos_pago, orden_publicado_at, resultados_publicados_at, publicado, campos_adicionales',
     )
     .eq('slug', slug.toUpperCase())
     .maybeSingle();
   if (!evento) return null;
   const { data: inscripcion } = await db
     .from('inscripcion')
-    .select('id, estado, rubros, inscripta_at')
+    .select('id, estado, rubros, inscripta_at, datos_adicionales')
     .eq('evento_id', evento.id)
     .eq('academia_id', academiaId)
     .maybeSingle();
@@ -140,7 +142,7 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
     const { data } = await db
       .from('ficha')
       .select(
-        'id, nombre, genero, formacion, categoria, categoria_declarada, estado, bloqueada, observacion, validacion, musica_duracion_seg, coreografia_id, ficha_bailarin (bailarin_id, nombre_mostrado, edad, categoria)',
+        'id, nombre, genero, formacion, categoria, categoria_declarada, estado, bloqueada, observacion, validacion, musica_duracion_seg, coreografia_id, datos_adicionales, ficha_bailarin (bailarin_id, nombre_mostrado, edad, categoria)',
       )
       .eq('inscripcion_id', inscripcion.id)
       .order('creado_at');
@@ -157,6 +159,7 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
       validacion: normalizarValidacion(f.validacion),
       musicaDuracion: f.musica_duracion_seg,
       coreografiaId: f.coreografia_id,
+      datosAdicionales: (f.datos_adicionales ?? {}) as Record<string, unknown>,
       elenco: f.ficha_bailarin.map((b) => ({ bailarinId: b.bailarin_id, nombre: b.nombre_mostrado, edad: b.edad, categoria: b.categoria })),
     }));
     const [liq, dev, ord] = await Promise.all([
@@ -178,6 +181,7 @@ export async function inscripcionDeAcademia(db: ClienteSupabase, slug: string, a
       nombre: evento.nombre as Traducible,
       reglamento: evento.reglamento as unknown as ReglamentoEvento,
       datos_pago: evento.datos_pago as Traducible,
+      campos: leerCamposAdicionales(evento.campos_adicionales),
     },
     inscripcion,
     fichas,
@@ -228,4 +232,41 @@ export function normalizarValidacion(valor: unknown): ResultadoValidacion | null
     toleranciaSegundos: v.toleranciaSegundos ?? 0,
     valida: v.valida === true,
   };
+}
+
+/**
+ * Resultados de la academia en la temporada (PR-29): la RLS de `resultado`
+ * solo devuelve los propios y de eventos ya publicados (Art. 32).
+ */
+export async function historialDeAcademia(db: ClienteSupabase, academiaId: string) {
+  const { data: resultados } = await db
+    .from('resultado')
+    .select('ficha_id, evento_id, puesto, puntaje, banda, ficha!resultado_ficha_id_evento_id_academia_id_fkey (nombre)')
+    .eq('academia_id', academiaId);
+  const ids = [...new Set((resultados ?? []).map((r) => r.evento_id))];
+  if (ids.length === 0) return [];
+  const { data: eventos } = await db.from('evento').select('id, slug, nombre, fecha_inicio, idioma_defecto, reglamento').in('id', ids);
+  const evento = new Map((eventos ?? []).map((e) => [e.id, e]));
+  return (resultados ?? [])
+    .map((r) => {
+      const e = evento.get(r.evento_id);
+      const bandas = ((e?.reglamento as { bandas?: { codigo: string; nombre: Traducible }[] } | null)?.bandas ?? []) as {
+        codigo: string;
+        nombre: Traducible;
+      }[];
+      return {
+        fichaId: r.ficha_id,
+        coreografia: r.ficha?.nombre ?? '',
+        evento: {
+          slug: e?.slug ?? '',
+          nombre: (e?.nombre ?? {}) as Traducible,
+          fecha: e?.fecha_inicio ?? '',
+          defecto: e?.idioma_defecto ?? 'es',
+        },
+        puesto: r.puesto,
+        puntaje: Number(r.puntaje),
+        banda: r.banda ? (bandas.find((b) => b.codigo === r.banda)?.nombre ?? { es: r.banda }) : null,
+      };
+    })
+    .sort((a, b) => a.evento.fecha.localeCompare(b.evento.fecha) || a.coreografia.localeCompare(b.coreografia));
 }

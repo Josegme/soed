@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
 /** Navegación entre tablero e historial y descargas CSV de la temporada (SA-18). */
-export async function EnlacesTemporada({ temporadaId, actual }: { temporadaId: string; actual: 'tablero' | 'historial' }) {
+export async function EnlacesTemporada({ temporadaId, actual }: { temporadaId: string; actual: 'tablero' | 'historial' | 'reglamento' }) {
   const t = await getTranslations('admin.temporada');
   const locale = await getLocale();
   const clase =
@@ -22,6 +22,13 @@ export async function EnlacesTemporada({ temporadaId, actual }: { temporadaId: s
           className={clase}
         >
           {t('historial')}
+        </Link>
+        <Link
+          href={`/admin/temporadas/${temporadaId}/reglamento`}
+          aria-current={actual === 'reglamento' ? 'page' : undefined}
+          className={clase}
+        >
+          {t('reglamento')}
         </Link>
       </nav>
       <div className="flex flex-wrap items-center gap-2 text-sm">

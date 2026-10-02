@@ -178,7 +178,7 @@
     "DECIMALES_EXCEDIDOS": "A nota tem casas decimais demais.",
     "POSICION_INVALIDA": "Posição fora do intervalo.",
     "TRANSICION_INVALIDA": "Essa mudança de status não é permitida.",
-    "CODIGO_INVALIDO": "Código inválido.",
+    "CODIGO_INVALIDO": "Use minúsculas, números e sublinhado (2 a 30).",
     "SLUG_INVALIDO": "Use de 2 a 16 letras ou números sem espaços.",
     "TRADUCCION_REQUERIDA": "Preencha pelo menos um idioma.",
     "FECHAS_INVALIDAS": "A data de término não pode ser anterior ao início.",
@@ -259,7 +259,16 @@
     "ENTRADA_NO_DISPONIBLE": "O ingresso não está disponível.",
     "DEMASIADOS_INTENTOS": "Você fez muitas reservas seguidas. Tente novamente em alguns minutos.",
     "FIN_ANTERIOR": "O fim precisa ser posterior ao início.",
-    "MODULO_INACTIVO": "Esta função não está habilitada nesta plataforma."
+    "MODULO_INACTIVO": "Esta função não está habilitada nesta plataforma.",
+    "ZONAS_INVALIDAS": "Até 12 áreas por tipo, com 40 caracteres cada.",
+    "REGLAMENTO_INEXISTENTE": "A temporada não tem regulamento.",
+    "PRESET_INEXISTENTE": "O preset não está mais disponível.",
+    "CAMPO_OBLIGATORIO": "Este dado é obrigatório.",
+    "TIPO_INVALIDO": "O valor não tem o formato esperado.",
+    "OPCION_INVALIDA": "Escolha uma das opções.",
+    "OPCIONES_REQUERIDAS": "Indique pelo menos duas opções.",
+    "DEMASIADOS_CAMPOS": "Até 20 campos por tipo.",
+    "CAMPOS_ADICIONALES_PENDIENTES": "Preencha os dados adicionais obrigatórios da ficha antes de enviá-la."
   },
   "reglamento": {
     "infraccion": {
@@ -382,7 +391,13 @@
       "comunicados": "Comunicados",
       "sinEventos": "Não há eventos publicados por enquanto.",
       "beneficio": "Benefício: {detalle}",
-      "beca": "bolsa integral"
+      "beca": "bolsa integral",
+      "historial": "Resultados da temporada",
+      "evento": "Evento",
+      "coreografia": "Coreografia",
+      "puesto": "Posição",
+      "puntaje": "Pontuação",
+      "banda": "Classificação"
     },
     "bailarines": {
       "titulo": "Bailarinos",
@@ -511,7 +526,10 @@
         "pagada": "Paga",
         "pendientePago": "Pagamento no evento",
         "claseReservada": "Vaga reservada."
-      }
+      },
+      "datosInscripcion": "Dados pedidos pelo evento",
+      "datosAdicionales": "Dados adicionais",
+      "datosAdicionalesGuardados": "Dados salvos."
     },
     "equipo": {
       "titulo": "Professores da academia",
@@ -948,7 +966,67 @@
         "ayuda": "Ao salvar, é validado por completo e a versão aumenta. Depois revalide as fichas em Inscrições.",
         "guardar": "Salvar regulamento"
       },
-      "reglamentoGuardado": "Regulamento salvo. Revalide as fichas para aplicá-lo."
+      "reglamentoGuardado": "Regulamento salvo. Revalide as fichas para aplicá-lo.",
+      "acreditacion": {
+        "titulo": "Credenciamento",
+        "descripcion": "Horário da mesa e áreas que cada tipo de credencial libera. As credenciais já emitidas mantêm suas áreas.",
+        "apertura": "Abertura da mesa",
+        "cierre": "Encerramento da mesa",
+        "ayudaHorario": "Horário do local ({zona}).",
+        "zonas": "Áreas · {tipo}",
+        "zonasAyuda": "Separadas por vírgula, por exemplo: Camarins, Palco.",
+        "acreditacionGuardada": "Credenciamento salvo."
+      },
+      "traducciones": {
+        "titulo": "Traduções pendentes",
+        "descripcion": "Conteúdo do evento escrito em um idioma e não em outro. Enquanto isso, aparece no idioma padrão do evento.",
+        "completas": "Todo o conteúdo está em todos os idiomas.",
+        "falta": "Falta {idioma}",
+        "editar": "Editar",
+        "tipos": {
+          "nombreEvento": "Nome do evento",
+          "bases": "Regulamento",
+          "datosPago": "Dados de pagamento",
+          "rubro": "Item",
+          "criterio": "Critério",
+          "premio": "Prêmio",
+          "pista": "Palco",
+          "bloque": "Bloco",
+          "clase": "Aula",
+          "entrada": "Ingresso",
+          "hotel": "Hotel",
+          "asunto": "Assunto do comunicado",
+          "cuerpo": "Texto do comunicado"
+        }
+      },
+      "campos": {
+        "titulo": "Campos adicionais",
+        "descripcion": "Dados extras que o evento pede a cada academia ou por coreografia. Remover um campo não apaga o que já foi preenchido.",
+        "ambitos": {
+          "inscripcion": "Por academia (inscrição)",
+          "ficha": "Por coreografia (ficha)"
+        },
+        "sinCampos": "Sem campos.",
+        "nuevo": "Adicionar campo",
+        "quitar": "Remover",
+        "ambito": "Pedido",
+        "codigo": "Código",
+        "codigoAyuda": "Minúsculas e sublinhado, por exemplo: tamanho_camiseta.",
+        "tipo": "Tipo",
+        "etiqueta": "Pergunta",
+        "opciones": "Opções",
+        "opcionesAyuda": "Só para o tipo Opção: separadas por vírgula, pelo menos duas.",
+        "obligatorio": "Obrigatório",
+        "tipos": {
+          "TEXTO": "Texto",
+          "NUMERO": "Número",
+          "BOOLEANO": "Sim ou não",
+          "FECHA": "Data",
+          "OPCION": "Opção"
+        },
+        "campoAgregado": "Campo adicionado.",
+        "campoQuitado": "Campo removido."
+      }
     },
     "auditoria": {
       "titulo": "Registro de auditoria",
@@ -1148,7 +1226,26 @@
       "grupo": "Grupo",
       "puesto": "Posição",
       "puntaje": "Pontuação",
-      "pases": "Classificações"
+      "pases": "Classificações",
+      "reglamento": "Regulamento"
+    },
+    "reglamentoTemporada": {
+      "titulo": "Regulamento · {temporada}",
+      "descripcion": "Versão vigente para os novos eventos da temporada.",
+      "sinReglamento": "A temporada não tem regulamento atribuído.",
+      "version": "Versão {version}",
+      "preset": "Preset {preset}",
+      "aclaracion": "Salvar cria uma nova versão e a temporada passa a usá-la. Os eventos já criados mantêm sua cópia do regulamento; cada organizador decide se a ajusta e revalida suas fichas.",
+      "historial": "Versões do regulamento",
+      "columnaVersion": "Versão",
+      "creada": "Criada (UTC)",
+      "estado": "Status",
+      "vigente": "Vigente",
+      "desdePreset": "Nova versão a partir do preset original",
+      "guardarVersion": "Salvar como nova versão",
+      "json": "Configuração (JSON)",
+      "jsonAyuda": "É validada por completo antes de salvar: categorias, tolerâncias, tempos, gêneros e faixas.",
+      "reglamentoVersionado": "Foi criada a versão {version} e ela está vigente."
     }
   },
   "offline": {
@@ -1276,7 +1373,8 @@
       "acreditado": "{nombre}: credenciado",
       "yaAcreditado": "{nombre} já estava credenciado ({hora})",
       "guardadaLocal": "Sem conexão: o credenciamento ficou no dispositivo."
-    }
+    },
+    "horario": "Mesa aberta de {apertura} a {cierre}"
   },
   "caja": {
     "titulo": "Mesa de recebimentos",

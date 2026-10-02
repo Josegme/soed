@@ -66,6 +66,8 @@ export async function ingresarComo(context: BrowserContext, clave: string): Prom
 export async function sinViolacionesA11y(page: Page): Promise<void> {
   // Una página de error también es accesible: nunca debe contar como pantalla válida.
   await expect(page.getByRole('heading', { name: /No pudimos cargar esta página|Não conseguimos carregar esta página/ })).toHaveCount(0);
+  // Desde el inicio: con scroll, el encabezado fijo tapa campos y axe lo reporta como target-size.
+  await page.evaluate(() => window.scrollTo(0, 0));
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
   const graves = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(graves.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([]);

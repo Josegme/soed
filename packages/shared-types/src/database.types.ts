@@ -867,6 +867,7 @@ export type Database = {
           acreditacion: Json;
           actualizado_at: string;
           bases: Json;
+          campos_adicionales: Json;
           config_operacion: Json;
           creado_at: string;
           creado_por: string | null;
@@ -899,6 +900,7 @@ export type Database = {
           acreditacion?: Json;
           actualizado_at?: string;
           bases?: Json;
+          campos_adicionales?: Json;
           config_operacion?: Json;
           creado_at?: string;
           creado_por?: string | null;
@@ -931,6 +933,7 @@ export type Database = {
           acreditacion?: Json;
           actualizado_at?: string;
           bases?: Json;
+          campos_adicionales?: Json;
           config_operacion?: Json;
           creado_at?: string;
           creado_por?: string | null;
