@@ -50,6 +50,22 @@ export interface PuertosLiquidacion {
 
 export type CodigoErrorLiquidacionApp = 'INSCRIPCION_INEXISTENTE' | 'SIN_PERMISO' | 'SIN_TARIFARIO' | 'CALCULO_INVALIDO';
 
+/**
+ * Serialización con claves ordenadas: jsonb no conserva el orden de las claves,
+ * así que comparar JSON.stringify del detalle guardado daría siempre distinto.
+ */
+export function jsonCanonico(valor: unknown): string {
+  if (Array.isArray(valor)) return `[${valor.map(jsonCanonico).join(',')}]`;
+  if (valor && typeof valor === 'object') {
+    return `{${Object.keys(valor)
+      .sort()
+      .filter((k) => (valor as Record<string, unknown>)[k] !== undefined)
+      .map((k) => `${JSON.stringify(k)}:${jsonCanonico((valor as Record<string, unknown>)[k])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(valor);
+}
+
 function ajustesTotales(i: InscripcionParaLiquidar): Ajuste[] {
   return [...i.ajustes, ...i.beneficios.map((b) => ajusteDesdeBeneficio(b.beneficio, b.motivo))];
 }
@@ -96,7 +112,7 @@ export async function emitirLiquidacion(
   const igual =
     ultima !== null &&
     ultima.totalCentavos === calculo.value.total &&
-    JSON.stringify(ultima.detalle.lineas) === JSON.stringify(calculo.value.lineas);
+    jsonCanonico(ultima.detalle.lineas) === jsonCanonico(calculo.value.lineas);
   if (igual) return ok({ numero: liquidacion.numero, version: ultima.version, totalCentavos: ultima.totalCentavos, nueva: false });
 
   const version = (ultima?.version ?? 0) + 1;

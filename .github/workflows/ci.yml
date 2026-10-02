@@ -38,14 +38,19 @@ jobs:
         run: pnpm --filter @soed/domain test:coverage
 
   base-de-datos:
-    name: Migraciones, RLS por rol y tipos
+    name: Migraciones, RLS por rol, tipos e integración PostgREST
     runs-on: ubuntu-24.04
+    env:
+      POSTGREST_VERSION: v13.0.7
+      POSTGREST_SHA256: 036738687f9814a9db5f3d78afa6e614bcf20c66add04455e34ea494784db7b3
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: PostgreSQL 16 + pgTAP
         run: |
           sudo apt-get update -q
@@ -55,6 +60,14 @@ jobs:
         run: |
           pnpm db:types
           git diff --exit-code packages/shared-types/src/database.types.ts
+      - name: PostgREST (versión y checksum fijos)
+        run: |
+          curl -sSL -o /tmp/pgrst.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x86-64.tar.xz"
+          tar xJf /tmp/pgrst.tar.xz -C /tmp
+          echo "${POSTGREST_SHA256}  /tmp/postgrest" | sha256sum -c -
+          sudo install -m 755 /tmp/postgrest /usr/local/bin/postgrest
+      - run: pnpm --filter @soed/web cliente
+      - run: pnpm test:integracion
 
   build:
     name: Build ${{ matrix.cliente }}

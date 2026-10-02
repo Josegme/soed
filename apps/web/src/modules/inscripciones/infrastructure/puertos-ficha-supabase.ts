@@ -1,7 +1,7 @@
 import 'server-only';
 import type { FechaISO, ReglamentoEvento } from '@soed/domain';
 import type { Json } from '@soed/shared-types/database';
-import { tienePermiso, type Sesion } from '@/lib/auth/sesion';
+import { tienePermiso, type Sesion } from '@/lib/auth/permisos';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { ClienteSupabase } from '@/lib/supabase/server';
 import type { FichaParaValidar, PuertosFicha } from '../application/fichas';

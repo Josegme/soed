@@ -1,6 +1,6 @@
 import type { CalculoLiquidacion } from '@soed/domain';
 import { describe, expect, it } from 'vitest';
-import { emitirLiquidacion, liquidacionPrevia, type InscripcionParaLiquidar, type PuertosLiquidacion, type VersionEmitida } from './liquidaciones';
+import { emitirLiquidacion, jsonCanonico, liquidacionPrevia, type InscripcionParaLiquidar, type PuertosLiquidacion, type VersionEmitida } from './liquidaciones';
 
 const inscripcion = (over: Partial<InscripcionParaLiquidar> = {}): InscripcionParaLiquidar => ({
   id: 'i1',
@@ -47,6 +47,15 @@ describe('[PR-15] [TR-18] emisión versionada', () => {
     expect(await emitirLiquidacion(puertos, 'i1', 'es')).toEqual({ ok: true, value: { numero: 'LIQ-SELA-0001', version: 1, totalCentavos: 15000, nueva: true } });
     expect(await emitirLiquidacion(puertos, 'i1', 'es')).toMatchObject({ ok: true, value: { version: 1, nueva: false } });
     expect(versiones).toHaveLength(1);
+  });
+  it('no versiona de nuevo si el detalle guardado vuelve con las claves reordenadas (jsonb)', async () => {
+    const { puertos, versiones } = fake(inscripcion());
+    await emitirLiquidacion(puertos, 'i1', 'es');
+    const reordenar = (o: unknown): unknown =>
+      Array.isArray(o) ? o.map(reordenar) : o && typeof o === 'object' ? Object.fromEntries(Object.entries(o).reverse().map(([k, v]) => [k, reordenar(v)])) : o;
+    versiones[0] = { ...versiones[0]!, detalle: reordenar(versiones[0]!.detalle) as CalculoLiquidacion };
+    expect(await emitirLiquidacion(puertos, 'i1', 'es')).toMatchObject({ ok: true, value: { nueva: false } });
+    expect(jsonCanonico({ b: 1, a: [{ d: 2, c: undefined }] })).toBe('{"a":[{"d":2}],"b":1}');
   });
   it('crea una versión nueva si la academia agrega coreografías', async () => {
     const datos = inscripcion();

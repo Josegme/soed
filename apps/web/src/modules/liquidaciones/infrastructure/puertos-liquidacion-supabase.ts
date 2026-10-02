@@ -2,7 +2,7 @@ import 'server-only';
 import type { Ajuste, Beneficio, CalculoLiquidacion, FichaALiquidar, Tarifario } from '@soed/domain';
 import { tarifarioSchema } from '@soed/shared-types';
 import type { Json } from '@soed/shared-types/database';
-import { tienePermiso, type Sesion } from '@/lib/auth/sesion';
+import { tienePermiso, type Sesion } from '@/lib/auth/permisos';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { ClienteSupabase } from '@/lib/supabase/server';
 import type { PuertosLiquidacion } from '../application/liquidaciones';

@@ -2,7 +2,7 @@ import type { Idioma } from '@soed/domain';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { eventosDeSesion } from '@/lib/auth/eventos-de-sesion';
-import { tienePermiso, type Sesion } from '@/lib/auth/sesion';
+import { tienePermiso, type Sesion } from '@/lib/auth/permisos';
 import { texto } from '@/lib/i18n/traducible';
 import type { ClienteSupabase } from '@/lib/supabase/server';
 
