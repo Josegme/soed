@@ -2,17 +2,17 @@
 
 > Generada por `pnpm trace` (scripts/trazabilidad.mjs) a partir de `docs/auditoria/inventario.csv` y de las etiquetas `[ID]` en las pruebas. No editar a mano.
 
-**Cobertura por pruebas:** 178 de 207 funcionalidades (86 %).
+**Cobertura por pruebas:** 184 de 207 funcionalidades (89 %).
 
 | Área | Funcionalidades | Con pruebas | % | Dominio | Aplicación | RLS/SQL | Integración | E2E |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Super Admin | 18 | 17 | 94 | 4 | 5 | 6 | 2 | 9 |
-| Organizador | 54 | 53 | 98 | 19 | 16 | 23 | 10 | 33 |
-| Profesor/Academia | 33 | 28 | 85 | 3 | 7 | 18 | 5 | 15 |
+| Super Admin | 18 | 18 | 100 | 5 | 5 | 6 | 2 | 9 |
+| Organizador | 54 | 54 | 100 | 19 | 16 | 23 | 10 | 35 |
+| Profesor/Academia | 33 | 30 | 91 | 3 | 7 | 18 | 5 | 17 |
 | Jurado | 10 | 7 | 70 | 1 | 4 | 3 | 4 | 5 |
 | Operativos | 25 | 23 | 92 | 11 | 9 | 13 | 7 | 17 |
-| Sitio público | 15 | 14 | 93 | 0 | 2 | 7 | 2 | 14 |
-| Transversal | 52 | 36 | 69 | 21 | 13 | 17 | 7 | 11 |
+| Sitio público | 15 | 15 | 100 | 0 | 2 | 7 | 2 | 15 |
+| Transversal | 52 | 37 | 71 | 21 | 13 | 18 | 7 | 11 |
 
 Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pgTAP), I = integración (PostgREST real), E = e2e (Playwright + axe).
 
@@ -33,7 +33,7 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 | SA-11 | Dashboard por temporada con métricas por evento | admin | vistas agregadas | /admin | A · E |
 | SA-12 | Consultar y filtrar el audit log de toda la instancia | auditoria | auditoria · rls: select super admin; sin update/delete | /admin/auditoria | R |
 | SA-13 | Alta y baja de Super Admins solo por canal privilegiado (CLI o service role) _(inferida)_ | identidad | rol_global · rls: sin escritura para authenticated | — | R |
-| SA-14 | Configurar marca, módulos e idiomas de la instancia (client.config) | plataforma | clients/<slug>/client.config.ts (Zod) | — | — |
+| SA-14 | Configurar marca, módulos e idiomas de la instancia (client.config) | plataforma | clients/<slug>/client.config.ts (Zod) | — | D |
 | SA-15 | Ver el historial de resultados y pases de academias y coreografías en la temporada | resultados | resultado · pase | /admin/temporadas/[id]/historial | A · E |
 | SA-16 | Gestionar catálogo de categorías, géneros y formaciones del reglamento (traducibles) | reglamento | reglamento.config | /admin/temporadas/[id]/reglamento | D |
 | SA-17 | Archivar un evento finalizado (solo lectura) _(inferida)_ | eventos | evento.estado = ARCHIVADO · trigger bloquea escritura | /admin/eventos | D · R |
@@ -89,10 +89,10 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 | OR-44 | Generar certificados bilingües | documentos | storage documentos (privado) | /gestion/[eventoId]/resultados | E |
 | OR-45 | Dashboard del evento (inscripciones, cobranza, fichas por estado, música faltante) | admin | vistas agregadas | /gestion/[eventoId] | E |
 | OR-46 | Exportar academias, bailarines, fichas, cobros y puntajes (CSV) | exportaciones | route handler con permiso exportar.datos | /gestion/[eventoId]/exportaciones | A · E |
-| OR-47 | Enviar comunicados por evento e idioma (email) | comunicados | comunicado · email_envio · pgmq | /gestion/[eventoId]/comunicados | A · I |
+| OR-47 | Enviar comunicados por evento e idioma (email) | comunicados | comunicado · email_envio · pgmq | /gestion/[eventoId]/comunicados | A · I · E |
 | OR-48 | Ver el audit log del evento | auditoria | auditoria · rls: permiso auditoria.ver | /gestion/[eventoId]/auditoria | R |
 | OR-49 | Descargar un ZIP de música por bloque o pista | musica | Edge Function + pgmq · storage musica | /gestion/[eventoId]/orden | A · E |
-| OR-50 | Enviar recordatorios automáticos (cierre de inscripción, música faltante) | comunicados | pg_cron + pgmq | — | — |
+| OR-50 | Enviar recordatorios automáticos (cierre de inscripción, música faltante) | comunicados | pg_cron + pgmq | — | E |
 | OR-51 | Gestionar clases (catálogo, cupos, precios) | clases | clase | /gestion/[eventoId]/clases | R · E |
 | OR-52 | Gestionar entradas (tipos, cupos, precios) y reservas | entradas | entrada_tipo · reserva_entrada | /gestion/[eventoId]/entradas | R · E |
 | OR-53 | Registrar el cobro manual de clases y entradas | entradas | reserva_*.estado_pago | /gestion/[eventoId]/entradas | R · E |
@@ -128,13 +128,13 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 | PR-24 | Recibir cambios del orden en tiempo real | orden | realtime orden_item | /academia/eventos/[eventoId]/orden | — |
 | PR-25 | Ver resultados, notas y comentarios del jurado tras la publicación (Art. 32) | resultados | planilla, planilla_nota, resultado · rls condicionada a publicación | /academia/eventos/[eventoId]/resultados | R |
 | PR-26 | Ver pases recibidos y sus beneficios | pases | pase · rls academia propietaria | /academia | R |
-| PR-27 | Reinscribir en la final la coreografía presentada en un selectivo | inscripciones | ficha (coreografia_id reutilizada) | /academia/eventos/[eventoId] | — |
+| PR-27 | Reinscribir en la final la coreografía presentada en un selectivo | inscripciones | ficha (coreografia_id reutilizada) | /academia/eventos/[eventoId] | E |
 | PR-28 | Descargar las credenciales QR de sus bailarines | acreditacion | credencial · storage documentos | /academia/eventos/[eventoId]/credenciales | R |
 | PR-29 | Ver el historial de resultados de la academia en la temporada | resultados | resultado (publicados) | /academia | E |
 | PR-30 | Solicitar hotel o paquete | hoteles | hotel_solicitud | /academia/eventos/[eventoId] | R · E |
 | PR-31 | Reservar clases para sus bailarines | clases | reserva_clase | /academia/eventos/[eventoId]/clases | R · E |
 | PR-32 | Descargar certificados | documentos | storage documentos | /academia/eventos/[eventoId]/resultados | E |
-| PR-33 | Ver los comunicados del evento en su panel | comunicados | comunicado (audiencia academias) | /academia | — |
+| PR-33 | Ver los comunicados del evento en su panel | comunicados | comunicado (audiencia academias) | /academia | E |
 
 ## Jurado
 
@@ -195,7 +195,7 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 | PU-08 | Resultados publicados _(inferida)_ | publico | v_resultado_publico | /[locale]/eventos/[slug]/resultados | R · E |
 | PU-09 | Catálogo y reserva de clases | clases | clase · reserva_clase (insert anon vía server action) | /[locale]/eventos/[slug]/clases | R · E |
 | PU-10 | Entradas: tipos, precios y reserva | entradas | entrada_tipo · reserva_entrada | /[locale]/eventos/[slug]/entradas | R · E |
-| PU-11 | Textos legales por cliente (términos, privacidad) | publico | clients/<slug>/legal | /[locale]/legal/[doc] | — |
+| PU-11 | Textos legales por cliente (términos, privacidad) | publico | clients/<slug>/legal | /[locale]/legal/[doc] | E |
 | PU-12 | SEO por idioma (hreflang, metadata, sitemap) _(inferida)_ | publico | metadata API | — | E |
 | PU-13 | Accesibilidad WCAG 2.2 AA | publico | — | todas | E |
 | PU-14 | PWA instalable (manifest y shell offline) | plataforma | manifest · service worker | — | A · E |
@@ -232,7 +232,7 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 | TR-25 | Agregar un idioma nuevo sin tocar pantallas (catálogo de idiomas configurable) | i18n | lib/i18n/locales.ts · client.config.idiomas | — | — |
 | TR-26 | Traducción asistida por IA con revisión humana (opcional) | i18n | — | /gestion/[eventoId]/configuracion | — |
 | TR-27 | RLS habilitada en cada tabla en la misma migración | seguridad | todas las tablas | — | R |
-| TR-28 | Pruebas de RLS por rol | seguridad | supabase/tests | — | — |
+| TR-28 | Pruebas de RLS por rol | seguridad | supabase/tests | — | R |
 | TR-29 | Storage privado con URLs firmadas de corta duración | seguridad | storage.objects políticas por bucket | — | R |
 | TR-30 | Audit log de cambios sensibles, append-only | auditoria | auditoria · triggers | — | R |
 | TR-31 | Validación Zod en el borde (server actions y route handlers) | seguridad | packages/shared-types | — | D · A |
@@ -260,23 +260,17 @@ Leyenda de niveles: D = dominio, A = aplicación (casos de uso), S = RLS/SQL (pg
 
 ## Funcionalidades sin prueba vinculada
 
-- **SA-14** (Super Admin, etapa 1): Configurar marca, módulos e idiomas de la instancia (client.config)
-- **OR-50** (Organizador, etapa 6): Enviar recordatorios automáticos (cierre de inscripción, música faltante)
 - **PR-01** (Profesor/Academia, etapa 3): Registrarse e iniciar sesión (email y contraseña, Google o magic link)
 - **PR-02** (Profesor/Academia, etapa 3): Elegir idioma y guardarlo en el perfil
 - **PR-24** (Profesor/Academia, etapa 4): Recibir cambios del orden en tiempo real
-- **PR-27** (Profesor/Academia, etapa 3): Reinscribir en la final la coreografía presentada en un selectivo
-- **PR-33** (Profesor/Academia, etapa 6): Ver los comunicados del evento en su panel
 - **JU-01** (Jurado, etapa 5): Acceder con magic link
 - **JU-09** (Jurado, etapa 5): Usar la interfaz en su idioma
 - **JU-10** (Jurado, etapa 5): Ver en tiempo real qué coreografía está en escena
 - **OP-04** (Operativos, etapa 5): Director técnico: cerrar puntajes de un bloque y disparar el cálculo del ranking
 - **OP-16** (Operativos, etapa 4): DJ: recibir el reorden en tiempo real
-- **PU-11** (Sitio público, etapa 1): Textos legales por cliente (términos, privacidad)
 - **TR-24** (Transversal, etapa 1): CI falla si falta una clave de traducción
 - **TR-25** (Transversal, etapa 1): Agregar un idioma nuevo sin tocar pantallas (catálogo de idiomas configurable)
 - **TR-26** (Transversal, etapa 6): Traducción asistida por IA con revisión humana (opcional)
-- **TR-28** (Transversal, etapa 2): Pruebas de RLS por rol
 - **TR-32** (Transversal, etapa 1): service_role solo en servidor; secretos fuera del repo
 - **TR-40** (Transversal, etapa 9): Plantilla clients/_template y comando /nuevo-cliente
 - **TR-41** (Transversal, etapa 1): Migraciones por entorno con GitHub Actions; bloqueo de migraciones destructivas con evento en curso

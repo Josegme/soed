@@ -52,11 +52,13 @@ export NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:$PUERTO_SUPABASE"
 export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$(jwt anon)"
 export SUPABASE_SECRET_KEY="$(jwt service_role)"
 export NEXT_PUBLIC_SITE_URL="http://localhost:$PUERTO_E2E"
+# Valor solo de prueba para ejercitar los crons; el real vive en Vercel.
+export CRON_SECRET="${CRON_SECRET:-soed-e2e-cron}"
 if [ -z "${SIN_BUILD:-}" ]; then
   echo "▸ next build (.next-e2e)"
   pnpm exec next build >"$DATOS/build.log" 2>&1 || { tail -40 "$DATOS/build.log"; exit 1; }
 fi
 
 echo "▸ Playwright (panel)"
-PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test JWT_SECRET="$JWT_SECRET" PUERTO_E2E_PANEL="$PUERTO_E2E" \
+PGHOST="$SOCKET" PGPORT="$PUERTO" PGUSER=postgres PGDATABASE=soed_test JWT_SECRET="$JWT_SECRET" PUERTO_E2E_PANEL="$PUERTO_E2E" CRON_SECRET="$CRON_SECRET" \
   pnpm exec playwright test -c playwright.panel.config.ts "$@"

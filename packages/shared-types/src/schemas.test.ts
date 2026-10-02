@@ -71,7 +71,7 @@ describe('[TR-31] validación en el borde', () => {
   });
 });
 
-describe('[TR-37] client.config', () => {
+describe('[TR-37] [SA-14] client.config', () => {
   const base = {
     slug: 'demo',
     nombre: 'Demo',

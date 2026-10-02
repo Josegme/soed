@@ -143,6 +143,15 @@ test.describe('[PR-06] [PR-07] [PR-09] [PR-11] [PR-14] la academia', () => {
     await expect(ficha.getByText(/\d+ años/).first()).toBeVisible();
   });
 
+  test('[PR-27] reutiliza en otro evento de la temporada la coreografía ya presentada', async ({ page }) => {
+    await page.goto('/es/academia/eventos/selb');
+    await page.getByRole('combobox', { name: /Coreografía/ }).selectOption({ label: 'Solo de Ana' });
+    await page.getByRole('button', { name: 'Inscribir una coreografía' }).click();
+    await expect(page.getByRole('listitem').filter({ hasText: 'Solo de Ana' }).first()).toBeVisible();
+    // La misma coreografía (elenco y música) queda inscripta en los dos eventos, sin recargarla.
+    expect(sql(`select count(distinct evento_id) from public.ficha where coreografia_id = '${ids.coreo1}'`)).toBe('2');
+  });
+
   test('elige rubros opcionales y la liquidación previa los suma', async ({ page }) => {
     sql(
       `update public.evento set tarifario = '{"moneda":"BRL","porCoreografia":{"precioBase":10000},"rubros":[{"codigo":"REMERA","nombre":{"es":"Remera del evento"},"precioUnitario":2500}]}' where id = '${ids.evento_a}'`,

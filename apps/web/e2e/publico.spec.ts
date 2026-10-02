@@ -75,3 +75,14 @@ test.describe('[PU-15] formularios de acceso', () => {
     await expect(page.getByLabel('Tu nombre')).toHaveValue('Ana');
   });
 });
+
+test.describe('[PU-11] textos legales por cliente', () => {
+  test('términos y privacidad en cada idioma, con contacto mientras falte el texto', async ({ page }) => {
+    await page.goto('/es/legal/terminos');
+    await expect(page.getByRole('heading', { level: 1, name: 'Términos y condiciones' })).toBeVisible();
+    await expect(page.getByText(/escribinos a .+@.+/)).toBeVisible();
+    await page.goto('/pt/legal/privacidad');
+    await expect(page.getByRole('heading', { level: 1, name: 'Política de privacidade' })).toBeVisible();
+    expect((await page.goto('/es/legal/otro'))?.status()).toBe(404);
+  });
+});

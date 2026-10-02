@@ -1,4 +1,4 @@
--- [TR-16] [TR-36] [SA-04] [SA-13] Aislamiento por evento y permisos por rol
+-- [TR-16] [TR-28] [TR-36] [SA-04] [SA-13] Aislamiento por evento y permisos por rol
 begin;
 select plan(26);
 select tests.escenario();

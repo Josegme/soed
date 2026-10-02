@@ -289,7 +289,12 @@ export default async function ConfiguracionGestion({ params }: { params: Promise
       </Seccion>
 
       <Seccion id="acreditacion" titulo={t('acreditacion.titulo')} descripcion={t('acreditacion.descripcion')}>
-        <FormularioAccion accion={guardarAcreditacionAccion} namespace="gestion.configuracion.acreditacion" boton={tc('guardar')} variante="secundario">
+        <FormularioAccion
+          accion={guardarAcreditacionAccion}
+          namespace="gestion.configuracion.acreditacion"
+          boton={tc('guardar')}
+          variante="secundario"
+        >
           {campoEvento}
           <div className="grid gap-4 sm:grid-cols-2">
             <CampoTexto
@@ -356,7 +361,12 @@ export default async function ConfiguracionGestion({ params }: { params: Promise
           ))}
           <details className="rounded-[var(--radio)] border border-dashed border-borde p-4">
             <summary className="cursor-pointer font-medium">{t('campos.nuevo')}</summary>
-            <FormularioAccion accion={agregarCampoAdicionalAccion} namespace="gestion.configuracion.campos" boton={tc('agregar')} className="mt-3">
+            <FormularioAccion
+              accion={agregarCampoAdicionalAccion}
+              namespace="gestion.configuracion.campos"
+              boton={tc('agregar')}
+              className="mt-3"
+            >
               {campoEvento}
               <div className="grid gap-4 sm:grid-cols-3">
                 <CampoSelector
