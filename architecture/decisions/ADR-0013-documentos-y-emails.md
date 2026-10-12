@@ -26,3 +26,13 @@ SOED emite liquidaciones, credenciales, certificados, orden del día y exportaci
 
 - Ningún email real a terceros se envía desde entornos que no sean producción.
 - La aclaración "no es factura ni comprobante fiscal" es una clave de traducción obligatoria en la plantilla de liquidación.
+
+## Actualización 2026-10-02 (implementación)
+
+Lo implementado difiere en tres puntos; se mantiene el objetivo y cambia el mecanismo:
+
+1. **PDF a demanda, sin almacenar.** Liquidaciones y certificados se generan en cada descarga (`/api/liquidaciones/[id]/pdf`, `/api/certificados/[eventoId]`) leyendo con el cliente del usuario: la RLS decide qué ve cada uno y el documento refleja siempre la última versión. No hay bucket `documentos` ni URLs firmadas para PDFs; las liquidaciones siguen siendo inmutables por versión (`liquidacion_version`).
+2. **Cola de emails en `email_envio` + Vercel Cron**, sin pgmq ni Edge Functions: las acciones encolan (estado `PENDIENTE` en producción, `SIMULADO` en cualquier otro entorno) y `/api/cron/emails` (cada 5 min, protegido con `CRON_SECRET`) envía por Resend con `idempotencyKey` = id de la fila y reintentos acotados. Los recordatorios (`/api/cron/recordatorios`, diario) deduplican por `clave`. Cron cada 5 minutos requiere plan Pro de Vercel; en Hobby queda diario (ver `docs/PENDIENTES.md`).
+3. **Orden del día** se imprime desde el navegador (`/gestion/[eventoId]/orden/imprimir`, estilos `print:`) en el idioma de la ruta, en lugar de un PDF del servidor.
+
+Además, la publicación del evento es coherente por construcción: `evento.publicado = estado in ('PUBLICADO','EN_CURSO','FINALIZADO')` (restricción en la base).

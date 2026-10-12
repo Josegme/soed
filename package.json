@@ -1,7 +1,7 @@
 {
   "name": "soed-core",
   "private": true,
-  "description": "SOED \u2014 plataforma para eventos competitivos de danza (single-tenant multi-instancia)",
+  "description": "SOED — plataforma para eventos competitivos de danza (single-tenant multi-instancia)",
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22.12.0"
@@ -25,7 +25,8 @@
     "db:types:supabase": "supabase gen types typescript --local > packages/shared-types/src/database.types.ts",
     "contraste": "node scripts/contraste.mjs",
     "test:integracion": "bash scripts/integracion.sh",
-    "test:e2e:panel": "bash scripts/e2e-panel.sh"
+    "test:e2e:panel": "bash scripts/e2e-panel.sh",
+    "schema:doc": "node scripts/esquema-doc.mjs"
   },
   "devDependencies": {
     "eslint": "9.39.5",

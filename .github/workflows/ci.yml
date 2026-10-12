@@ -57,6 +57,10 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y -q postgresql-16 postgresql-16-pgtap libtap-parser-perl
       - run: pnpm db:test
+      - name: Esquema documentado al día con las migraciones
+        run: |
+          pnpm schema:doc
+          git diff --exit-code architecture/DATABASE_SCHEMA.md
       - name: Tipos generados al día con las migraciones
         run: |
           pnpm db:types

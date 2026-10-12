@@ -10,3 +10,4 @@ packages/shared-types/src/database.types.ts
 **/test-results*/
 **/playwright-report*/
 docs/auditoria/MATRIZ_TRAZABILIDAD.md
+architecture/DATABASE_SCHEMA.md
