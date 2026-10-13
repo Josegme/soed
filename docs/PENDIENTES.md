@@ -1,18 +1,18 @@
 # Pendientes y decisiones abiertas
 
-Actualizado: 02/10/2026. Cada ítem indica quién decide y qué queda bloqueado. Nada de esta lista se ejecuta sin aprobación explícita.
+Actualizado: 13/10/2026. Cada ítem indica quién decide y qué queda bloqueado. Nada de esta lista se ejecuta sin aprobación explícita.
 
 ## Bloqueantes para publicar la primera instancia
 
-| #    | Pendiente                                                                 | Decide                | Bloquea                      | Recomendación                                                                                   |
-| ---- | ------------------------------------------------------------------------- | --------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| P-01 | Instalar la GitHub App de Claude en el repositorio (el push devolvió 403) | Dueño del repo        | Push de la rama y PRs        | Instalar la App con acceso solo a este repo; luego se publica la rama y se abre un PR por etapa |
-| P-02 | Visibilidad del repositorio                                               | Dueño del repo        | —                            | Privado: contiene reglas de negocio del cliente y su configuración                              |
-| P-03 | Organización y región de Supabase                                         | Responsable comercial | Base de staging y producción | Plan Pro (backups PITR) en `sa-east-1` (São Paulo)                                              |
-| P-04 | Equipo y plan de Vercel                                                   | Responsable comercial | Despliegue y crons           | Pro: el cron de emails cada 5 min no corre en Hobby (allí quedaría diario)                      |
-| P-05 | Dominio de producción y DNS                                               | Cliente               | Sitio, emails, QR            | Subdominio del cliente (p. ej. `inscripciones.<cliente>.com`)                                   |
-| P-06 | Dominio de envío y API key de Resend                                      | Cliente + operador    | Emails reales                | Verificar SPF, DKIM y DMARC antes de pasar `EMAIL_MODO=resend`                                  |
-| P-07 | Rama principal `main` para PRs                                            | Dueño del repo        | Flujo de PR por etapa        | Crear `main` desde el primer commit aprobado                                                    |
+| #    | Pendiente                                                                      | Decide                | Bloquea                      | Recomendación                                                              |
+| ---- | ------------------------------------------------------------------------------ | --------------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| P-01 | ~~Instalar la GitHub App de Claude en el repositorio~~ **Resuelto 13/10/2026** | Dueño del repo        | —                            | Rama `claude/lucid-knuth-yxeavq` publicada en `Josegme/soed`               |
+| P-02 | Visibilidad del repositorio                                                    | Dueño del repo        | —                            | Privado: contiene reglas de negocio del cliente y su configuración         |
+| P-03 | Organización y región de Supabase                                              | Responsable comercial | Base de staging y producción | Plan Pro (backups PITR) en `sa-east-1` (São Paulo)                         |
+| P-04 | Equipo y plan de Vercel                                                        | Responsable comercial | Despliegue y crons           | Pro: el cron de emails cada 5 min no corre en Hobby (allí quedaría diario) |
+| P-05 | Dominio de producción y DNS                                                    | Cliente               | Sitio, emails, QR            | Subdominio del cliente (p. ej. `inscripciones.<cliente>.com`)              |
+| P-06 | Dominio de envío y API key de Resend                                           | Cliente + operador    | Emails reales                | Verificar SPF, DKIM y DMARC antes de pasar `EMAIL_MODO=resend`             |
+| P-07 | Rama principal `main` para PRs                                                 | Dueño del repo        | Flujo de PR por etapa        | Crear `main` desde el primer commit aprobado                               |
 
 ## Insumos de negocio
 

@@ -36,8 +36,8 @@ Se verifican al tener Supabase, Vercel y dominio del cliente (runbook de alta):
 
 ## 4. Próximos pasos
 
-1. Resolver los bloqueantes de `docs/PENDIENTES.md` (GitHub App, Supabase, Vercel, dominio, Resend).
-2. Publicar la rama y abrir un PR por etapa hacia `main` (requiere P-01 y P-07).
+1. Resolver los bloqueantes de `docs/PENDIENTES.md` (Supabase, Vercel, dominio, Resend). La GitHub App quedó instalada y la rama publicada el 13/10/2026.
+2. Crear `main` y abrir un PR por etapa (requiere P-07).
 3. Staging del primer cliente: migraciones, seed, smoke test y criterios de salida de la sección 3.
 4. Validar el inventario contra `FUNCIONALIDADES.md` v1.2 y el preset contra las Bases 2026 completas (N-01, N-02).
 5. Piloto con un selectivo (3 a 5 academias reales) antes de la final.
